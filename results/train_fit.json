@@ -1,0 +1,284 @@
+{
+ "posterior_sha256": "731741a35fe94f14632c4d697b8106fc88fcd89e5d322caa2e97f5b777a92988",
+ "targets": [
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Semaglutide 0.5 mg",
+   "reference": null,
+   "endpoint": "hba1c",
+   "observed": -1.47,
+   "observed_se": 0.09,
+   "predicted": -1.442,
+   "interval95": [
+    -1.615,
+    -1.298
+   ],
+   "error": 0.028
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Semaglutide 1.0 mg",
+   "reference": null,
+   "endpoint": "hba1c",
+   "observed": -1.56,
+   "observed_se": 0.111,
+   "predicted": -1.643,
+   "interval95": [
+    -1.839,
+    -1.485
+   ],
+   "error": -0.083
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Placebo",
+   "reference": null,
+   "endpoint": "hba1c",
+   "observed": -0.0,
+   "observed_se": 0.079,
+   "predicted": -0.001,
+   "interval95": [
+    -0.081,
+    0.047
+   ],
+   "error": -0.001
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Semaglutide 0.5 mg",
+   "reference": null,
+   "endpoint": "weight",
+   "observed": -3.68,
+   "observed_se": 0.356,
+   "predicted": -3.841,
+   "interval95": [
+    -4.577,
+    -3.073
+   ],
+   "error": -0.161
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Semaglutide 1.0 mg",
+   "reference": null,
+   "endpoint": "weight",
+   "observed": -4.67,
+   "observed_se": 0.455,
+   "predicted": -4.387,
+   "interval95": [
+    -5.228,
+    -3.727
+   ],
+   "error": 0.283
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Placebo",
+   "reference": null,
+   "endpoint": "weight",
+   "observed": -0.89,
+   "observed_se": 0.305,
+   "predicted": -0.388,
+   "interval95": [
+    -0.743,
+    -0.156
+   ],
+   "error": 0.502
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Semaglutide 0.5 mg",
+   "reference": null,
+   "endpoint": "fpg",
+   "observed": -43.419,
+   "observed_se": 4.109,
+   "predicted": -36.795,
+   "interval95": [
+    -41.422,
+    -33.125
+   ],
+   "error": 6.624
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Semaglutide 1.0 mg",
+   "reference": null,
+   "endpoint": "fpg",
+   "observed": -43.058,
+   "observed_se": 4.346,
+   "predicted": -42.404,
+   "interval95": [
+    -47.948,
+    -36.951
+   ],
+   "error": 0.654
+  },
+  {
+   "trial": "SUSTAIN 1",
+   "arm": "Placebo",
+   "reference": null,
+   "endpoint": "fpg",
+   "observed": -9.909,
+   "observed_se": 3.517,
+   "predicted": 1.508,
+   "interval95": [
+    0.514,
+    2.533
+   ],
+   "error": 11.417
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Placebo",
+   "reference": null,
+   "endpoint": "hba1c",
+   "observed": 0.06,
+   "observed_se": 0.05,
+   "predicted": 0.01,
+   "interval95": [
+    -0.032,
+    0.039
+   ],
+   "error": -0.05
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Empagliflozin10 mg",
+   "reference": null,
+   "endpoint": "hba1c",
+   "observed": -0.66,
+   "observed_se": 0.06,
+   "predicted": -0.653,
+   "interval95": [
+    -0.768,
+    -0.514
+   ],
+   "error": 0.007
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Empagliflozin 25 mg",
+   "reference": null,
+   "endpoint": "hba1c",
+   "observed": -0.77,
+   "observed_se": 0.06,
+   "predicted": -0.796,
+   "interval95": [
+    -0.939,
+    -0.62
+   ],
+   "error": -0.026
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Sitagliptin 100 mg",
+   "reference": null,
+   "endpoint": "hba1c",
+   "observed": -0.65,
+   "observed_se": 0.05,
+   "predicted": -0.617,
+   "interval95": [
+    -0.793,
+    -0.496
+   ],
+   "error": 0.033
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Placebo",
+   "reference": null,
+   "endpoint": "weight",
+   "observed": -0.33,
+   "observed_se": 0.15,
+   "predicted": -0.323,
+   "interval95": [
+    -0.618,
+    -0.13
+   ],
+   "error": 0.007
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Empagliflozin10 mg",
+   "reference": null,
+   "endpoint": "weight",
+   "observed": -2.26,
+   "observed_se": 0.19,
+   "predicted": -2.117,
+   "interval95": [
+    -2.51,
+    -1.599
+   ],
+   "error": 0.143
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Empagliflozin 25 mg",
+   "reference": null,
+   "endpoint": "weight",
+   "observed": -2.48,
+   "observed_se": 0.18,
+   "predicted": -2.531,
+   "interval95": [
+    -3.051,
+    -2.111
+   ],
+   "error": -0.051
+  },
+  {
+   "trial": "EMPA-REG MONO",
+   "arm": "Sitagliptin 100 mg",
+   "reference": null,
+   "endpoint": "weight",
+   "observed": 0.17,
+   "observed_se": 0.18,
+   "predicted": -0.283,
+   "interval95": [
+    -0.581,
+    -0.086
+   ],
+   "error": -0.453
+  },
+  {
+   "trial": "DURATION-4",
+   "arm": "Metformin",
+   "reference": "Sitagliptin",
+   "endpoint": "hba1c",
+   "observed": -0.33,
+   "observed_se": 0.106,
+   "predicted": -0.262,
+   "interval95": [
+    -0.495,
+    -0.072
+   ],
+   "error": 0.068
+  },
+  {
+   "trial": "DURATION-4",
+   "arm": "Metformin",
+   "reference": "Sitagliptin",
+   "endpoint": "weight",
+   "observed": -1.24,
+   "observed_se": 0.334,
+   "predicted": -0.887,
+   "interval95": [
+    -1.749,
+    -0.259
+   ],
+   "error": 0.353
+  }
+ ],
+ "label_uge": [
+  {
+   "mg": 10.0,
+   "observed_g_day": 64.0,
+   "predicted_g_day": 61.3
+  },
+  {
+   "mg": 25.0,
+   "observed_g_day": 78.0,
+   "predicted_g_day": 78.9
+  }
+ ],
+ "note": "These trials were used for fitting, so this shows fit, not predictive skill."
+}

@@ -1,0 +1,16 @@
+step 100/1500 acc 0.190 logp -11.58 t=294s
+step 200/1500 acc 0.201 logp -10.93 t=589s
+step 300/1500 acc 0.205 logp -11.22 t=889s
+step 400/1500 acc 0.205 logp -11.93 t=1187s
+step 500/1500 acc 0.208 logp -10.17 t=1490s
+step 600/1500 acc 0.212 logp -11.03 t=1787s
+step 700/1500 acc 0.213 logp -10.53 t=2082s
+step 800/1500 acc 0.216 logp -11.44 t=2373s
+step 900/1500 acc 0.218 logp -10.10 t=2673s
+step 1000/1500 acc 0.219 logp -11.61 t=2967s
+step 1100/1500 acc 0.220 logp -11.39 t=3267s
+step 1200/1500 acc 0.220 logp -11.04 t=3570s
+step 1300/1500 acc 0.220 logp -10.35 t=3873s
+step 1400/1500 acc 0.220 logp -10.09 t=4170s
+step 1500/1500 acc 0.221 logp -10.83 t=4466s
+posterior sha256 731741a35fe94f14

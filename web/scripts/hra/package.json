@@ -1,0 +1,13 @@
+{
+  "name": "medbase-hra-assets",
+  "private": true,
+  "type": "module",
+  "description": "Builds public/hra/*.glb from Human Reference Atlas organs. Not part of the app bundle.",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": {
+    "@gltf-transform/core": "^4.2.0",
+    "@gltf-transform/extensions": "^4.2.0",
+    "@gltf-transform/functions": "^4.2.0",
+    "meshoptimizer": "^0.22.0"
+  }
+}

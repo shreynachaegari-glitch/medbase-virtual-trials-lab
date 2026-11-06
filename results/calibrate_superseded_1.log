@@ -1,0 +1,4 @@
+step 100/1000 acc 0.302 logp -10.49 t=326s
+step 200/1000 acc 0.292 logp -10.80 t=667s
+step 300/1000 acc 0.288 logp -10.96 t=1018s
+step 400/1000 acc 0.281 logp -10.56 t=1357s

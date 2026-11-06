@@ -1,0 +1,17 @@
+[project]
+name = "medlab"
+version = "0.1.0"
+description = "MedBase Virtual Trials Lab: in-silico type 2 diabetes drug trials, validated against registry results"
+requires-python = ">=3.12"
+dependencies = ["numpy","scipy","pandas","statsmodels","emcee","scikit-learn","fastapi","uvicorn","httpx","pydantic","anthropic"]
+[project.optional-dependencies]
+dev = ["pytest","libroadrunner"]
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools.packages.find]
+include = ["medlab*"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+[tool.setuptools.package-data]
+"medlab.agent" = ["*.json"]

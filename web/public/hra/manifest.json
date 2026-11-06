@@ -1,0 +1,142 @@
+{
+ "source": "Human Reference Atlas 3D reference objects, HuBMAP Consortium, v1.3",
+ "license": "CC BY 4.0",
+ "derived_from": "National Library of Medicine Visible Human data; the brain is the Allen Human Reference Atlas 3D (CC BY 4.0)",
+ "changes": "Parts joined per organ, simplified, quantized and meshopt-compressed by this project.",
+ "total_bytes": 4744304,
+ "organs": [
+  {
+   "id": "skin",
+   "file": "skin.glb",
+   "bytes": 268356,
+   "triangles": 60000,
+   "source": "VH_M_Skin.glb"
+  },
+  {
+   "id": "brain",
+   "file": "brain.glb",
+   "bytes": 756424,
+   "triangles": 149974,
+   "source": "Allen_M_Brain.glb"
+  },
+  {
+   "id": "eye-l",
+   "file": "eye-l.glb",
+   "bytes": 43104,
+   "triangles": 7999,
+   "source": "VH_M_Eye_L.glb"
+  },
+  {
+   "id": "eye-r",
+   "file": "eye-r.glb",
+   "bytes": 43060,
+   "triangles": 8000,
+   "source": "VH_M_Eye_R.glb"
+  },
+  {
+   "id": "lungs",
+   "file": "lungs.glb",
+   "bytes": 682940,
+   "triangles": 139980,
+   "source": "VH_M_Lung.glb"
+  },
+  {
+   "id": "heart",
+   "file": "heart.glb",
+   "bytes": 610100,
+   "triangles": 129999,
+   "source": "VH_M_Heart.glb"
+  },
+  {
+   "id": "vessels",
+   "file": "vessels.glb",
+   "bytes": 639960,
+   "triangles": 139999,
+   "source": "VH_M_Blood_Vasculature.glb"
+  },
+  {
+   "id": "liver",
+   "file": "liver.glb",
+   "bytes": 280292,
+   "triangles": 59998,
+   "source": "VH_M_Liver.glb"
+  },
+  {
+   "id": "pancreas",
+   "file": "pancreas.glb",
+   "bytes": 69716,
+   "triangles": 14000,
+   "source": "VH_M_Pancreas.glb"
+  },
+  {
+   "id": "spleen",
+   "file": "spleen.glb",
+   "bytes": 77936,
+   "triangles": 16000,
+   "source": "VH_M_Spleen.glb"
+  },
+  {
+   "id": "kidney-l",
+   "file": "kidney-l.glb",
+   "bytes": 206224,
+   "triangles": 39999,
+   "source": "VH_M_Kidney_L.glb"
+  },
+  {
+   "id": "kidney-r",
+   "file": "kidney-r.glb",
+   "bytes": 205648,
+   "triangles": 40000,
+   "source": "VH_M_Kidney_R.glb"
+  },
+  {
+   "id": "small-intestine",
+   "file": "small-intestine.glb",
+   "bytes": 166496,
+   "triangles": 33000,
+   "source": "VH_M_Small_Intestine.glb"
+  },
+  {
+   "id": "large-intestine",
+   "file": "large-intestine.glb",
+   "bytes": 146564,
+   "triangles": 29983,
+   "source": "SBU_M_Intestine_Large.glb"
+  },
+  {
+   "id": "bladder",
+   "file": "bladder.glb",
+   "bytes": 51496,
+   "triangles": 9999,
+   "source": "VH_M_Urinary_Bladder.glb"
+  },
+  {
+   "id": "spine",
+   "file": "spine.glb",
+   "bytes": 60572,
+   "triangles": 12000,
+   "source": "VH_M_Spinal_Cord.glb"
+  },
+  {
+   "id": "pelvis",
+   "file": "pelvis.glb",
+   "bytes": 246248,
+   "triangles": 50000,
+   "source": "VH_M_Pelvis.glb"
+  },
+  {
+   "id": "knee-l",
+   "file": "knee-l.glb",
+   "bytes": 94668,
+   "triangles": 20000,
+   "source": "VH_M_Knee_L.glb"
+  },
+  {
+   "id": "knee-r",
+   "file": "knee-r.glb",
+   "bytes": 94500,
+   "triangles": 20000,
+   "source": "VH_M_Knee_R.glb"
+  }
+ ]
+}
