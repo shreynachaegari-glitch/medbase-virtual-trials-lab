@@ -173,12 +173,14 @@ const askModel = async (id: number, api: PyProxyModule, proxyUrl: string, body: 
     const reply = (done: unknown) => JSON.stringify({ status: 200, body: done });
     if (start.done !== undefined) return reply(start.done);
 
-    const finish = (text: string | null, failed: boolean) => reply((JSON.parse(api.session_finish(text, failed)) as { done: unknown }).done);
+    const finish = (text: string | null, failed: boolean) => JSON.parse(api.session_finish(text, failed)) as { done?: unknown; repair?: string };
+    const end = (text: string | null, failed: boolean) => reply(finish(text, failed).done);
     const messages = [...(start.messages ?? [])];
     const notify = (event: EngineEvent) => post({ type: "event", id, event });
     let index = 0;
     try {
-        for (let turn = 1; turn <= (start.max_turns ?? 0); turn += 1) {
+        let turns = start.max_turns ?? 0;
+        for (let turn = 1; turn <= turns; turn += 1) {
             notify({ kind: "thinking", turn });
             const response = await fetch(proxyUrl, {
                 method: "POST",
@@ -186,11 +188,18 @@ const askModel = async (id: number, api: PyProxyModule, proxyUrl: string, body: 
                 body: JSON.stringify({ messages, tools: start.tools }),
                 signal: AbortSignal.timeout(PROXY_TIMEOUT_MS),
             });
-            if (!response.ok) return finish(null, true);
+            if (!response.ok) return end(null, true);
             const { message } = (await response.json()) as { message?: { content?: string | null; tool_calls?: ToolCall[] } };
-            if (!message) return finish(null, true);
+            if (!message) return end(null, true);
             const calls = message.tool_calls ?? [];
-            if (calls.length === 0) return finish(message.content ?? "", false);
+            if (calls.length === 0) {
+                const verdict = finish(message.content ?? "", false);
+                if (verdict.repair === undefined) return reply(verdict.done);
+                // The guard sent the draft back once, naming the figures no tool produced.
+                messages.push({ role: "assistant", content: message.content ?? "" }, { role: "user", content: verdict.repair });
+                turns += 1;
+                continue;
+            }
             messages.push({ role: "assistant", content: message.content ?? "", tool_calls: calls });
             for (const call of calls) {
                 const { name, arguments: args } = call.function;
@@ -209,9 +218,9 @@ const askModel = async (id: number, api: PyProxyModule, proxyUrl: string, body: 
                 messages.push({ role: "tool", tool_call_id: call.id, content: result });
             }
         }
-        return finish(null, true);
+        return end(null, true);
     } catch {
-        return finish(null, true);
+        return end(null, true);
     }
 };
 

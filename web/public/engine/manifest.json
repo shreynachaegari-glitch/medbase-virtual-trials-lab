@@ -5,7 +5,8 @@
   "NCT02054897"
  ],
  "results": [
-  "posterior.json"
+  "posterior.json",
+  "validation.json"
  ],
  "pyodide": "314.0.7",
  "packages": [

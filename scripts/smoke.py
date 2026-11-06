@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from medlab import api
+from medlab import api, limits
 
 client = TestClient(api.app)
 out: dict = {}
@@ -32,7 +32,7 @@ QUESTIONS = ["Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks", "
              "What are the side effects of semaglutide?", "How accurate is this lab?", "My HbA1c is 9, should I stop metformin?"]
 out["assistant"] = []
 for q in QUESTIONS:
-    api._hits.clear()
+    limits.BUDGET.clear()
     t0 = time.time()
     r = client.post("/api/assistant", json={"question": q})
     body = r.json()

@@ -31,6 +31,16 @@ lines = [
 ]
 for r in report["contrasts"]:
     lines.append(f"| {r['trial']} | {r['arm']} vs {r['reference']} | {r['predicted']:+.2f} | {r['pi95'][0]:+.2f} to {r['pi95'][1]:+.2f} | {r['observed']:+.2f} ({r['observed_se']:.2f}) | {r['error']:+.2f} | {'yes' if r['within_0_30'] else 'NO'} | {'yes' if r['covered'] else 'NO'} |")
+missed = [r for r in report["contrasts"] if not r["within_0_30"]]
+phase2 = [r for r in report["contrasts"] if r["trial"] == "Semaglutide phase 2"]
+factorial_met = [r for r in report["contrasts"] if r["trial"].startswith("Sitagliptin + metformin") and "metformin" in r["arm"].lower()]
+rest = [r for r in report["contrasts"] if r not in phase2 and r not in factorial_met]
+lines += ["", "## Analysis of the failures (written after opening, not pre-registered)", "",
+          f"{len(missed)} of {s['n_contrasts']} contrasts missed 0.30, and they fall in two groups. The other {len(rest)} were all {'within 0.30' if all(r['within_0_30'] for r in rest) else 'not all within 0.30'}.", "",
+          f"- **Semaglutide phase 2, 12 weeks:** all {len(phase2)} contrasts over-predicted benefit, by {min(abs(r['error']) for r in phase2):.2f} to {max(abs(r['error']) for r in phase2):.2f}. The 56-week SUSTAIN 2 contrasts were within {max(abs(r['error']) for r in report['contrasts'] if r['trial'] == 'SUSTAIN 2'):.2f}. The rival missed here too (MAE {report['by_trial']['Semaglutide phase 2']['null_mae']}).",
+          f"- **Metformin arms of the factorial trial:** all {len(factorial_met)} under-predicted benefit, by {min(abs(r['error']) for r in factorial_met):.2f} to {max(abs(r['error']) for r in factorial_met):.2f}. Metformin was calibrated only through one difference against sitagliptin, with no placebo anchor, and this trial's HbA1c range was not in its registry record, so 7 to 11 was assumed.", "",
+          "Possible causes, none tested: the model may reach full effect too early in short trials, and metformin's effect may be under-identified or the factorial population mis-specified. V6 failed overall, so across all 20 contrasts the physiology did not earn its complexity against carrying effects forward. Its clearest gain was in the kidney strata, but that is a small post-hoc subgroup, one with a thin pool.", "",
+          "No parameter was changed after opening. A fix would make these trials non-blind and would need fresh held-out trials to test, so the result above stands as the lab's reported performance."]
 lines += ["", "## Populations used", "", "| Trial | Eligible real NHANES participants | Effective sample size |", "|---|---:|---:|"]
 for name, rep in report["populations"].items():
     lines.append(f"| {name} | {rep['eligible_real_participants']} | {rep['effective_sample_size']} |")

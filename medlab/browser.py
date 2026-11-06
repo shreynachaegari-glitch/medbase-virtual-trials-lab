@@ -78,7 +78,7 @@ _GET = {
     "/api/progression/scenarios": lambda: (200, service.progression_scenarios()),
 }
 _POST = {
-    "/api/trial": (TrialIn, lambda b: trial.run_trial(service.build_design(b))),
+    "/api/trial": (TrialIn, lambda b: service.run_trial(service.build_design(b))),
     "/api/power": (TrialIn, lambda b: trial.power_curve(service.build_design(b))),
     "/api/responders": (TrialIn, lambda b: trial.responders(service.build_design(b))),
     "/api/design": (DesignIn, service.design_study),

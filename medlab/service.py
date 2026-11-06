@@ -13,7 +13,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from . import designer, drugs, population as pop, progression, safety, trial
-from .agent import assistant, tools
+from .agent import assistant, tools, track_record
 from .params import PARAMS
 from .progression_scenarios import SCENARIOS
 
@@ -120,6 +120,11 @@ def known_drugs() -> dict:
 
 def drug_safety(drug: str) -> dict:
     return safety.drug_safety(drug)
+
+
+def run_trial(design: trial.Design) -> dict:
+    """A simulated trial, with the blind-test record for each drug attached so the two cannot be separated."""
+    return {**trial.run_trial(design), "track_record": track_record.for_design(design)}
 
 
 def design_study(body: DesignIn) -> dict:

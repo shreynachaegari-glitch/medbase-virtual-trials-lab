@@ -12,6 +12,7 @@ import { BodyResponse } from "./BodyResponse";
 import { CheckBadge, ProvenanceTag, SimulatedTag } from "./bits";
 import { CaveatsPanel } from "./CaveatsPanel";
 import { EnrolmentPanel, ThinPoolCaution } from "./EnrolmentPanel";
+import { TrackRecord } from "./TrackRecord";
 import { ValidationPanel, ValidationStrip } from "./ValidationPanel";
 
 const seriesFrom = (res: TrialResponse): ArmSeries[] => {
@@ -216,6 +217,7 @@ export const TrialResults = ({ outcome, bodies, stale, busy, onRerun, autoReveal
     return (
         <section aria-labelledby="results-heading" data-testid="trial-results" className="mt-10">
             <ValidationStrip status={data.validation} />
+            <TrackRecord records={data.track_record} />
             <div className="mt-4 flex flex-wrap items-center gap-2 lg:mt-0">
                 <h2 id="results-heading" ref={heading} tabIndex={-1} className="scroll-mt-44 text-lg font-semibold tracking-tight outline-none">Simulated trial result</h2>
                 <SimulatedTag />

@@ -90,6 +90,7 @@ def main() -> None:
     }
     out = Path("web/public/surrogate.json")
     out.write_text(json.dumps(payload, separators=(",", ":")))
+    Path("medlab/agent/surrogate_model.json").write_text(out.read_text())  # the designer uses it too
     Path("results/surrogate_eval.json").write_text(json.dumps(report, indent=1))
     print(report, out.stat().st_size // 1024, "KB")
 

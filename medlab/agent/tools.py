@@ -10,10 +10,14 @@ import httpx
 from .. import designer, drugs, labels, limits, population as pop, progression, safety, trial
 from ..params import PARAMS
 from ..progression_scenarios import SCENARIOS
+from . import track_record
 
 log = logging.getLogger("medlab.tools")
 _DOSES = labels.DOSE_RANGE
 _NUMBER_SCHEMA = {"type": "number"}
+POWER_TARGET_PERCENT = 80  # the size trial.power_curve reports as smallest_size_reaching_80pct
+INTERVAL_LEVELS_PERCENT = (50, 80, 95)
+PROGRESSION_MODEL_YEAR = 2016
 _ARM_SCHEMA = {
     "type": "object", "additionalProperties": False,
     "properties": {"drug": {"type": "string", "enum": sorted(_DOSES)}, "mg": _NUMBER_SCHEMA},
@@ -60,16 +64,24 @@ def build_design(args: dict) -> trial.Design:
     )
 
 
+def _design_echo(design: trial.Design) -> dict:
+    """What was actually run, so a reply may state it: these are the tool's own inputs, not estimates."""
+    return {"weeks": design.weeks, "n_per_arm": design.n_per_arm, "background": design.criteria.background, "egfr_range": list(design.criteria.egfr_range)}
+
+
 def run_virtual_trial(args: dict) -> dict:
-    return limits.run_heavy(trial.run_trial, build_design(args))
+    design = build_design(args)
+    return {**limits.run_heavy(trial.run_trial, design), "track_record": track_record.for_design(design), "design_run": _design_echo(design)}
 
 
 def power_analysis(args: dict) -> dict:
-    return limits.run_heavy(trial.power_curve, build_design(args))
+    design = build_design(args)
+    return {**limits.run_heavy(trial.power_curve, design), "design_run": _design_echo(design), "target_power_percent": POWER_TARGET_PERCENT, "track_record": track_record.for_design(design)}
 
 
 def who_responds(args: dict) -> dict:
-    return limits.run_heavy(trial.responders, build_design(args))
+    design = build_design(args)
+    return {**limits.run_heavy(trial.responders, design), "design_run": _design_echo(design), "track_record": track_record.for_design(design)}
 
 
 def drug_safety(args: dict) -> dict:
@@ -88,11 +100,13 @@ def lab_status(_: dict) -> dict:
 
 
 def validation_report(_: dict) -> dict:
-    return {"validation": trial.validation_status(), "how_to_read": "Held-out trials were predicted before their results were opened."}
+    return {"validation": trial.validation_status(), "how_to_read": "Held-out trials were predicted before their results were opened.", "interval_levels_percent": list(INTERVAL_LEVELS_PERCENT), **track_record.overview()}
 
 
 def model_assumptions(_: dict) -> dict:
-    return {"parameters": [{"name": p.name, "value": p.value, "unit": p.unit, "kind": p.kind, "source": p.source} for p in PARAMS.values()]}
+    rows = [{"name": p.name, "value": p.value, "unit": p.unit, "kind": p.kind, "source": p.source} for p in PARAMS.values()]
+    names = {kind: [r["name"] for r in rows if r["kind"] == kind] for kind in ("published", "calibrated")}
+    return {"parameters": rows, "assumed_parameters": [r for r in rows if r["kind"] == "assumed"], "published_parameter_names": names["published"], "calibrated_parameter_names": names["calibrated"]}
 
 
 def design_study(args: dict) -> dict:
@@ -109,7 +123,7 @@ def simulate_progression(args: dict) -> dict:
     rows = result["trajectory"]
     return {"scenario": scenario.id, "title": scenario.title, "description": scenario.description, "evidence_class": scenario.evidence_class,
             "summary": {k: round(v, 3) if isinstance(v, float) else v for k, v in result["summary"].items()}, "events": progression.threshold_events(rows),
-            "limitations": result["limitations"], "reference": result["reference"]["doi"]}
+            "limitations": result["limitations"], "reference": result["reference"]["doi"], "published_year": PROGRESSION_MODEL_YEAR}
 
 
 _EVIDENCE_TIMEOUT = 15
@@ -161,7 +175,7 @@ TOOLS = {
                        {"type": "object", "additionalProperties": False, "properties": _DESIGN_PROPS, "required": ["arms"]}),
     "who_responds": (who_responds, "Run the same virtual patients on drug and placebo and summarise which baseline traits drive benefit in the model.",
                      {"type": "object", "additionalProperties": False, "properties": _DESIGN_PROPS, "required": ["arms"]}),
-    "design_study": (design_study, "Search automatically for the lowest dose reaching a target HbA1c effect, then the smallest arm size with 80% power. Returns every step tried.",
+    "design_study": (design_study, "Find the lowest dose reaching a target HbA1c effect, then the smallest arm size with 80% power. A neural surrogate proposes where to look and the simulator checks it. Returns every step tried.",
                      {"type": "object", "additionalProperties": False, "properties": {"drug": {"type": "string", "enum": sorted(_DOSES)}, "target_effect": _NUMBER_SCHEMA, "weeks": {"type": "integer"}, "background": {"type": "string", "enum": ["any", "naive", "metformin"]}}, "required": ["drug"]}),
     "simulate_progression": (simulate_progression, "Run a published mechanistic model of how type 2 diabetes develops and can reverse (Ha, Satin and Sherman 2016). Tests when insulin sensitivity recovers. It does not model drugs.",
                              {"type": "object", "additionalProperties": False, "properties": {"scenario": {"type": "string", "enum": sorted(SCENARIOS)}}, "required": ["scenario"]}),
@@ -169,7 +183,7 @@ TOOLS = {
                     {"type": "object", "additionalProperties": False, "properties": {"drug": {"type": "string", "enum": sorted(safety.SOURCES)}}, "required": ["drug"]}),
     "lab_status": (lab_status, "What is finished so far: calibration and held-out validation.",
                    {"type": "object", "additionalProperties": False, "properties": {}, "required": []}),
-    "validation_report": (validation_report, "How well the lab predicted real trials it never saw. Report this whenever accuracy matters.",
+    "validation_report": (validation_report, "How well the lab predicted real trials it never saw: every check, which failed, the largest misses, and the trials where it held up. Report this whenever accuracy or trust matters.",
                           {"type": "object", "additionalProperties": False, "properties": {}, "required": []}),
     "model_assumptions": (model_assumptions, "Every model parameter with its source, and whether it is published, calibrated or assumed.",
                           {"type": "object", "additionalProperties": False, "properties": {}, "required": []}),
@@ -197,7 +211,8 @@ def execute(name: str, args: dict) -> dict:
         return {"error": f"source unavailable: {type(exc).__name__}"}
 
 
-_LLM_DROP = {"a1c_by_week", "a1c_low", "a1c_high", "reference", "events"}
+# Code appends validation and the track record after the reply, so the model is not handed text it can misquote.
+_LLM_DROP = {"a1c_by_week", "a1c_low", "a1c_high", "reference", "events", "parameters", "validation", "track_record", "dose_evidence"}
 _LLM_MAX_CHARS = 8000
 
 

@@ -95,7 +95,7 @@ def known_drugs() -> dict:
 @app.post("/api/trial")
 def post_trial(body: TrialIn, request: Request) -> dict:
     _limit(request, "simulate")
-    return _heavy(trial.run_trial, _design(body))
+    return _heavy(service.run_trial, _design(body))
 
 
 @app.post("/api/power")

@@ -51,8 +51,11 @@ def test_session_answers_small_talk_itself_and_asks_the_model_for_research():
 
 
 def test_session_guard_blocks_invented_numbers_and_advice():
-    _start("compare semaglutide 1 mg with placebo")
-    assert json.loads(browser.session_finish("It lowered HbA1c by 9.9 points."))["done"]["source"] == "planner"
+    _start("which parameters are assumed")
+    browser.session_tool("model_assumptions", "{}")
+    assert "9.9" in json.loads(browser.session_finish("It lowered HbA1c by 9.9 points."))["repair"]  # one chance to fix it
+    fallback = json.loads(browser.session_finish("It lowered HbA1c by 9.9 points."))["done"]  # never reaches the user
+    assert fallback["source"] == "planner" and "9.9" not in fallback["text"]
     _start("compare semaglutide 1 mg with placebo")
     assert json.loads(browser.session_finish("You should take semaglutide."))["done"]["source"] == "refusal"
 
@@ -64,9 +67,10 @@ def test_session_failure_falls_back_with_a_clear_note():
 
 
 def test_session_passes_a_grounded_reply_and_strips_thinking():
-    _start("how accurate is this lab")
-    reply = json.loads(browser.session_finish("<think>9.9</think>Validation has not been run yet."))["done"]
-    assert reply["source"] == "nim" and reply["text"] == "Validation has not been run yet."
+    _start("which parameters are assumed")
+    browser.session_tool("model_assumptions", "{}")
+    reply = json.loads(browser.session_finish("<think>9.9</think>Some checks failed."))["done"]
+    assert reply["source"] == "nim" and reply["text"].startswith("Some checks failed.") and "9.9" not in reply["text"]
 
 
 def test_session_tool_cannot_search_in_the_browser_and_handles_bad_json():

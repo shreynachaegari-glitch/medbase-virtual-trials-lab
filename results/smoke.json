@@ -1,0 +1,3687 @@
+{
+ "health": {
+  "status": 200,
+  "seconds": 0.02,
+  "body": {
+   "ok": true,
+   "engine": "server",
+   "calibrated": true,
+   "validated": true,
+   "assistant_mode": "offline"
+  }
+ },
+ "validation": {
+  "status": 200,
+  "seconds": 0.0,
+  "body": {
+   "blind": true,
+   "openings": 1,
+   "posterior_sha256": "731741a35fe94f14632c4d697b8106fc88fcd89e5d322caa2e97f5b777a92988",
+   "code_hash": "5b35a4932a80a51d82657797386a713dfd055bc677dd845b8b328d8400d764a0",
+   "frozen_at": "2026-11-06 00:56:00",
+   "converged": true,
+   "max_split_rhat": 1.0256774870663796,
+   "length_over_tau": 56.12587214662382,
+   "pass_marks": {
+    "mae_max": 0.25,
+    "within_0_30_min": 0.7,
+    "coverage_95_min": 0.85,
+    "renal_tolerance": 0.3
+   },
+   "score": {
+    "n_contrasts": 20,
+    "mae": 0.29,
+    "bias": -0.069,
+    "within_0_30": 0.5,
+    "coverage_95pi": 0.85,
+    "coverage_80pi": 0.5,
+    "coverage_50pi": 0.25,
+    "interval_score_95": 1.385,
+    "mean_pi95_width": 0.826,
+    "V3_pass": false,
+    "V4_pass": true,
+    "V5_pass": true,
+    "V5_order_correct": true,
+    "V5_each_within": true,
+    "null_mae": 0.3,
+    "model_minus_null_mae": -0.01,
+    "model_minus_null_ci95": [
+     -0.091,
+     0.034
+    ],
+    "beats_null": false
+   },
+   "by_trial": {
+    "EMPA-REG MET": {
+     "contrasts": 2,
+     "mae": 0.165,
+     "null_mae": 0.17,
+     "thin_pool": false
+    },
+    "EMPA-REG RENAL mild": {
+     "contrasts": 2,
+     "mae": 0.054,
+     "null_mae": 0.17,
+     "thin_pool": false
+    },
+    "EMPA-REG RENAL moderate": {
+     "contrasts": 1,
+     "mae": 0.051,
+     "null_mae": 0.41,
+     "thin_pool": true
+    },
+    "SUSTAIN 2": {
+     "contrasts": 2,
+     "mae": 0.088,
+     "null_mae": 0.11,
+     "thin_pool": false
+    },
+    "Semaglutide phase 2": {
+     "contrasts": 6,
+     "mae": 0.505,
+     "null_mae": 0.478,
+     "thin_pool": false
+    },
+    "Sitagliptin + metformin factorial": {
+     "contrasts": 5,
+     "mae": 0.35,
+     "null_mae": 0.302,
+     "thin_pool": false
+    },
+    "Sitagliptin monotherapy": {
+     "contrasts": 2,
+     "mae": 0.173,
+     "null_mae": 0.155,
+     "thin_pool": false
+    }
+   },
+   "contrasts": [
+    {
+     "trial": "SUSTAIN 2",
+     "trial_base": "SUSTAIN 2",
+     "arm": "Semaglutide 0.5 mg + Sitagliptin Placebo",
+     "reference": "Sitagliptin + Semaglutide Placebo",
+     "group": "efficacy",
+     "predicted": -0.889,
+     "predicted_sd_model": 0.127,
+     "sd": 0.188,
+     "pi95": [
+      -1.258,
+      -0.519
+     ],
+     "observed": -0.77,
+     "observed_se": 0.071,
+     "error": -0.119,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.76,
+     "null_error": 0.01,
+     "thin_pool": false
+    },
+    {
+     "trial": "SUSTAIN 2",
+     "trial_base": "SUSTAIN 2",
+     "arm": "Semaglutide 1.0 mg + Sitagliptin Placebo",
+     "reference": "Sitagliptin + Semaglutide Placebo",
+     "group": "efficacy",
+     "predicted": -1.117,
+     "predicted_sd_model": 0.135,
+     "sd": 0.194,
+     "pi95": [
+      -1.498,
+      -0.736
+     ],
+     "observed": -1.06,
+     "observed_se": 0.071,
+     "error": -0.057,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.85,
+     "null_error": 0.21,
+     "thin_pool": false
+    },
+    {
+     "trial": "Semaglutide phase 2",
+     "trial_base": "Semaglutide phase 2",
+     "arm": "Semaglutide 0.1 mg",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -0.627,
+     "predicted_sd_model": 0.151,
+     "sd": 0.248,
+     "pi95": [
+      -1.113,
+      -0.14
+     ],
+     "observed": -0.1,
+     "observed_se": 0.156,
+     "error": -0.527,
+     "covered": false,
+     "within_0_30": false,
+     "null_predicted": -0.294,
+     "null_error": -0.194,
+     "thin_pool": false
+    },
+    {
+     "trial": "Semaglutide phase 2",
+     "trial_base": "Semaglutide phase 2",
+     "arm": "Semaglutide 0.2 mg",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -0.889,
+     "predicted_sd_model": 0.136,
+     "sd": 0.256,
+     "pi95": [
+      -1.391,
+      -0.387
+     ],
+     "observed": -0.4,
+     "observed_se": 0.181,
+     "error": -0.489,
+     "covered": true,
+     "within_0_30": false,
+     "null_predicted": -0.588,
+     "null_error": -0.188,
+     "thin_pool": false
+    },
+    {
+     "trial": "Semaglutide phase 2",
+     "trial_base": "Semaglutide phase 2",
+     "arm": "Semaglutide 0.4 mg",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -1.145,
+     "predicted_sd_model": 0.108,
+     "sd": 0.231,
+     "pi95": [
+      -1.598,
+      -0.692
+     ],
+     "observed": -0.5,
+     "observed_se": 0.165,
+     "error": -0.645,
+     "covered": false,
+     "within_0_30": false,
+     "null_predicted": -1.176,
+     "null_error": -0.676,
+     "thin_pool": false
+    },
+    {
+     "trial": "Semaglutide phase 2",
+     "trial_base": "Semaglutide phase 2",
+     "arm": "Semaglutide 0.8 mg",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -1.354,
+     "predicted_sd_model": 0.114,
+     "sd": 0.236,
+     "pi95": [
+      -1.818,
+      -0.891
+     ],
+     "observed": -0.9,
+     "observed_se": 0.169,
+     "error": -0.454,
+     "covered": true,
+     "within_0_30": false,
+     "null_predicted": -1.524,
+     "null_error": -0.624,
+     "thin_pool": false
+    },
+    {
+     "trial": "Semaglutide phase 2",
+     "trial_base": "Semaglutide phase 2",
+     "arm": "Semaglutide 0.8 mg (With Titration)",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -1.342,
+     "predicted_sd_model": 0.114,
+     "sd": 0.254,
+     "pi95": [
+      -1.84,
+      -0.843
+     ],
+     "observed": -0.9,
+     "observed_se": 0.193,
+     "error": -0.442,
+     "covered": true,
+     "within_0_30": false,
+     "null_predicted": -1.524,
+     "null_error": -0.624,
+     "thin_pool": false
+    },
+    {
+     "trial": "Semaglutide phase 2",
+     "trial_base": "Semaglutide phase 2",
+     "arm": "Semaglutide 1.6 mg (With Titration)",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -1.472,
+     "predicted_sd_model": 0.149,
+     "sd": 0.254,
+     "pi95": [
+      -1.97,
+      -0.973
+     ],
+     "observed": -1.0,
+     "observed_se": 0.168,
+     "error": -0.472,
+     "covered": true,
+     "within_0_30": false,
+     "null_predicted": -1.56,
+     "null_error": -0.56,
+     "thin_pool": false
+    },
+    {
+     "trial": "EMPA-REG RENAL mild",
+     "trial_base": "EMPA-REG RENAL",
+     "arm": "Empa 10mg",
+     "reference": "Placebo",
+     "group": "renal",
+     "predicted": -0.495,
+     "predicted_sd_model": 0.061,
+     "sd": 0.167,
+     "pi95": [
+      -0.823,
+      -0.168
+     ],
+     "observed": -0.52,
+     "observed_se": 0.099,
+     "error": 0.025,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.72,
+     "null_error": -0.2,
+     "thin_pool": false
+    },
+    {
+     "trial": "EMPA-REG RENAL mild",
+     "trial_base": "EMPA-REG RENAL",
+     "arm": "Empa 25mg",
+     "reference": "Placebo",
+     "group": "renal",
+     "predicted": -0.607,
+     "predicted_sd_model": 0.068,
+     "sd": 0.17,
+     "pi95": [
+      -0.94,
+      -0.274
+     ],
+     "observed": -0.69,
+     "observed_se": 0.099,
+     "error": 0.083,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.83,
+     "null_error": -0.14,
+     "thin_pool": false
+    },
+    {
+     "trial": "EMPA-REG RENAL moderate",
+     "trial_base": "EMPA-REG RENAL",
+     "arm": "Empa 25mg",
+     "reference": "Placebo",
+     "group": "renal",
+     "predicted": -0.471,
+     "predicted_sd_model": 0.138,
+     "sd": 0.196,
+     "pi95": [
+      -0.855,
+      -0.087
+     ],
+     "observed": -0.42,
+     "observed_se": 0.071,
+     "error": -0.051,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.83,
+     "null_error": -0.41,
+     "thin_pool": true
+    },
+    {
+     "trial": "EMPA-REG MET",
+     "trial_base": "EMPA-REG MET",
+     "arm": "Met: Empa 10mg",
+     "reference": "Met: Placebo",
+     "group": "efficacy",
+     "predicted": -0.704,
+     "predicted_sd_model": 0.088,
+     "sd": 0.165,
+     "pi95": [
+      -1.027,
+      -0.382
+     ],
+     "observed": -0.57,
+     "observed_se": 0.071,
+     "error": -0.134,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.72,
+     "null_error": -0.15,
+     "thin_pool": false
+    },
+    {
+     "trial": "EMPA-REG MET",
+     "trial_base": "EMPA-REG MET",
+     "arm": "Met: Empa 25mg",
+     "reference": "Met: Placebo",
+     "group": "efficacy",
+     "predicted": -0.836,
+     "predicted_sd_model": 0.091,
+     "sd": 0.166,
+     "pi95": [
+      -1.162,
+      -0.51
+     ],
+     "observed": -0.64,
+     "observed_se": 0.071,
+     "error": -0.196,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.83,
+     "null_error": -0.19,
+     "thin_pool": false
+    },
+    {
+     "trial": "Sitagliptin monotherapy",
+     "trial_base": "Sitagliptin monotherapy",
+     "arm": "Sitagliptin 100 mg",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -0.657,
+     "predicted_sd_model": 0.093,
+     "sd": 0.176,
+     "pi95": [
+      -1.002,
+      -0.312
+     ],
+     "observed": -0.79,
+     "observed_se": 0.088,
+     "error": 0.133,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.71,
+     "null_error": 0.08,
+     "thin_pool": false
+    },
+    {
+     "trial": "Sitagliptin monotherapy",
+     "trial_base": "Sitagliptin monotherapy",
+     "arm": "Sitagliptin 200 mg",
+     "reference": "Placebo",
+     "group": "efficacy",
+     "predicted": -0.726,
+     "predicted_sd_model": 0.101,
+     "sd": 0.179,
+     "pi95": [
+      -1.077,
+      -0.375
+     ],
+     "observed": -0.94,
+     "observed_se": 0.087,
+     "error": 0.214,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.71,
+     "null_error": 0.23,
+     "thin_pool": false
+    },
+    {
+     "trial": "Sitagliptin + metformin factorial",
+     "trial_base": "Sitagliptin + metformin factorial",
+     "arm": "Sitagliptin 100 mg q.d.",
+     "reference": "Placebo/Metformin 1000 mg b.i.d.",
+     "group": "efficacy",
+     "predicted": -0.648,
+     "predicted_sd_model": 0.091,
+     "sd": 0.192,
+     "pi95": [
+      -1.025,
+      -0.272
+     ],
+     "observed": -0.83,
+     "observed_se": 0.119,
+     "error": 0.182,
+     "covered": true,
+     "within_0_30": true,
+     "null_predicted": -0.71,
+     "null_error": 0.12,
+     "thin_pool": false
+    },
+    {
+     "trial": "Sitagliptin + metformin factorial",
+     "trial_base": "Sitagliptin + metformin factorial",
+     "arm": "Metformin 500 mg b.i.d.",
+     "reference": "Placebo/Metformin 1000 mg b.i.d.",
+     "group": "efficacy",
+     "predicted": -0.666,
+     "predicted_sd_model": 0.122,
+     "sd": 0.207,
+     "pi95": [
+      -1.072,
+      -0.26
+     ],
+     "observed": -0.99,
+     "observed_se": 0.117,
+     "error": 0.324,
+     "covered": true,
+     "within_0_30": false,
+     "null_predicted": -0.52,
+     "null_error": 0.47,
+     "thin_pool": false
+    },
+    {
+     "trial": "Sitagliptin + metformin factorial",
+     "trial_base": "Sitagliptin + metformin factorial",
+     "arm": "Metformin 1000 mg b.i.d.",
+     "reference": "Placebo/Metformin 1000 mg b.i.d.",
+     "group": "efficacy",
+     "predicted": -0.931,
+     "predicted_sd_model": 0.154,
+     "sd": 0.228,
+     "pi95": [
+      -1.378,
+      -0.485
+     ],
+     "observed": -1.3,
+     "observed_se": 0.117,
+     "error": 0.369,
+     "covered": true,
+     "within_0_30": false,
+     "null_predicted": -1.04,
+     "null_error": 0.26,
+     "thin_pool": false
+    },
+    {
+     "trial": "Sitagliptin + metformin factorial",
+     "trial_base": "Sitagliptin + metformin factorial",
+     "arm": "Sitagliptin 50 mg b.i.d. + Metformin 500 mg b.i.d.",
+     "reference": "Placebo/Metformin 1000 mg b.i.d.",
+     "group": "efficacy",
+     "predicted": -1.259,
+     "predicted_sd_model": 0.173,
+     "sd": 0.241,
+     "pi95": [
+      -1.732,
+      -0.786
+     ],
+     "observed": -1.57,
+     "observed_se": 0.117,
+     "error": 0.311,
+     "covered": true,
+     "within_0_30": false,
+     "null_predicted": -1.23,
+     "null_error": 0.34,
+     "thin_pool": false
+    },
+    {
+     "trial": "Sitagliptin + metformin factorial",
+     "trial_base": "Sitagliptin + metformin factorial",
+     "arm": "Sitagliptin 50 mg b.i.d + Metformin 1000 mg b.i.d.",
+     "reference": "Placebo/Metformin 1000 mg b.i.d.",
+     "group": "efficacy",
+     "predicted": -1.506,
+     "predicted_sd_model": 0.203,
+     "sd": 0.264,
+     "pi95": [
+      -2.022,
+      -0.989
+     ],
+     "observed": -2.07,
+     "observed_se": 0.117,
+     "error": 0.564,
+     "covered": false,
+     "within_0_30": false,
+     "null_predicted": -1.75,
+     "null_error": 0.32,
+     "thin_pool": false
+    }
+   ],
+   "populations": {
+    "EMPA-REG MET": {
+     "eligible_real_participants": 103,
+     "effective_sample_size": 47.5,
+     "thin_pool": false,
+     "matched": {
+      "a1c": 7.85,
+      "fpg": 180.2,
+      "weight": 91.7,
+      "age": 57.0,
+      "egfr": 92.0
+     },
+     "targets": {
+      "a1c": null,
+      "fpg": null,
+      "weight": null,
+      "age": 55.9
+     }
+    },
+    "EMPA-REG RENAL mild": {
+     "eligible_real_participants": 116,
+     "effective_sample_size": 57.6,
+     "thin_pool": false,
+     "matched": {
+      "a1c": 7.66,
+      "fpg": 167.2,
+      "weight": 94.2,
+      "age": 63.6,
+      "egfr": 76.6
+     },
+     "targets": {
+      "a1c": null,
+      "fpg": null,
+      "weight": null,
+      "age": 63.9
+     }
+    },
+    "EMPA-REG RENAL moderate": {
+     "eligible_real_participants": 34,
+     "effective_sample_size": 7.5,
+     "thin_pool": true,
+     "matched": {
+      "a1c": 7.64,
+      "fpg": 168.7,
+      "weight": 98.0,
+      "age": 64.3,
+      "egfr": 55.0
+     },
+     "targets": {
+      "a1c": null,
+      "fpg": null,
+      "weight": null,
+      "age": 63.9
+     }
+    },
+    "SUSTAIN 2": {
+     "eligible_real_participants": 104,
+     "effective_sample_size": 46.3,
+     "thin_pool": false,
+     "matched": {
+      "a1c": 8.03,
+      "fpg": 166.4,
+      "weight": 89.7,
+      "age": 54.9,
+      "egfr": 97.8
+     },
+     "targets": {
+      "a1c": 8.07,
+      "fpg": 169.35039999999998,
+      "weight": 89.48,
+      "age": 55.1
+     }
+    },
+    "Semaglutide phase 2": {
+     "eligible_real_participants": 159,
+     "effective_sample_size": 68.2,
+     "thin_pool": false,
+     "matched": {
+      "a1c": 8.07,
+      "fpg": 191.6,
+      "weight": 88.5,
+      "age": 55.0,
+      "egfr": 95.0
+     },
+     "targets": {
+      "a1c": 8.1,
+      "fpg": null,
+      "weight": null,
+      "age": 55.0
+     }
+    },
+    "Sitagliptin + metformin factorial": {
+     "eligible_real_participants": 97,
+     "effective_sample_size": 34.1,
+     "thin_pool": false,
+     "matched": {
+      "a1c": 9.03,
+      "fpg": 216.2,
+      "weight": 98.1,
+      "age": 52.8,
+      "egfr": 100.9
+     },
+     "targets": {
+      "a1c": 9.0,
+      "fpg": null,
+      "weight": null,
+      "age": 53.4
+     }
+    },
+    "Sitagliptin monotherapy": {
+     "eligible_real_participants": 83,
+     "effective_sample_size": 43.2,
+     "thin_pool": false,
+     "matched": {
+      "a1c": 7.96,
+      "fpg": 174.0,
+      "weight": 100.3,
+      "age": 54.5,
+      "egfr": 97.8
+     },
+     "targets": {
+      "a1c": 8.0,
+      "fpg": 173.7,
+      "weight": null,
+      "age": 54.2
+     }
+    }
+   },
+   "assumption_sensitivity": {
+    "rtg0=200": {
+     "largest_shift": 0.234
+    },
+    "si_weight_power=2.5": {
+     "largest_shift": 0.242
+    },
+    "sita_ed50=50": {
+     "largest_shift": 0.111
+    },
+    "hgp_fpg_slope=0.3": {
+     "largest_shift": 0.104
+    }
+   },
+   "renal_precheck": {
+    "model_ratio_mild": 0.77,
+    "model_ratio_moderate": 0.53,
+    "reference": "Sarashina 2014 reported about 0.83 and 0.77 after one dose in Japanese patients (from a search summary, not read in full)."
+   },
+   "structural_sd": 0.12,
+   "n_draws": 120,
+   "prediction_n": 300,
+   "reading_note": "V5's ordering is largely built into the structure, so only its size test carries information. These are famous trials, so the seal is mechanical: its author knew the literature in general."
+  }
+ },
+ "calibration": {
+  "status": 200,
+  "seconds": 0.01,
+  "body": {
+   "summary": {
+    "tau_a1c": {
+     "median": 45.599625380717235,
+     "p2_5": 30.85919947638962,
+     "p97_5": 78.63187402750239,
+     "prior_median": 45.0,
+     "autocorr_steps": 63.27702217167389
+    },
+    "empa_rtg_min": {
+     "median": 105.19366810144865,
+     "p2_5": 76.94590559657811,
+     "p97_5": 124.25412478666408,
+     "prior_median": 90.0,
+     "autocorr_steps": 73.45082945255953
+    },
+    "empa_ec50": {
+     "median": 22.948140449012108,
+     "p2_5": 6.982172401805379,
+     "p97_5": 58.552499836423614,
+     "prior_median": 30.0,
+     "autocorr_steps": 75.2418727233744
+    },
+    "sglt2_egp_comp": {
+     "median": 0.4654917274877682,
+     "p2_5": 0.30856303672406293,
+     "p97_5": 0.6491338740585914,
+     "prior_median": 0.5,
+     "autocorr_steps": 72.69151178307946
+    },
+    "sglt2_fluid_kg": {
+     "median": 1.2565685748903435,
+     "p2_5": 0.5936955317596881,
+     "p97_5": 2.0957193381654644,
+     "prior_median": 1.0,
+     "autocorr_steps": 66.53038000752596
+    },
+    "met_hgp_max": {
+     "median": 0.376685347692119,
+     "p2_5": 0.2696382768604458,
+     "p97_5": 0.5500358432053336,
+     "prior_median": 0.3,
+     "autocorr_steps": 68.64845325039325
+    },
+    "met_ed50": {
+     "median": 1081.0250545318409,
+     "p2_5": 521.6700716362127,
+     "p97_5": 2123.022948816368,
+     "prior_median": 1500.0,
+     "autocorr_steps": 64.66420983753319
+    },
+    "met_weight_kcal": {
+     "median": 102.73322244211113,
+     "p2_5": 31.7343736865441,
+     "p97_5": 222.49413570317256,
+     "prior_median": 60.0,
+     "autocorr_steps": 71.47408127474783
+    },
+    "sema_sec_max": {
+     "median": 0.7719726483112512,
+     "p2_5": 0.3909886150171988,
+     "p97_5": 1.247509390933317,
+     "prior_median": 1.2,
+     "autocorr_steps": 97.9940228925395
+    },
+    "sema_ec50": {
+     "median": 6.704283895424455,
+     "p2_5": 1.83939335932162,
+     "p97_5": 19.653547257536008,
+     "prior_median": 8.0,
+     "autocorr_steps": 80.78676395127918
+    },
+    "sema_hgp_max": {
+     "median": 0.1413605634324404,
+     "p2_5": 0.049047402766350556,
+     "p97_5": 0.3657399871092989,
+     "prior_median": 0.15,
+     "autocorr_steps": 92.25299213835545
+    },
+    "sema_kcal_max": {
+     "median": 374.4724732794591,
+     "p2_5": 269.16019047747295,
+     "p97_5": 579.3118457209549,
+     "prior_median": 400.0,
+     "autocorr_steps": 76.6963904134317
+    },
+    "sita_sec_max": {
+     "median": 0.25706774923364617,
+     "p2_5": 0.17574776474063294,
+     "p97_5": 0.37642401684422483,
+     "prior_median": 0.35,
+     "autocorr_steps": 62.95559864510106
+    },
+    "secretion_decline": {
+     "median": 0.04303564435750902,
+     "p2_5": 0.02098122581953853,
+     "p97_5": 0.08017053097378792,
+     "prior_median": 0.05,
+     "autocorr_steps": 64.45562807856186
+    },
+    "placebo_meal": {
+     "median": 0.06684138413134111,
+     "p2_5": 0.0187363170296389,
+     "p97_5": 0.21847424504629726,
+     "prior_median": 0.08,
+     "autocorr_steps": 57.05777724179792
+    },
+    "placebo_kcal": {
+     "median": 24.184095779224137,
+     "p2_5": 8.54473973327726,
+     "p97_5": 53.274533243874664,
+     "prior_median": 25.0,
+     "autocorr_steps": 66.76768506610593
+    }
+   },
+   "steps": 6500,
+   "walkers": 44,
+   "burn": 1000,
+   "acceptance": 0.22098484848484848,
+   "max_split_rhat": 1.0256774870663796,
+   "length_over_tau": 56.12587214662382,
+   "converged": true
+  }
+ },
+ "parameters": {
+  "status": 200,
+  "seconds": 0.0,
+  "body": {
+   "parameters": [
+    {
+     "name": "E",
+     "value": 1.44,
+     "unit": "1/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "alpha",
+     "value": 20000.0,
+     "unit": "mg2/dL2",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "k",
+     "value": 432.0,
+     "unit": "1/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "R0",
+     "value": 864.0,
+     "unit": "mg/dL/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "sigma",
+     "value": 43.2,
+     "unit": "uU/mL/mg/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "SI",
+     "value": 0.72,
+     "unit": "mL/uU/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "d0",
+     "value": 0.06,
+     "unit": "1/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "r1",
+     "value": 0.00084,
+     "unit": "dL/mg/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "r2",
+     "value": 2.4e-06,
+     "unit": "dL2/mg2/day",
+     "kind": "published",
+     "source": "Topp et al. 2000, J Theor Biol 206:605 (BioModels BIOMD0000000341)",
+     "prior_sd": null
+    },
+    {
+     "name": "adag_slope",
+     "value": 28.7,
+     "unit": "mg/dL per %",
+     "kind": "published",
+     "source": "Nathan et al. 2008, Diabetes Care 31:1473 (ADAG)",
+     "prior_sd": null
+    },
+    {
+     "name": "adag_intercept",
+     "value": -46.7,
+     "unit": "mg/dL",
+     "kind": "published",
+     "source": "Nathan et al. 2008, Diabetes Care 31:1473 (ADAG)",
+     "prior_sd": null
+    },
+    {
+     "name": "tau_a1c",
+     "value": 45.0,
+     "unit": "days",
+     "kind": "calibrated",
+     "source": "Prior from red-cell turnover; only weakly identified at 24+ weeks",
+     "prior_sd": 0.25
+    },
+    {
+     "name": "frac_fasting",
+     "value": 0.3333333333333333,
+     "unit": "fraction of day",
+     "kind": "assumed",
+     "source": "8 of 24 hours treated as fasting",
+     "prior_sd": null
+    },
+    {
+     "name": "hgp_fpg_slope",
+     "value": 0.72,
+     "unit": "fraction per 100 mg/dL above 140",
+     "kind": "published",
+     "source": "Derived from Hundal 2000: glucose production twice control at fasting glucose 15.5 mmol/L (279 mg/dL). Shape from DeFronzo 1989",
+     "prior_sd": null
+    },
+    {
+     "name": "Vg",
+     "value": 1.88,
+     "unit": "dL/kg",
+     "kind": "published",
+     "source": "Dalla Man et al. 2007 (BioModels BIOMD0000000379)",
+     "prior_sd": null
+    },
+    {
+     "name": "rtg0",
+     "value": 240.0,
+     "unit": "mg/dL",
+     "kind": "assumed",
+     "source": "Raised renal threshold in T2D. No direct T2D source found; sensitivity is reported with validation",
+     "prior_sd": null
+    },
+    {
+     "name": "empa_cl",
+     "value": 10.6,
+     "unit": "L/h",
+     "kind": "published",
+     "source": "FDA label, Jardiance (empagliflozin) sections 12.2-12.3",
+     "prior_sd": null
+    },
+    {
+     "name": "empa_rtg_min",
+     "value": 90.0,
+     "unit": "mg/dL",
+     "kind": "calibrated",
+     "source": "Effective fitted value that reproduces label UGE of 64 and 78 g/day. Not a physiological threshold",
+     "prior_sd": 0.5
+    },
+    {
+     "name": "empa_ec50",
+     "value": 30.0,
+     "unit": "nmol/L",
+     "kind": "calibrated",
+     "source": "Fitted to label UGE at 10 and 25 mg",
+     "prior_sd": 1.0
+    },
+    {
+     "name": "sglt2_egp_comp",
+     "value": 0.5,
+     "unit": "fraction",
+     "kind": "calibrated",
+     "source": "Scaling term offsetting urinary loss. Motivated by raised EGP in Ferrannini 2014, but not a direct estimate of it",
+     "prior_sd": 0.5
+    },
+    {
+     "name": "sglt2_energy_comp",
+     "value": 0.71,
+     "unit": "fraction",
+     "kind": "published",
+     "source": "Ferrannini 2015: 29 +/- 41% of predicted weight loss achieved, one dose, n=86. Imprecise",
+     "prior_sd": null
+    },
+    {
+     "name": "sglt2_fluid_kg",
+     "value": 1.0,
+     "unit": "kg",
+     "kind": "calibrated",
+     "source": "Early fluid loss on SGLT2 inhibition, not energy; fitted to EMPA-REG MONO weight",
+     "prior_sd": 0.8
+    },
+    {
+     "name": "met_hgp_max",
+     "value": 0.3,
+     "unit": "fraction",
+     "kind": "calibrated",
+     "source": "Prior from Hundal 2000: glucose production -24% on metformin",
+     "prior_sd": 0.35
+    },
+    {
+     "name": "met_ed50",
+     "value": 1500.0,
+     "unit": "mg/day",
+     "kind": "calibrated",
+     "source": "Prior from Garber 1997: 500 mg gave about 23% of the 2000 mg fasting glucose effect, a nearly linear shape",
+     "prior_sd": 0.5
+    },
+    {
+     "name": "met_weight_kcal",
+     "value": 60.0,
+     "unit": "kcal/day at Emax",
+     "kind": "calibrated",
+     "source": "Fitted to DURATION-4 weight change",
+     "prior_sd": 0.8
+    },
+    {
+     "name": "sema_cl",
+     "value": 0.05,
+     "unit": "L/h",
+     "kind": "published",
+     "source": "FDA label, Ozempic (semaglutide) section 12.3",
+     "prior_sd": null
+    },
+    {
+     "name": "sema_v",
+     "value": 12.5,
+     "unit": "L",
+     "kind": "published",
+     "source": "FDA label, Ozempic (semaglutide) section 12.3",
+     "prior_sd": null
+    },
+    {
+     "name": "sema_mw",
+     "value": 4113.6,
+     "unit": "g/mol",
+     "kind": "published",
+     "source": "Semaglutide molecular weight, PubChem",
+     "prior_sd": null
+    },
+    {
+     "name": "sema_ref_weight",
+     "value": 85.0,
+     "unit": "kg",
+     "kind": "published",
+     "source": "FDA label, Ozempic (semaglutide) section 12.3 reference subject",
+     "prior_sd": null
+    },
+    {
+     "name": "sema_iiv",
+     "value": 0.15,
+     "unit": "log-sd",
+     "kind": "published",
+     "source": "Overgaard et al. 2019, Diabetes Ther: interindividual variation about 15%",
+     "prior_sd": null
+    },
+    {
+     "name": "sema_sec_max",
+     "value": 1.2,
+     "unit": "fold over baseline",
+     "kind": "calibrated",
+     "source": "Fitted to SUSTAIN 1. Prior centred after that trial was seen, so it is deliberately wide",
+     "prior_sd": 1.0
+    },
+    {
+     "name": "sema_ec50",
+     "value": 8.0,
+     "unit": "nmol/L",
+     "kind": "calibrated",
+     "source": "Fitted to SUSTAIN 1 at 0.5 and 1 mg; held-out phase 2 tests the range. Wide prior",
+     "prior_sd": 1.0
+    },
+    {
+     "name": "sema_hgp_max",
+     "value": 0.15,
+     "unit": "fraction",
+     "kind": "calibrated",
+     "source": "Glucagon suppression lowers hepatic output; fitted to SUSTAIN 1 FPG. Wide prior",
+     "prior_sd": 0.8
+    },
+    {
+     "name": "sema_kcal_max",
+     "value": 400.0,
+     "unit": "kcal/day at Emax",
+     "kind": "calibrated",
+     "source": "Fitted to SUSTAIN 1 weight change. Wide prior",
+     "prior_sd": 0.8
+    },
+    {
+     "name": "sita_sec_max",
+     "value": 0.35,
+     "unit": "fold over baseline",
+     "kind": "calibrated",
+     "source": "Fitted to EMPA-REG MONO and DURATION-4. Wide prior",
+     "prior_sd": 1.0
+    },
+    {
+     "name": "sita_ed50",
+     "value": 25.0,
+     "unit": "mg/day",
+     "kind": "assumed",
+     "source": "Near-saturating DPP-4 inhibition at 100 mg per label; the 200 mg held-out arm tests the plateau",
+     "prior_sd": null
+    },
+    {
+     "name": "sita_hgp_max",
+     "value": 0.05,
+     "unit": "fraction",
+     "kind": "assumed",
+     "source": "Glucagon suppression, smaller than GLP-1 agonists. Fixed because trial data cannot separate it from secretion",
+     "prior_sd": null
+    },
+    {
+     "name": "kcal_per_kg",
+     "value": 22.0,
+     "unit": "kcal/day per kg",
+     "kind": "published",
+     "source": "Hall et al. 2011, Lancet: about 10 kcal/day per lb at new steady state",
+     "prior_sd": null
+    },
+    {
+     "name": "tau_weight",
+     "value": 526.0,
+     "unit": "days",
+     "kind": "published",
+     "source": "Hall et al. 2011, Lancet: half-time about 1 year",
+     "prior_sd": null
+    },
+    {
+     "name": "kcal_per_g_glucose",
+     "value": 4.0,
+     "unit": "kcal/g",
+     "kind": "published",
+     "source": "Atwater factor",
+     "prior_sd": null
+    },
+    {
+     "name": "si_weight_power",
+     "value": 1.0,
+     "unit": "exponent",
+     "kind": "assumed",
+     "source": "Insulin sensitivity rises as weight falls",
+     "prior_sd": null
+    },
+    {
+     "name": "secretion_decline",
+     "value": 0.05,
+     "unit": "fraction/year",
+     "kind": "calibrated",
+     "source": "Slow beta-cell decline; Topp's own beta term grows at 150-250 mg/dL so it is not used here",
+     "prior_sd": 0.5
+    },
+    {
+     "name": "placebo_meal",
+     "value": 0.08,
+     "unit": "fraction of meal load",
+     "kind": "calibrated",
+     "source": "Trial-participation effect; fitted to placebo arms",
+     "prior_sd": 0.8
+    },
+    {
+     "name": "placebo_kcal",
+     "value": 25.0,
+     "unit": "kcal/day",
+     "kind": "calibrated",
+     "source": "Fitted to placebo weight change",
+     "prior_sd": 0.8
+    },
+    {
+     "name": "pd_iiv",
+     "value": 0.3,
+     "unit": "log-sd",
+     "kind": "assumed",
+     "source": "Between-patient spread in drug response. Affects spread more than the mean",
+     "prior_sd": null
+    },
+    {
+     "name": "noise_a1c",
+     "value": 0.2,
+     "unit": "% points",
+     "kind": "assumed",
+     "source": "Assay and biological variation, added in the trial engine's statistics",
+     "prior_sd": null
+    },
+    {
+     "name": "noise_fpg",
+     "value": 15.0,
+     "unit": "mg/dL",
+     "kind": "assumed",
+     "source": "Day-to-day fasting glucose variation",
+     "prior_sd": null
+    },
+    {
+     "name": "noise_weight",
+     "value": 0.8,
+     "unit": "kg",
+     "kind": "assumed",
+     "source": "Scale and day-to-day variation",
+     "prior_sd": null
+    },
+    {
+     "name": "rtg_floor",
+     "value": 40.0,
+     "unit": "mg/dL",
+     "kind": "assumed",
+     "source": "Lower bound on threshold for numerical safety",
+     "prior_sd": null
+    }
+   ]
+  }
+ },
+ "drugs": {
+  "status": 200,
+  "seconds": 0.04,
+  "body": {
+   "drugs": [
+    {
+     "drug": "semaglutide",
+     "min_mg": 0.1,
+     "max_mg": 2.0,
+     "unit": "mg/week"
+    },
+    {
+     "drug": "empagliflozin",
+     "min_mg": 1.0,
+     "max_mg": 25.0,
+     "unit": "mg/day"
+    },
+    {
+     "drug": "sitagliptin",
+     "min_mg": 12.5,
+     "max_mg": 100.0,
+     "unit": "mg/day"
+    },
+    {
+     "drug": "metformin",
+     "min_mg": 250.0,
+     "max_mg": 2550.0,
+     "unit": "mg/day"
+    }
+   ],
+   "candidate_mechanisms": [
+    "hgp",
+    "secretion",
+    "sensitizer",
+    "renal"
+   ],
+   "note": "Dose ranges stay within each drug's FDA label for type 2 diabetes."
+  }
+ },
+ "safety_sema": {
+  "status": 200,
+  "seconds": 0.01,
+  "body": {
+   "drug": "semaglutide",
+   "trial": "NCT02054897",
+   "kind": "empirical",
+   "label_warnings": [
+    {
+     "term": "thyroid C-cell tumors",
+     "kind": "boxed warning",
+     "text": "Thyroid C-cell tumors occurred in rodents. It is unknown whether this happens in humans."
+    },
+    {
+     "term": "pancreatitis",
+     "kind": "warning",
+     "text": "Acute pancreatitis has been observed with GLP-1 receptor agonists."
+    },
+    {
+     "term": "retinopathy",
+     "kind": "warning",
+     "text": "Diabetic retinopathy complications have been reported."
+    },
+    {
+     "term": "hypoglycemia",
+     "kind": "warning",
+     "text": "Risk of low blood sugar rises when used with insulin or an insulin secretagogue."
+    }
+   ],
+   "label_source": "FDA label, Ozempic (openFDA set 42bdd912-2393-44c4-b7e0-47672ca28991)",
+   "arms": [
+    {
+     "arm": "Semaglutide 0.5 mg",
+     "role": "drug",
+     "participants": 128,
+     "serious_affected": 7,
+     "events": [
+      {
+       "term": "Nausea",
+       "serious": false,
+       "affected": 26,
+       "at_risk": 128,
+       "percent": 20.3,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 16,
+       "at_risk": 128,
+       "percent": 12.5,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Headache",
+       "serious": false,
+       "affected": 15,
+       "at_risk": 128,
+       "percent": 11.7,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Constipation",
+       "serious": false,
+       "affected": 8,
+       "at_risk": 128,
+       "percent": 6.2,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Lipase increased",
+       "serious": false,
+       "affected": 8,
+       "at_risk": 128,
+       "percent": 6.2,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyspepsia",
+       "serious": false,
+       "affected": 7,
+       "at_risk": 128,
+       "percent": 5.5,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 6,
+       "at_risk": 128,
+       "percent": 4.7,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Vomiting",
+       "serious": false,
+       "affected": 5,
+       "at_risk": 128,
+       "percent": 3.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Breast cancer",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Cholelithiasis",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Cystitis",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Encephalitis",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Gastritis",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Lobar pneumonia",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Mental disorder",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Oesophagitis",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Postmenopausal haemorrhage",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Transient ischaemic attack",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 128,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    },
+    {
+     "arm": "Semaglutide 1.0 mg",
+     "role": "drug",
+     "participants": 130,
+     "serious_affected": 7,
+     "events": [
+      {
+       "term": "Nausea",
+       "serious": false,
+       "affected": 31,
+       "at_risk": 130,
+       "percent": 23.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 14,
+       "at_risk": 130,
+       "percent": 10.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Headache",
+       "serious": false,
+       "affected": 9,
+       "at_risk": 130,
+       "percent": 6.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Vomiting",
+       "serious": false,
+       "affected": 9,
+       "at_risk": 130,
+       "percent": 6.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 6,
+       "at_risk": 130,
+       "percent": 4.6,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Constipation",
+       "serious": false,
+       "affected": 5,
+       "at_risk": 130,
+       "percent": 3.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyspepsia",
+       "serious": false,
+       "affected": 5,
+       "at_risk": 130,
+       "percent": 3.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Lipase increased",
+       "serious": false,
+       "affected": 5,
+       "at_risk": 130,
+       "percent": 3.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Gastric bypass",
+       "serious": true,
+       "affected": 2,
+       "at_risk": 130,
+       "percent": 1.5,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Acute myocardial infarction",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 130,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Calculus ureteric",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 130,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Coronary revascularisation",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 130,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Pericarditis",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 130,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Prostate cancer",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 130,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Wound",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 130,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    },
+    {
+     "arm": "Placebo",
+     "role": "placebo",
+     "participants": 129,
+     "serious_affected": 5,
+     "events": [
+      {
+       "term": "Nausea",
+       "serious": false,
+       "affected": 10,
+       "at_risk": 129,
+       "percent": 7.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Headache",
+       "serious": false,
+       "affected": 8,
+       "at_risk": 129,
+       "percent": 6.2,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 7,
+       "at_risk": 129,
+       "percent": 5.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Lipase increased",
+       "serious": false,
+       "affected": 5,
+       "at_risk": 129,
+       "percent": 3.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 3,
+       "at_risk": 129,
+       "percent": 2.3,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyspepsia",
+       "serious": false,
+       "affected": 3,
+       "at_risk": 129,
+       "percent": 2.3,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Vomiting",
+       "serious": false,
+       "affected": 2,
+       "at_risk": 129,
+       "percent": 1.6,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Constipation",
+       "serious": false,
+       "affected": 1,
+       "at_risk": 129,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Anaemia",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 129,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Gastric haemorrhage",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 129,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Inflammation",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 129,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Musculoskeletal chest pain",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 129,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Subcutaneous abscess",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 129,
+       "percent": 0.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    }
+   ],
+   "has_placebo_arm": true,
+   "notice": "Label warnings come first because this table cannot show them: one trial, at the reporting threshold the sponsor chose, is too small for rare but serious harms. An event missing from the table means it was not reported at that threshold, and does not mean it cannot happen. These rates are not simulated."
+  }
+ },
+ "safety_empa": {
+  "status": 200,
+  "seconds": 0.0,
+  "body": {
+   "drug": "empagliflozin",
+   "trial": "NCT01177813",
+   "kind": "empirical",
+   "label_warnings": [
+    {
+     "term": "ketoacidosis",
+     "kind": "warning",
+     "text": "Ketoacidosis can occur, regardless of blood glucose level."
+    },
+    {
+     "term": "volume depletion",
+     "kind": "warning",
+     "text": "Volume depletion is a risk, notably with impaired kidney function, older age or loop diuretics."
+    },
+    {
+     "term": "urinary infection",
+     "kind": "warning",
+     "text": "Serious urinary infections, including urosepsis and pyelonephritis, can occur."
+    },
+    {
+     "term": "genital infection",
+     "kind": "warning",
+     "text": "Genital fungal infections can occur."
+    },
+    {
+     "term": "hypoglycemia",
+     "kind": "warning",
+     "text": "Low blood sugar risk rises with insulin or an insulin secretagogue."
+    }
+   ],
+   "label_source": "FDA label, Jardiance (openFDA set 1782b947-4a72-4feb-a488-1469d9af82bd)",
+   "arms": [
+    {
+     "arm": "Placebo",
+     "role": "placebo",
+     "participants": 229,
+     "serious_affected": 6,
+     "events": [
+      {
+       "term": "Hyperglycaemia",
+       "serious": false,
+       "affected": 35,
+       "at_risk": 229,
+       "percent": 15.3,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 17,
+       "at_risk": 229,
+       "percent": 7.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyslipidaemia",
+       "serious": false,
+       "affected": 10,
+       "at_risk": 229,
+       "percent": 4.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Urinary tract infection",
+       "serious": false,
+       "affected": 9,
+       "at_risk": 229,
+       "percent": 3.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 3,
+       "at_risk": 229,
+       "percent": 1.3,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Colon cancer",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 229,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Hyperglycaemia",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 229,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diabetic neuropathy",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 229,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Ischaemic stroke",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 229,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Myocardial infarction",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 229,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Cholecystitis acute",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 229,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Gilbert's syndrome",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 229,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    },
+    {
+     "arm": "Empagliflozin10 mg",
+     "role": "drug",
+     "participants": 224,
+     "serious_affected": 8,
+     "events": [
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 16,
+       "at_risk": 224,
+       "percent": 7.1,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Urinary tract infection",
+       "serious": false,
+       "affected": 14,
+       "at_risk": 224,
+       "percent": 6.2,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyslipidaemia",
+       "serious": false,
+       "affected": 13,
+       "at_risk": 224,
+       "percent": 5.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Hyperglycaemia",
+       "serious": false,
+       "affected": 5,
+       "at_risk": 224,
+       "percent": 2.2,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 4,
+       "at_risk": 224,
+       "percent": 1.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Herpes virus infection",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Breast cancer female",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Cerebrovascular accident",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Cataract",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Haemorrhoids",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Liver disorder",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Animal bite",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Injury",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Tendon rupture",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 224,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    },
+    {
+     "arm": "Empagliflozin 25 mg",
+     "role": "drug",
+     "participants": 223,
+     "serious_affected": 5,
+     "events": [
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 11,
+       "at_risk": 223,
+       "percent": 4.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyslipidaemia",
+       "serious": false,
+       "affected": 10,
+       "at_risk": 223,
+       "percent": 4.5,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Urinary tract infection",
+       "serious": false,
+       "affected": 8,
+       "at_risk": 223,
+       "percent": 3.6,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Hyperglycaemia",
+       "serious": false,
+       "affected": 4,
+       "at_risk": 223,
+       "percent": 1.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 3,
+       "at_risk": 223,
+       "percent": 1.3,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Lung neoplasm malignant",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Metastases to central nervous system",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Goitre",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Acute myocardial infarction",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Breast mass",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Tibia fracture",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    },
+    {
+     "arm": "Sitagliptin 100 mg",
+     "role": "comparator",
+     "participants": 223,
+     "serious_affected": 6,
+     "events": [
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 15,
+       "at_risk": 223,
+       "percent": 6.7,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Hyperglycaemia",
+       "serious": false,
+       "affected": 13,
+       "at_risk": 223,
+       "percent": 5.8,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Urinary tract infection",
+       "serious": false,
+       "affected": 11,
+       "at_risk": 223,
+       "percent": 4.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyslipidaemia",
+       "serious": false,
+       "affected": 6,
+       "at_risk": 223,
+       "percent": 2.7,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 3,
+       "at_risk": 223,
+       "percent": 1.3,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Transient ischaemic attack",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Vertebrobasilar insufficiency",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Atrial fibrillation",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Chronic obstructive pulmonary disease",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Hypercapnia",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Colonic polyp",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Cholecystitis",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Cholecystitis acute",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Benign prostatic hyperplasia",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Hernia",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 223,
+       "percent": 0.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    },
+    {
+     "arm": "Empagliflozin 25 mg OL",
+     "role": "comparator",
+     "participants": 87,
+     "serious_affected": 3,
+     "events": [
+      {
+       "term": "Hyperglycaemia",
+       "serious": false,
+       "affected": 14,
+       "at_risk": 87,
+       "percent": 16.1,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Dyslipidaemia",
+       "serious": false,
+       "affected": 7,
+       "at_risk": 87,
+       "percent": 8.0,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diarrhoea",
+       "serious": false,
+       "affected": 6,
+       "at_risk": 87,
+       "percent": 6.9,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Urinary tract infection",
+       "serious": false,
+       "affected": 3,
+       "at_risk": 87,
+       "percent": 3.4,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Nasopharyngitis",
+       "serious": false,
+       "affected": 1,
+       "at_risk": 87,
+       "percent": 1.1,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Diabetic neuropathy",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 87,
+       "percent": 1.1,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Angina unstable",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 87,
+       "percent": 1.1,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      },
+      {
+       "term": "Soft tissue injury",
+       "serious": true,
+       "affected": 1,
+       "at_risk": 87,
+       "percent": 1.1,
+       "assessment": "SYSTEMATIC_ASSESSMENT"
+      }
+     ]
+    }
+   ],
+   "has_placebo_arm": true,
+   "notice": "Label warnings come first because this table cannot show them: one trial, at the reporting threshold the sponsor chose, is too small for rare but serious harms. An event missing from the table means it was not reported at that threshold, and does not mean it cannot happen. These rates are not simulated."
+  }
+ },
+ "trial": {
+  "status": 200,
+  "seconds": 4.41,
+  "body": {
+   "control": "Placebo",
+   "weeks": 30,
+   "n_per_arm": 200,
+   "contrasts": {
+    "Semaglutide 1 mg/week": {
+     "hba1c": {
+      "effect": -1.644,
+      "interval95": [
+       -1.824,
+       -1.464
+      ],
+      "typical_trial_se": 0.043,
+      "probability_significant_benefit": 1.0
+     },
+     "fpg": {
+      "effect": -45.501,
+      "interval95": [
+       -52.264,
+       -39.146
+      ],
+      "typical_trial_se": 2.26,
+      "probability_significant_benefit": 1.0
+     },
+     "weight": {
+      "effect": -4.061,
+      "interval95": [
+       -4.717,
+       -3.198
+      ],
+      "typical_trial_se": 0.146,
+      "probability_significant_benefit": 1.0
+     }
+    },
+    "Empagliflozin 25 mg/day": {
+     "hba1c": {
+      "effect": -0.815,
+      "interval95": [
+       -1.073,
+       -0.634
+      ],
+      "typical_trial_se": 0.044,
+      "probability_significant_benefit": 1.0
+     },
+     "fpg": {
+      "effect": -21.316,
+      "interval95": [
+       -28.156,
+       -15.353
+      ],
+      "typical_trial_se": 2.208,
+      "probability_significant_benefit": 1.0
+     },
+     "weight": {
+      "effect": -2.408,
+      "interval95": [
+       -2.915,
+       -1.932
+      ],
+      "typical_trial_se": 0.125,
+      "probability_significant_benefit": 1.0
+     }
+    }
+   },
+   "arms": {
+    "Placebo": {
+     "a1c_by_week": [
+      7.798,
+      7.794,
+      7.79,
+      7.787,
+      7.785,
+      7.783,
+      7.782,
+      7.781,
+      7.781,
+      7.781,
+      7.781,
+      7.781,
+      7.782,
+      7.782,
+      7.783,
+      7.784,
+      7.785,
+      7.787,
+      7.788,
+      7.789,
+      7.791,
+      7.792,
+      7.794,
+      7.795,
+      7.797,
+      7.799,
+      7.8,
+      7.802,
+      7.804,
+      7.805,
+      7.807
+     ],
+     "a1c_low": [
+      7.798,
+      7.786,
+      7.776,
+      7.768,
+      7.761,
+      7.756,
+      7.752,
+      7.748,
+      7.745,
+      7.743,
+      7.742,
+      7.741,
+      7.74,
+      7.739,
+      7.739,
+      7.739,
+      7.74,
+      7.74,
+      7.741,
+      7.742,
+      7.743,
+      7.744,
+      7.745,
+      7.746,
+      7.747,
+      7.748,
+      7.75,
+      7.751,
+      7.752,
+      7.754,
+      7.755
+     ],
+     "a1c_high": [
+      7.798,
+      7.797,
+      7.795,
+      7.795,
+      7.795,
+      7.795,
+      7.795,
+      7.796,
+      7.797,
+      7.799,
+      7.8,
+      7.802,
+      7.804,
+      7.805,
+      7.808,
+      7.81,
+      7.812,
+      7.815,
+      7.817,
+      7.819,
+      7.822,
+      7.825,
+      7.827,
+      7.83,
+      7.832,
+      7.835,
+      7.838,
+      7.84,
+      7.843,
+      7.846,
+      7.848
+     ],
+     "share_below_7": 0.07,
+     "urinary_glucose_g_day": 8.2,
+     "organ_signals": {
+      "liver_glucose_output_change_pct": 0.0,
+      "insulin_secretion_capacity_change_pct": 0.0,
+      "urinary_glucose_change_g_day": 0.06,
+      "fasting_glucose_change_mg_dl": 1.38,
+      "weight_change_kg": -0.32
+     }
+    },
+    "Semaglutide 1 mg/week": {
+     "a1c_by_week": [
+      7.798,
+      7.686,
+      7.566,
+      7.452,
+      7.35,
+      7.236,
+      7.129,
+      7.033,
+      6.948,
+      6.855,
+      6.768,
+      6.69,
+      6.621,
+      6.56,
+      6.507,
+      6.46,
+      6.419,
+      6.384,
+      6.352,
+      6.324,
+      6.3,
+      6.278,
+      6.259,
+      6.242,
+      6.227,
+      6.213,
+      6.201,
+      6.19,
+      6.18,
+      6.172,
+      6.164
+     ],
+     "a1c_low": [
+      7.798,
+      7.636,
+      7.477,
+      7.333,
+      7.206,
+      7.075,
+      6.957,
+      6.853,
+      6.764,
+      6.674,
+      6.593,
+      6.522,
+      6.461,
+      6.409,
+      6.365,
+      6.325,
+      6.291,
+      6.261,
+      6.235,
+      6.214,
+      6.195,
+      6.174,
+      6.154,
+      6.136,
+      6.118,
+      6.1,
+      6.084,
+      6.07,
+      6.054,
+      6.04,
+      6.027
+     ],
+     "a1c_high": [
+      7.798,
+      7.723,
+      7.637,
+      7.552,
+      7.471,
+      7.377,
+      7.286,
+      7.201,
+      7.123,
+      7.038,
+      6.957,
+      6.881,
+      6.811,
+      6.747,
+      6.688,
+      6.635,
+      6.586,
+      6.541,
+      6.5,
+      6.463,
+      6.429,
+      6.398,
+      6.369,
+      6.343,
+      6.319,
+      6.305,
+      6.294,
+      6.284,
+      6.278,
+      6.272,
+      6.267
+     ],
+     "share_below_7": 0.885,
+     "urinary_glucose_g_day": 4.1,
+     "organ_signals": {
+      "liver_glucose_output_change_pct": -10.52,
+      "insulin_secretion_capacity_change_pct": 65.13,
+      "urinary_glucose_change_g_day": -4.05,
+      "fasting_glucose_change_mg_dl": -43.95,
+      "weight_change_kg": -4.38
+     }
+    },
+    "Empagliflozin 25 mg/day": {
+     "a1c_by_week": [
+      7.798,
+      7.687,
+      7.592,
+      7.51,
+      7.44,
+      7.379,
+      7.326,
+      7.281,
+      7.242,
+      7.208,
+      7.179,
+      7.154,
+      7.131,
+      7.112,
+      7.096,
+      7.081,
+      7.068,
+      7.057,
+      7.048,
+      7.039,
+      7.032,
+      7.025,
+      7.02,
+      7.015,
+      7.01,
+      7.006,
+      7.003,
+      7.0,
+      6.998,
+      6.995,
+      6.993
+     ],
+     "a1c_low": [
+      7.798,
+      7.643,
+      7.515,
+      7.41,
+      7.323,
+      7.246,
+      7.182,
+      7.128,
+      7.082,
+      7.042,
+      7.007,
+      6.977,
+      6.952,
+      6.93,
+      6.912,
+      6.896,
+      6.882,
+      6.871,
+      6.861,
+      6.852,
+      6.845,
+      6.839,
+      6.833,
+      6.826,
+      6.82,
+      6.815,
+      6.81,
+      6.806,
+      6.803,
+      6.8,
+      6.797
+     ],
+     "a1c_high": [
+      7.798,
+      7.728,
+      7.665,
+      7.608,
+      7.555,
+      7.508,
+      7.466,
+      7.428,
+      7.394,
+      7.363,
+      7.336,
+      7.313,
+      7.293,
+      7.275,
+      7.259,
+      7.245,
+      7.233,
+      7.222,
+      7.212,
+      7.203,
+      7.195,
+      7.188,
+      7.182,
+      7.177,
+      7.172,
+      7.168,
+      7.164,
+      7.161,
+      7.158,
+      7.155,
+      7.153
+     ],
+     "share_below_7": 0.542,
+     "urinary_glucose_g_day": 77.2,
+     "organ_signals": {
+      "liver_glucose_output_change_pct": 0.0,
+      "insulin_secretion_capacity_change_pct": 0.0,
+      "urinary_glucose_change_g_day": 69.01,
+      "fasting_glucose_change_mg_dl": -19.83,
+      "weight_change_kg": -2.73
+     }
+    }
+   },
+   "enrolment": {
+    "eligible_real_participants": 378,
+    "effective_sample_size": 161.8,
+    "thin_pool": false,
+    "matched": {
+     "a1c": 7.8,
+     "fpg": 179.5,
+     "weight": 95.6,
+     "age": 59.4,
+     "egfr": 89.8
+    },
+    "targets": {
+     "a1c": null,
+     "fpg": null,
+     "weight": null,
+     "age": null
+    }
+   },
+   "uncertainty": {
+    "posterior_draws": 16,
+    "replicates_per_draw": 40
+   },
+   "validation": {
+    "available": true,
+    "blind": true,
+    "n_contrasts": 20,
+    "mae": 0.29,
+    "bias": -0.069,
+    "within_0_30": 0.5,
+    "coverage_95pi": 0.85,
+    "coverage_80pi": 0.5,
+    "coverage_50pi": 0.25,
+    "interval_score_95": 1.385,
+    "mean_pi95_width": 0.826,
+    "V3_pass": false,
+    "V4_pass": true,
+    "V5_pass": true,
+    "V5_order_correct": true,
+    "V5_each_within": true,
+    "null_mae": 0.3,
+    "model_minus_null_mae": -0.01,
+    "model_minus_null_ci95": [
+     -0.091,
+     0.034
+    ],
+    "beats_null": false
+   },
+   "label_flags": [],
+   "validation_scope": [
+    "Kidney behaviour was tested only for empagliflozin at eGFR 30 to 90."
+   ],
+   "not_modelled": [
+    "Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.",
+    "Cardiovascular and kidney outcomes are not simulated.",
+    "Serious adverse events are not simulated."
+   ],
+   "arm_kinds": {
+    "Placebo": "control",
+    "Semaglutide 1 mg/week": "real drug",
+    "Empagliflozin 25 mg/day": "real drug"
+   },
+   "notice": "Research simulation. Not medical advice and not evidence that a treatment works in any person.",
+   "track_record": {
+    "Semaglutide 1 mg/week": {
+     "available": true,
+     "drug": "semaglutide",
+     "closest": {
+      "trial": "Semaglutide phase 2",
+      "weeks": 12,
+      "results": 6,
+      "mae": 0.5,
+      "mean_error": -0.5,
+      "held_up": false
+     },
+     "by_trial": [
+      {
+       "trial": "Semaglutide phase 2",
+       "weeks": 12,
+       "results": 6,
+       "mae": 0.5,
+       "mean_error": -0.5,
+       "held_up": false
+      },
+      {
+       "trial": "SUSTAIN 2",
+       "weeks": 56,
+       "results": 2,
+       "mae": 0.09,
+       "mean_error": -0.09,
+       "held_up": true
+      }
+     ],
+     "note": "From the blind test on real trials. It describes past error and does not adjust this simulated number.",
+     "sentence": "Blind test record for semaglutide: Semaglutide phase 2 (12 weeks, 6 results) over-predicted the HbA1c benefit by 0.50 on average: missed; SUSTAIN 2 (56 weeks, 2 results) over-predicted the HbA1c benefit by 0.09 on average: held up."
+    },
+    "Empagliflozin 25 mg/day": {
+     "available": true,
+     "drug": "empagliflozin",
+     "closest": {
+      "trial": "EMPA-REG MET",
+      "weeks": 24,
+      "results": 2,
+      "mae": 0.17,
+      "mean_error": -0.17,
+      "held_up": true
+     },
+     "by_trial": [
+      {
+       "trial": "EMPA-REG MET",
+       "weeks": 24,
+       "results": 2,
+       "mae": 0.17,
+       "mean_error": -0.17,
+       "held_up": true
+      },
+      {
+       "trial": "EMPA-REG RENAL",
+       "weeks": 24,
+       "results": 3,
+       "mae": 0.05,
+       "mean_error": 0.02,
+       "held_up": true
+      }
+     ],
+     "note": "From the blind test on real trials. It describes past error and does not adjust this simulated number.",
+     "sentence": "Blind test record for empagliflozin: EMPA-REG MET (24 weeks, 2 results) over-predicted the HbA1c benefit by 0.17 on average: held up; EMPA-REG RENAL (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.02 on average: held up."
+    }
+   }
+  }
+ },
+ "trial_candidate": {
+  "status": 200,
+  "seconds": 2.3,
+  "body": {
+   "control": "Placebo",
+   "weeks": 26,
+   "n_per_arm": 200,
+   "contrasts": {
+    "Candidate X 50 mg/day (hypothetical)": {
+     "hba1c": {
+      "effect": -0.993,
+      "interval95": [
+       -1.072,
+       -0.897
+      ],
+      "typical_trial_se": 0.039,
+      "probability_significant_benefit": 1.0
+     },
+     "fpg": {
+      "effect": -30.416,
+      "interval95": [
+       -34.556,
+       -26.331
+      ],
+      "typical_trial_se": 2.172,
+      "probability_significant_benefit": 1.0
+     },
+     "weight": {
+      "effect": 0.058,
+      "interval95": [
+       -0.164,
+       0.274
+      ],
+      "typical_trial_se": 0.114,
+      "probability_significant_benefit": 0.008
+     }
+    }
+   },
+   "arms": {
+    "Placebo": {
+     "a1c_by_week": [
+      7.798,
+      7.794,
+      7.79,
+      7.787,
+      7.785,
+      7.783,
+      7.782,
+      7.781,
+      7.781,
+      7.781,
+      7.781,
+      7.781,
+      7.782,
+      7.782,
+      7.783,
+      7.784,
+      7.785,
+      7.787,
+      7.788,
+      7.789,
+      7.791,
+      7.792,
+      7.794,
+      7.795,
+      7.797,
+      7.799,
+      7.8
+     ],
+     "a1c_low": [
+      7.798,
+      7.786,
+      7.776,
+      7.768,
+      7.761,
+      7.756,
+      7.752,
+      7.748,
+      7.745,
+      7.743,
+      7.742,
+      7.741,
+      7.74,
+      7.739,
+      7.739,
+      7.739,
+      7.74,
+      7.74,
+      7.741,
+      7.742,
+      7.743,
+      7.744,
+      7.745,
+      7.746,
+      7.747,
+      7.748,
+      7.75
+     ],
+     "a1c_high": [
+      7.798,
+      7.797,
+      7.795,
+      7.795,
+      7.795,
+      7.795,
+      7.795,
+      7.796,
+      7.797,
+      7.799,
+      7.8,
+      7.802,
+      7.804,
+      7.805,
+      7.808,
+      7.81,
+      7.812,
+      7.815,
+      7.817,
+      7.819,
+      7.822,
+      7.825,
+      7.827,
+      7.83,
+      7.832,
+      7.835,
+      7.838
+     ],
+     "share_below_7": 0.077,
+     "urinary_glucose_g_day": 8.2,
+     "organ_signals": {
+      "liver_glucose_output_change_pct": 0.0,
+      "insulin_secretion_capacity_change_pct": 0.0,
+      "urinary_glucose_change_g_day": 0.04,
+      "fasting_glucose_change_mg_dl": 1.18,
+      "weight_change_kg": -0.29
+     }
+    },
+    "Candidate X 50 mg/day (hypothetical)": {
+     "a1c_by_week": [
+      7.798,
+      7.655,
+      7.533,
+      7.427,
+      7.337,
+      7.26,
+      7.193,
+      7.136,
+      7.087,
+      7.045,
+      7.009,
+      6.977,
+      6.95,
+      6.927,
+      6.907,
+      6.89,
+      6.876,
+      6.863,
+      6.852,
+      6.843,
+      6.835,
+      6.828,
+      6.823,
+      6.818,
+      6.814,
+      6.81,
+      6.808
+     ],
+     "a1c_low": [
+      7.798,
+      7.6,
+      7.439,
+      7.308,
+      7.202,
+      7.115,
+      7.045,
+      6.988,
+      6.942,
+      6.905,
+      6.874,
+      6.85,
+      6.83,
+      6.814,
+      6.802,
+      6.791,
+      6.783,
+      6.775,
+      6.767,
+      6.76,
+      6.755,
+      6.75,
+      6.747,
+      6.744,
+      6.741,
+      6.739,
+      6.738
+     ],
+     "a1c_high": [
+      7.798,
+      7.706,
+      7.623,
+      7.546,
+      7.477,
+      7.414,
+      7.357,
+      7.305,
+      7.258,
+      7.215,
+      7.176,
+      7.14,
+      7.108,
+      7.079,
+      7.052,
+      7.028,
+      7.007,
+      6.987,
+      6.969,
+      6.953,
+      6.938,
+      6.925,
+      6.913,
+      6.902,
+      6.893,
+      6.884,
+      6.876
+     ],
+     "share_below_7": 0.685,
+     "urinary_glucose_g_day": 4.4,
+     "organ_signals": {
+      "liver_glucose_output_change_pct": -27.13,
+      "insulin_secretion_capacity_change_pct": 0.0,
+      "urinary_glucose_change_g_day": -3.7,
+      "fasting_glucose_change_mg_dl": -29.11,
+      "weight_change_kg": -0.23
+     }
+    }
+   },
+   "enrolment": {
+    "eligible_real_participants": 378,
+    "effective_sample_size": 161.8,
+    "thin_pool": false,
+    "matched": {
+     "a1c": 7.8,
+     "fpg": 179.5,
+     "weight": 95.6,
+     "age": 59.4,
+     "egfr": 89.8
+    },
+    "targets": {
+     "a1c": null,
+     "fpg": null,
+     "weight": null,
+     "age": null
+    }
+   },
+   "uncertainty": {
+    "posterior_draws": 16,
+    "replicates_per_draw": 40
+   },
+   "validation": {
+    "available": true,
+    "blind": true,
+    "n_contrasts": 20,
+    "mae": 0.29,
+    "bias": -0.069,
+    "within_0_30": 0.5,
+    "coverage_95pi": 0.85,
+    "coverage_80pi": 0.5,
+    "coverage_50pi": 0.25,
+    "interval_score_95": 1.385,
+    "mean_pi95_width": 0.826,
+    "V3_pass": false,
+    "V4_pass": true,
+    "V5_pass": true,
+    "V5_order_correct": true,
+    "V5_each_within": true,
+    "null_mae": 0.3,
+    "model_minus_null_mae": -0.01,
+    "model_minus_null_ci95": [
+     -0.091,
+     0.034
+    ],
+    "beats_null": false
+   },
+   "label_flags": [],
+   "validation_scope": [
+    "A hypothetical molecule has no real data. Validation does not apply to it, and its result reflects the numbers entered."
+   ],
+   "not_modelled": [
+    "Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.",
+    "Cardiovascular and kidney outcomes are not simulated.",
+    "Serious adverse events are not simulated."
+   ],
+   "arm_kinds": {
+    "Placebo": "control",
+    "Candidate X 50 mg/day (hypothetical)": "hypothetical"
+   },
+   "notice": "Research simulation. Not medical advice and not evidence that a treatment works in any person.",
+   "track_record": {
+    "Candidate X 50 mg/day (hypothetical)": {
+     "available": false,
+     "sentence": "No held-out record exists for this regimen."
+    }
+   }
+  }
+ },
+ "trial_kidney": {
+  "status": 200,
+  "seconds": 2.02,
+  "body": {
+   "control": "Placebo",
+   "weeks": 24,
+   "n_per_arm": 200,
+   "contrasts": {
+    "Empagliflozin 25 mg/day": {
+     "hba1c": {
+      "effect": -0.443,
+      "interval95": [
+       -0.592,
+       -0.339
+      ],
+      "typical_trial_se": 0.032,
+      "probability_significant_benefit": 1.0
+     },
+     "fpg": {
+      "effect": -9.8,
+      "interval95": [
+       -14.397,
+       -5.463
+      ],
+      "typical_trial_se": 2.023,
+      "probability_significant_benefit": 0.992
+     },
+     "weight": {
+      "effect": -1.81,
+      "interval95": [
+       -2.388,
+       -1.291
+      ],
+      "typical_trial_se": 0.116,
+      "probability_significant_benefit": 1.0
+     }
+    }
+   },
+   "arms": {
+    "Placebo": {
+     "a1c_by_week": [
+      7.692,
+      7.684,
+      7.677,
+      7.671,
+      7.667,
+      7.663,
+      7.66,
+      7.658,
+      7.656,
+      7.655,
+      7.654,
+      7.654,
+      7.654,
+      7.654,
+      7.654,
+      7.655,
+      7.656,
+      7.657,
+      7.658,
+      7.659,
+      7.66,
+      7.661,
+      7.663,
+      7.664,
+      7.666
+     ],
+     "a1c_low": [
+      7.692,
+      7.67,
+      7.652,
+      7.637,
+      7.625,
+      7.614,
+      7.606,
+      7.598,
+      7.593,
+      7.588,
+      7.584,
+      7.581,
+      7.579,
+      7.577,
+      7.576,
+      7.575,
+      7.575,
+      7.575,
+      7.575,
+      7.575,
+      7.576,
+      7.577,
+      7.577,
+      7.578,
+      7.579
+     ],
+     "a1c_high": [
+      7.692,
+      7.689,
+      7.687,
+      7.685,
+      7.684,
+      7.684,
+      7.683,
+      7.684,
+      7.684,
+      7.685,
+      7.687,
+      7.688,
+      7.689,
+      7.691,
+      7.693,
+      7.695,
+      7.697,
+      7.699,
+      7.701,
+      7.704,
+      7.706,
+      7.709,
+      7.711,
+      7.714,
+      7.717
+     ],
+     "share_below_7": 0.107,
+     "urinary_glucose_g_day": 0.4,
+     "organ_signals": {
+      "liver_glucose_output_change_pct": 0.0,
+      "insulin_secretion_capacity_change_pct": 0.0,
+      "urinary_glucose_change_g_day": -0.03,
+      "fasting_glucose_change_mg_dl": 1.0,
+      "weight_change_kg": -0.27
+     }
+    },
+    "Empagliflozin 25 mg/day": {
+     "a1c_by_week": [
+      7.692,
+      7.624,
+      7.566,
+      7.516,
+      7.474,
+      7.437,
+      7.405,
+      7.378,
+      7.355,
+      7.335,
+      7.317,
+      7.302,
+      7.289,
+      7.278,
+      7.269,
+      7.261,
+      7.254,
+      7.247,
+      7.242,
+      7.238,
+      7.234,
+      7.231,
+      7.228,
+      7.226,
+      7.224
+     ],
+     "a1c_low": [
+      7.692,
+      7.597,
+      7.521,
+      7.458,
+      7.405,
+      7.36,
+      7.321,
+      7.288,
+      7.258,
+      7.233,
+      7.212,
+      7.193,
+      7.177,
+      7.164,
+      7.152,
+      7.143,
+      7.134,
+      7.127,
+      7.121,
+      7.116,
+      7.112,
+      7.108,
+      7.105,
+      7.102,
+      7.1
+     ],
+     "a1c_high": [
+      7.692,
+      7.65,
+      7.612,
+      7.577,
+      7.546,
+      7.517,
+      7.493,
+      7.47,
+      7.45,
+      7.432,
+      7.416,
+      7.402,
+      7.391,
+      7.381,
+      7.372,
+      7.364,
+      7.357,
+      7.351,
+      7.346,
+      7.341,
+      7.337,
+      7.334,
+      7.331,
+      7.329,
+      7.327
+     ],
+     "share_below_7": 0.397,
+     "urinary_glucose_g_day": 42.5,
+     "organ_signals": {
+      "liver_glucose_output_change_pct": 0.0,
+      "insulin_secretion_capacity_change_pct": 0.0,
+      "urinary_glucose_change_g_day": 41.99,
+      "fasting_glucose_change_mg_dl": -8.61,
+      "weight_change_kg": -2.08
+     }
+    }
+   },
+   "enrolment": {
+    "eligible_real_participants": 35,
+    "effective_sample_size": 17.3,
+    "thin_pool": true,
+    "matched": {
+     "a1c": 7.69,
+     "fpg": 156.6,
+     "weight": 93.5,
+     "age": 71.9,
+     "egfr": 51.1
+    },
+    "targets": {
+     "a1c": null,
+     "fpg": null,
+     "weight": null,
+     "age": null
+    }
+   },
+   "uncertainty": {
+    "posterior_draws": 16,
+    "replicates_per_draw": 40
+   },
+   "validation": {
+    "available": true,
+    "blind": true,
+    "n_contrasts": 20,
+    "mae": 0.29,
+    "bias": -0.069,
+    "within_0_30": 0.5,
+    "coverage_95pi": 0.85,
+    "coverage_80pi": 0.5,
+    "coverage_50pi": 0.25,
+    "interval_score_95": 1.385,
+    "mean_pi95_width": 0.826,
+    "V3_pass": false,
+    "V4_pass": true,
+    "V5_pass": true,
+    "V5_order_correct": true,
+    "V5_each_within": true,
+    "null_mae": 0.3,
+    "model_minus_null_mae": -0.01,
+    "model_minus_null_ci95": [
+     -0.091,
+     0.034
+    ],
+    "beats_null": false
+   },
+   "label_flags": [],
+   "validation_scope": [],
+   "not_modelled": [
+    "Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.",
+    "Cardiovascular and kidney outcomes are not simulated.",
+    "Serious adverse events are not simulated."
+   ],
+   "arm_kinds": {
+    "Placebo": "control",
+    "Empagliflozin 25 mg/day": "real drug"
+   },
+   "notice": "Research simulation. Not medical advice and not evidence that a treatment works in any person.",
+   "track_record": {
+    "Empagliflozin 25 mg/day": {
+     "available": true,
+     "drug": "empagliflozin",
+     "closest": {
+      "trial": "EMPA-REG MET",
+      "weeks": 24,
+      "results": 2,
+      "mae": 0.17,
+      "mean_error": -0.17,
+      "held_up": true
+     },
+     "by_trial": [
+      {
+       "trial": "EMPA-REG MET",
+       "weeks": 24,
+       "results": 2,
+       "mae": 0.17,
+       "mean_error": -0.17,
+       "held_up": true
+      },
+      {
+       "trial": "EMPA-REG RENAL",
+       "weeks": 24,
+       "results": 3,
+       "mae": 0.05,
+       "mean_error": 0.02,
+       "held_up": true
+      }
+     ],
+     "note": "From the blind test on real trials. It describes past error and does not adjust this simulated number.",
+     "sentence": "Blind test record for empagliflozin: EMPA-REG MET (24 weeks, 2 results) over-predicted the HbA1c benefit by 0.17 on average: held up; EMPA-REG RENAL (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.02 on average: held up."
+    }
+   }
+  }
+ },
+ "power": {
+  "status": 200,
+  "seconds": 3.06,
+  "body": {
+   "arm": "Sitagliptin 100 mg/day",
+   "control": "Placebo",
+   "endpoint": "hba1c",
+   "curve": [
+    {
+     "n_per_arm": 25,
+     "power": 1.0
+    },
+    {
+     "n_per_arm": 50,
+     "power": 1.0
+    },
+    {
+     "n_per_arm": 100,
+     "power": 1.0
+    },
+    {
+     "n_per_arm": 200,
+     "power": 1.0
+    },
+    {
+     "n_per_arm": 300,
+     "power": 1.0
+    },
+    {
+     "n_per_arm": 400,
+     "power": 1.0
+    },
+    {
+     "n_per_arm": 500,
+     "power": 1.0
+    }
+   ],
+   "smallest_size_reaching_80pct": 25,
+   "enrolment": {
+    "eligible_real_participants": 378,
+    "effective_sample_size": 161.8,
+    "thin_pool": false,
+    "matched": {
+     "a1c": 7.81,
+     "fpg": 180.2,
+     "weight": 96.3,
+     "age": 59.8,
+     "egfr": 90.0
+    },
+    "targets": {
+     "a1c": null,
+     "fpg": null,
+     "weight": null,
+     "age": null
+    }
+   },
+   "validation": {
+    "available": true,
+    "blind": true,
+    "n_contrasts": 20,
+    "mae": 0.29,
+    "bias": -0.069,
+    "within_0_30": 0.5,
+    "coverage_95pi": 0.85,
+    "coverage_80pi": 0.5,
+    "coverage_50pi": 0.25,
+    "interval_score_95": 1.385,
+    "mean_pi95_width": 0.826,
+    "V3_pass": false,
+    "V4_pass": true,
+    "V5_pass": true,
+    "V5_order_correct": true,
+    "V5_each_within": true,
+    "null_mae": 0.3,
+    "model_minus_null_mae": -0.01,
+    "model_minus_null_ci95": [
+     -0.091,
+     0.034
+    ],
+    "beats_null": false
+   },
+   "label_flags": [
+    "Sitagliptin label: dose is reduced to 50 mg at eGFR 30 to 45, and 25 mg below 30. This run uses a higher dose in part of that range."
+   ],
+   "validation_scope": [
+    "Kidney behaviour was tested only for empagliflozin at eGFR 30 to 90."
+   ],
+   "not_modelled": [
+    "Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.",
+    "Cardiovascular and kidney outcomes are not simulated.",
+    "Serious adverse events are not simulated."
+   ],
+   "arm_kinds": {
+    "Placebo": "control",
+    "Sitagliptin 100 mg/day": "real drug"
+   },
+   "notice": "Planning aid only. Real trials need a biostatistician and a real effect estimate."
+  }
+ },
+ "responders": {
+  "status": 200,
+  "seconds": 0.15,
+  "body": {
+   "arm": "Empagliflozin 25 mg/day",
+   "control": "Placebo",
+   "endpoint": "hba1c",
+   "mean_individual_effect": -0.814,
+   "spread_sd": 0.544,
+   "drivers": [
+    {
+     "feature": "baseline fasting glucose",
+     "importance": 0.88
+    },
+    {
+     "feature": "eGFR",
+     "importance": 0.096
+    },
+    {
+     "feature": "weight",
+     "importance": 0.012
+    },
+    {
+     "feature": "insulin sensitivity",
+     "importance": 0.012
+    }
+   ],
+   "subgroups": [
+    {
+     "rule": "baseline fasting glucose > 188.5 and baseline fasting glucose > 224.1 and insulin sensitivity > 0.2",
+     "patients": 31,
+     "mean_effect": -1.73
+    },
+    {
+     "rule": "baseline fasting glucose > 188.5 and baseline fasting glucose > 224.1 and insulin sensitivity <= 0.2",
+     "patients": 37,
+     "mean_effect": -1.468
+    },
+    {
+     "rule": "baseline fasting glucose > 188.5 and baseline fasting glucose <= 224.1 and eGFR > 75.3",
+     "patients": 120,
+     "mean_effect": -1.198
+    },
+    {
+     "rule": "baseline fasting glucose <= 188.5 and baseline fasting glucose > 169.8 and weight <= 88.6",
+     "patients": 39,
+     "mean_effect": -0.907
+    },
+    {
+     "rule": "baseline fasting glucose > 188.5 and baseline fasting glucose <= 224.1 and eGFR <= 75.3",
+     "patients": 34,
+     "mean_effect": -0.73
+    },
+    {
+     "rule": "baseline fasting glucose <= 188.5 and baseline fasting glucose > 169.8 and weight > 88.6",
+     "patients": 59,
+     "mean_effect": -0.684
+    },
+    {
+     "rule": "baseline fasting glucose <= 188.5 and baseline fasting glucose <= 169.8 and eGFR > 95.5",
+     "patients": 90,
+     "mean_effect": -0.642
+    },
+    {
+     "rule": "baseline fasting glucose <= 188.5 and baseline fasting glucose <= 169.8 and eGFR <= 95.5",
+     "patients": 190,
+     "mean_effect": -0.413
+    }
+   ],
+   "fit_r2": 0.532,
+   "enrolment": {
+    "eligible_real_participants": 378,
+    "effective_sample_size": 161.8,
+    "thin_pool": false,
+    "matched": {
+     "a1c": 7.8,
+     "fpg": 179.5,
+     "weight": 95.6,
+     "age": 59.4,
+     "egfr": 89.8
+    },
+    "targets": {
+     "a1c": null,
+     "fpg": null,
+     "weight": null,
+     "age": null
+    }
+   },
+   "validation": {
+    "available": true,
+    "blind": true,
+    "n_contrasts": 20,
+    "mae": 0.29,
+    "bias": -0.069,
+    "within_0_30": 0.5,
+    "coverage_95pi": 0.85,
+    "coverage_80pi": 0.5,
+    "coverage_50pi": 0.25,
+    "interval_score_95": 1.385,
+    "mean_pi95_width": 0.826,
+    "V3_pass": false,
+    "V4_pass": true,
+    "V5_pass": true,
+    "V5_order_correct": true,
+    "V5_each_within": true,
+    "null_mae": 0.3,
+    "model_minus_null_mae": -0.01,
+    "model_minus_null_ci95": [
+     -0.091,
+     0.034
+    ],
+    "beats_null": false
+   },
+   "label_flags": [],
+   "validation_scope": [],
+   "not_modelled": [
+    "Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.",
+    "Cardiovascular and kidney outcomes are not simulated.",
+    "Serious adverse events are not simulated."
+   ],
+   "arm_kinds": {
+    "Placebo": "control",
+    "Empagliflozin 25 mg/day": "real drug"
+   },
+   "notice": "Hypothesis only. This describes the simulator's structure, so it cannot discover biology the model does not contain."
+  }
+ },
+ "assistant": [
+  {
+   "question": "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks",
+   "status": 200,
+   "seconds": 4.02,
+   "source": "planner",
+   "text": "Interpreted as: semaglutide 1 mg, empagliflozin 25 mg; 30 weeks; 200 per arm. Simulated 30-week trial with 200 patients per arm. Semaglutide 1 mg/week: HbA1c -1.644 points against placebo (95% interval -1.824 to -1.464), weight -4.061 kg; Empagliflozin 25 mg/day: HbA1c -0.815 points against placebo (95% interval -1.073 to -0.634), weight -2.408 kg. Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Kidney behaviour was tested only for empagliflozin at eGFR 30 to 90. Blind test record for semaglutide: Semaglutide phase 2 (12 weeks, 6 results) over-predicted the HbA1c benefit by 0.50 on average: missed; SUSTAIN 2 (56 weeks, 2 results) over-predicted the HbA1c benefit by 0.09 on average: held up. Blind test record for empagliflozin: EMPA-REG MET (24 weeks, 2 results) over-predicted the HbA1c benefit by 0.17 on average: held up; EMPA-REG RENAL (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.02 on average: held up. Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin. Research simulation. Not medical advice and not evidence that a treatment works in any person.\n\nIf this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night.",
+   "tools": [
+    "run_virtual_trial"
+   ]
+  },
+  {
+   "question": "How many patients do I need for sitagliptin 100 mg?",
+   "status": 200,
+   "seconds": 3.03,
+   "source": "planner",
+   "text": "Interpreted as: sitagliptin 100 mg; 26 weeks; 200 per arm. Simulated power for Sitagliptin 100 mg/day against placebo. 25 per arm: 100%, 50 per arm: 100%, 100 per arm: 100%, 200 per arm: 100%, 300 per arm: 100%, 400 per arm: 100%, 500 per arm: 100%. 80% power is first reached at 25 per arm. Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Sitagliptin label: dose is reduced to 50 mg at eGFR 30 to 45, and 25 mg below 30. This run uses a higher dose in part of that range. Kidney behaviour was tested only for empagliflozin at eGFR 30 to 90. Blind test record for sitagliptin: Sitagliptin + metformin factorial (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.35 on average: missed; Sitagliptin monotherapy (24 weeks, 2 results) under-predicted the HbA1c benefit by 0.17 on average: held up. Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.\n\nIf this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night.",
+   "tools": [
+    "power_analysis"
+   ]
+  },
+  {
+   "question": "Who responds to empagliflozin?",
+   "status": 200,
+   "seconds": 0.15,
+   "source": "planner",
+   "text": "Interpreted as: empagliflozin 25 mg (default dose, none stated); 26 weeks; 200 per arm. In the model, Empagliflozin 25 mg/day changes HbA1c by -0.814 points on average. Largest simulated effect (-1.73): baseline fasting glucose > 188.5 and baseline fasting glucose > 224.1 and insulin sensitivity > 0.2. Smallest (-0.413): baseline fasting glucose <= 188.5 and baseline fasting glucose <= 169.8 and eGFR <= 95.5. Hypothesis only. This describes the simulator's structure, so it cannot discover biology the model does not contain. Blind test record for empagliflozin: EMPA-REG MET (24 weeks, 2 results) over-predicted the HbA1c benefit by 0.17 on average: held up; EMPA-REG RENAL (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.02 on average: held up. Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.\n\nIf this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night.",
+   "tools": [
+    "who_responds"
+   ]
+  },
+  {
+   "question": "What are the side effects of semaglutide?",
+   "status": 200,
+   "seconds": 0.0,
+   "source": "planner",
+   "text": "Semaglutide, from its FDA label: Thyroid c-cell tumors (boxed warning): Thyroid C-cell tumors occurred in rodents. It is unknown whether this happens in humans. Pancreatitis (warning): Acute pancreatitis has been observed with GLP-1 receptor agonists. Retinopathy (warning): Diabetic retinopathy complications have been reported. Hypoglycemia (warning): Risk of low blood sugar rises when used with insulin or an insulin secretagogue. Most common events in real trial NCT02054897 (not simulated): Nausea 20.3%, Diarrhoea 12.5%, Headache 11.7%, Constipation 6.2%, Lipase increased 6.2%. Label warnings come first because this table cannot show them: one trial, at the reporting threshold the sponsor chose, is too small for rare but serious harms. An event missing from the table means it was not reported at that threshold, and does not mean it cannot happen. These rates are not simulated. For any concern about a medicine, please ask a doctor or pharmacist.\n\nIf this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night.",
+   "tools": [
+    "drug_safety"
+   ]
+  },
+  {
+   "question": "How accurate is this lab?",
+   "status": 200,
+   "seconds": 0.0,
+   "source": "verified",
+   "text": "Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Held up in: EMPA-REG MET, EMPA-REG RENAL, SUSTAIN 2, Sitagliptin monotherapy. Missed in: Semaglutide phase 2, Sitagliptin + metformin factorial. The model was closer than the rival on 12 of 20 results, but that gap is not statistically reliable. Largest misses: Semaglutide phase 2, Semaglutide 0.4 mg: predicted -1.145, observed -0.5; Sitagliptin + metformin factorial, Sitagliptin 50 mg b.i.d + Metformin 1000 mg b.i.d.: predicted -1.506, observed -2.07; Semaglutide phase 2, Semaglutide 0.1 mg: predicted -0.627, observed -0.1.",
+   "tools": [
+    "validation_report"
+   ]
+  },
+  {
+   "question": "My HbA1c is 9, should I stop metformin?",
+   "status": 200,
+   "seconds": 0.0,
+   "source": "refusal",
+   "text": "If this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night. I can't advise on anyone's own treatment, dose or medicine, including a patient or relative. This lab simulates populations for research and learning, and its results don't apply to an individual. Please talk to a doctor or pharmacist, and don't stop or change a medicine without their advice. I can still show how a drug class behaves across a virtual trial.",
+   "tools": []
+  }
+ ]
+}

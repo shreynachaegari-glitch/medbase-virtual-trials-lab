@@ -1,0 +1,92 @@
+[
+ {
+  "name": "engine loads in the browser",
+  "ok": true,
+  "detail": "30.0s"
+ },
+ {
+  "name": "real trial runs",
+  "ok": true,
+  "detail": "7.4s"
+ },
+ {
+  "name": "track record shows a miss and a hold",
+  "ok": true,
+  "detail": "How these drugs did in the blind testFrom the blind test on real trials. It describes past error and does not adjust this simulated number.Semaglutide 1 mg/weekMissedSema"
+ },
+ {
+  "name": "3D body canvas present and has a live context",
+  "ok": true,
+  "detail": "{\"w\":476,\"h\":320,\"gl\":true,\"lost\":false}"
+ },
+ {
+  "name": "designer shows surrogate guidance",
+  "ok": true,
+  "detail": "7.9s A trained neural surrogate chose where to startIt screened 400 doses in 3.2 ms and proposed 0.192 mg/week, predicting -1 points. The simulator then checked 3 doses, and every number below comes from the simulat"
+ },
+ {
+  "name": "designer found or explained a design",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "designer shows the blind result at the nearest dose",
+  "ok": true,
+  "detail": "The blind test at this dose. At the nearest dose tested blind (Semaglutide 0.2 mg, Semaglutide phase 2, 12 weeks) the simulator predicted -0.889 and the trial observed -0"
+ },
+ {
+  "name": "designer shows its caveats",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "surrogate sliders use the trained network",
+  "ok": true,
+  "detail": "a1c −1.28points | Tested on 480 simulator runs it never trained on: HbA1c mean error 0.082 points (R² 0.949), weight 0.336 kg (R"
+ },
+ {
+  "name": "proof tab shows the real blind result",
+  "ok": true,
+  "detail": "failed badge: true"
+ },
+ {
+  "name": "copilot gives the code-written failure account",
+  "ok": true,
+  "detail": "0.1s [Written by code] Written by codeCode wrote this text, so it can't be misquotedValidation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Held up in: EMPA-REG MET, EMPA-REG RENAL, SUSTAIN 2, Sitagliptin monotherapy. Missed in: Semaglutide phase 2, Sitagliptin + metformin factorial. The model was closer than the rival on 12 of 20 results, but that gap is not statistically reliable. Largest misses: Semaglutide phase 2, Semaglutide 0.4 mg: predicted -1.145, observed -0.5; Sitagliptin + metformin factorial, Sitagliptin 50 mg b.i.d + Metformin 1000 mg b.i.d.: predicted -1.506, observed -2.07; Semaglutide phase 2, Semaglutide 0.1 mg: predicted -0.627, observed -0.1.This account of the blind test is written by code, so it cannot be misquoted.This question was not sent to an AI provider.Tools that ranRead the validation report"
+ },
+ {
+  "name": "personal question refused",
+  "ok": true,
+  "detail": "0.1s [Refusal]"
+ },
+ {
+  "name": "unframed drug question gets a fixed reply",
+  "ok": true,
+  "detail": "0.1s [Not a simulation]"
+ },
+ {
+  "name": "urgent message gets the emergency reply",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "live model answers through the real proxy with caveats appended",
+  "ok": true,
+  "detail": "37.0s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorSimulated 30‑week comparison: semaglutide 1 mg weekly reduced HbA1c by 1.66 percentage points, empagliflozin 25 mg/day by 0.84 pp. Semagluti"
+ },
+ {
+  "name": "AI calls spent",
+  "ok": true,
+  "detail": "2"
+ },
+ {
+  "name": "no console errors",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "no failed requests",
+  "ok": true,
+  "detail": ""
+ }
+]

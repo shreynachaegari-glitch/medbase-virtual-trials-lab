@@ -39,7 +39,8 @@ WARNINGS = {
     ],
 }
 
-# Modelled dose range, kept inside each drug's labelled range for type 2 diabetes.
+# Modelled dose range. Upper bounds stay at the label for type 2 diabetes. Lower bounds reach doses used in
+# dose-ranging trials, such as semaglutide 0.1 mg, which can sit below a labelled starting dose.
 DOSE_RANGE = {"semaglutide": (0.1, 2.0), "empagliflozin": (1.0, 25.0), "sitagliptin": (12.5, 100.0), "metformin": (250.0, 2550.0)}
 REAL_NAMES = ("semaglutide", "ozempic", "wegovy", "rybelsus", "empagliflozin", "jardiance", "sitagliptin", "januvia", "metformin", "glucophage", "placebo", "insulin", "liraglutide", "tirzepatide", "dapagliflozin")
 

@@ -22,12 +22,14 @@ const STARTERS = [
     "Should I stop taking my metformin?",
 ] as const;
 
-const NIM_LABEL = "AI model (NVIDIA NIM), every number checked against the simulator";
+const NIM_LABEL = "AI model (NVIDIA NIM), figures checked against the simulator";
 const BROWSER_PLANNER = "Offline planner: runs in your browser, nothing is sent anywhere";
 
 const SOURCE: Record<AssistantReply["source"], { label: string; note: string; className: string }> = {
     claude: { label: "Claude", note: "A language model wrote this, using simulator tools", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
     nim: { label: NIM_LABEL, note: "", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
+    verified: { label: "Written by code", note: "Code wrote this text, so it can't be misquoted", className: "border-foreground/50 text-foreground" },
+    scope: { label: "Not a simulation", note: "This is a fixed message, and no model or simulation ran", className: "border-foreground/50 text-foreground" },
     planner: { label: "Offline planner", note: "No language model: fixed rules ran the tools and filled in the numbers", className: "border-foreground/50 text-foreground" },
     "intent-model": { label: "Small trained model", note: "No language model: it only chooses a fixed or computed reply, so it can't write a number or a claim", className: "border-foreground/50 text-foreground" },
     refusal: { label: "Refusal", note: "Personal medical questions are refused", className: "border-[hsl(var(--prov-extrapolated))] text-[hsl(var(--prov-extrapolated))]" },

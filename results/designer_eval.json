@@ -1,0 +1,629 @@
+{
+ "summary": {
+  "goals": 36,
+  "same_feasibility_verdict": 36,
+  "both_found_a_design": 28,
+  "total_simulator_runs_guided": 118,
+  "total_simulator_runs_plain": 217,
+  "fewer_runs_share": 0.456,
+  "mean_runs_guided": 3.28,
+  "mean_runs_plain": 6.03,
+  "median_dose_difference": 0.03,
+  "largest_dose_difference": 0.087,
+  "goals_where_guided_used_more_runs": 2
+ },
+ "rows": [
+  {
+   "drug": "semaglutide",
+   "target_effect": 0.5,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 2,
+    "seconds": 5.6,
+    "dose_mg": 0.1,
+    "effect": -0.625
+   },
+   "plain": {
+    "simulator_runs": 3,
+    "seconds": 4.7,
+    "dose_mg": 0.1,
+    "effect": -0.625
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 0.5,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 2,
+    "seconds": 4.3,
+    "dose_mg": 0.1,
+    "effect": -0.702
+   },
+   "plain": {
+    "simulator_runs": 3,
+    "seconds": 4.9,
+    "dose_mg": 0.1,
+    "effect": -0.702
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 0.5,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 2,
+    "seconds": 23.6,
+    "dose_mg": 0.1,
+    "effect": -0.765
+   },
+   "plain": {
+    "simulator_runs": 3,
+    "seconds": 29.8,
+    "dose_mg": 0.1,
+    "effect": -0.765
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 1.0,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 5.0,
+    "dose_mg": 0.27,
+    "effect": -1.018
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 6.5,
+    "dose_mg": 0.28,
+    "effect": -1.03
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 1.0,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 9.0,
+    "dose_mg": 0.22,
+    "effect": -1.051
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 28.9,
+    "dose_mg": 0.22,
+    "effect": -1.051
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 1.0,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 14.1,
+    "dose_mg": 0.17,
+    "effect": -1.017
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 21.7,
+    "dose_mg": 0.18,
+    "effect": -1.045
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 1.5,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 2,
+    "seconds": 2.2,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 0.7,
+    "dose_mg": null,
+    "effect": null
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 1.5,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 8,
+    "seconds": 13.4,
+    "dose_mg": 0.75,
+    "effect": -1.511
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 10.3,
+    "dose_mg": 0.79,
+    "effect": -1.525
+   }
+  },
+  {
+   "drug": "semaglutide",
+   "target_effect": 1.5,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 11.2,
+    "dose_mg": 0.53,
+    "effect": -1.532
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 22.6,
+    "dose_mg": 0.5,
+    "effect": -1.509
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.3,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 3.8,
+    "dose_mg": 3.2,
+    "effect": -0.326
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 10.0,
+    "dose_mg": 3.1,
+    "effect": -0.319
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.3,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 4.7,
+    "dose_mg": 2.7,
+    "effect": -0.32
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 11.1,
+    "dose_mg": 2.8,
+    "effect": -0.329
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.3,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 12.1,
+    "dose_mg": 2.3,
+    "effect": -0.311
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 22.5,
+    "dose_mg": 2.3,
+    "effect": -0.311
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.5,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 6,
+    "seconds": 5.9,
+    "dose_mg": 7.0,
+    "effect": -0.508
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 8.6,
+    "dose_mg": 6.8,
+    "effect": -0.502
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.5,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 6,
+    "seconds": 8.7,
+    "dose_mg": 5.6,
+    "effect": -0.512
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 12.2,
+    "dose_mg": 5.6,
+    "effect": -0.512
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.5,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 29.4,
+    "dose_mg": 5.0,
+    "effect": -0.531
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 28.6,
+    "dose_mg": 4.6,
+    "effect": -0.507
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.7,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 1,
+    "seconds": 0.7,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 0.7,
+    "dose_mg": null,
+    "effect": null
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.7,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 8,
+    "seconds": 10.7,
+    "dose_mg": 15,
+    "effect": -0.702
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 11.5,
+    "dose_mg": 16,
+    "effect": -0.71
+   }
+  },
+  {
+   "drug": "empagliflozin",
+   "target_effect": 0.7,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 6,
+    "seconds": 15.7,
+    "dose_mg": 11,
+    "effect": -0.716
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 20.3,
+    "dose_mg": 11,
+    "effect": -0.716
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.3,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 6,
+    "seconds": 7.6,
+    "dose_mg": 17,
+    "effect": -0.307
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 7.1,
+    "dose_mg": 18,
+    "effect": -0.317
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.3,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 6,
+    "seconds": 8.3,
+    "dose_mg": 15,
+    "effect": -0.309
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 17.7,
+    "dose_mg": 16,
+    "effect": -0.322
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.3,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 5,
+    "seconds": 28.1,
+    "dose_mg": 15,
+    "effect": -0.32
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 27.3,
+    "dose_mg": 15,
+    "effect": -0.32
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.5,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 3.0,
+    "dose_mg": 54,
+    "effect": -0.508
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 6.7,
+    "dose_mg": 53,
+    "effect": -0.505
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.5,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 15.5,
+    "dose_mg": 44,
+    "effect": -0.517
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 15.6,
+    "dose_mg": 41,
+    "effect": -0.504
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.5,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 9.8,
+    "dose_mg": 39,
+    "effect": -0.512
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 23.9,
+    "dose_mg": 38,
+    "effect": -0.507
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.7,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 1,
+    "seconds": 0.7,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 0.7,
+    "dose_mg": null,
+    "effect": null
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.7,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 1,
+    "seconds": 1.2,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 1.1,
+    "dose_mg": null,
+    "effect": null
+   }
+  },
+  {
+   "drug": "sitagliptin",
+   "target_effect": 0.7,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 2,
+    "seconds": 4.5,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 2.3,
+    "dose_mg": null,
+    "effect": null
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 0.5,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 3.0,
+    "dose_mg": 890,
+    "effect": -0.526
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 6.6,
+    "dose_mg": 860,
+    "effect": -0.515
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 0.5,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 5.8,
+    "dose_mg": 710,
+    "effect": -0.505
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 12.2,
+    "dose_mg": 750,
+    "effect": -0.523
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 0.5,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 9.3,
+    "dose_mg": 670,
+    "effect": -0.52
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 20.6,
+    "dose_mg": 650,
+    "effect": -0.51
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 0.8,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 9.6,
+    "dose_mg": 2400,
+    "effect": -0.815
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 10.7,
+    "dose_mg": 2400,
+    "effect": -0.815
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 0.8,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 5.3,
+    "dose_mg": 1800,
+    "effect": -0.819
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 12.5,
+    "dose_mg": 1800,
+    "effect": -0.819
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 0.8,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 3,
+    "seconds": 13.4,
+    "dose_mg": 1600,
+    "effect": -0.831
+   },
+   "plain": {
+    "simulator_runs": 8,
+    "seconds": 20.3,
+    "dose_mg": 1600,
+    "effect": -0.831
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 1.1,
+   "weeks": 16,
+   "guided": {
+    "simulator_runs": 1,
+    "seconds": 0.7,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 0.8,
+    "dose_mg": null,
+    "effect": null
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 1.1,
+   "weeks": 26,
+   "guided": {
+    "simulator_runs": 1,
+    "seconds": 1.2,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 1.3,
+    "dose_mg": null,
+    "effect": null
+   }
+  },
+  {
+   "drug": "metformin",
+   "target_effect": 1.1,
+   "weeks": 52,
+   "guided": {
+    "simulator_runs": 1,
+    "seconds": 2.5,
+    "dose_mg": null,
+    "effect": null
+   },
+   "plain": {
+    "simulator_runs": 1,
+    "seconds": 2.2,
+    "dose_mg": null,
+    "effect": null
+   }
+  }
+ ]
+}

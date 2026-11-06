@@ -43,7 +43,8 @@ export default async function handler(req, res) {
     const upstream = await fetch(NIM_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${process.env.NVIDIA_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: MODEL, messages, tools, max_tokens: 1200 }),
+      // Hidden reasoning used up the token budget and left replies empty, and it added most of the wait.
+      body: JSON.stringify({ model: MODEL, messages, tools, max_tokens: 1200, chat_template_kwargs: { enable_thinking: false } }),
       signal: AbortSignal.timeout(50_000),
     });
     if (!upstream.ok) {

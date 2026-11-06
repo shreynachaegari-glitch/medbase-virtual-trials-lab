@@ -14,3 +14,4 @@ results/superseded/*.npy
 results/screens/ui-agent/desktop-*
 results/screens/ui-agent/mobile-*
 results/screens/**/prelim-unconverged-*
+.ruff_cache/

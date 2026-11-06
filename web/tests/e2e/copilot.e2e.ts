@@ -40,7 +40,7 @@ const ask = async (page: Page, question: string) => {
     await page.getByLabel("Your question for the Lab Assistant").fill(question);
     await page.getByRole("button", { name: "Send question" }).click();
 };
-const NIM = "AI model (NVIDIA NIM), every number checked against the simulator";
+const NIM = "AI model (NVIDIA NIM), figures checked against the simulator";
 
 test.describe("with the model's replies scripted", () => {
     test.skip(realAI, "the real proxy is covered below");

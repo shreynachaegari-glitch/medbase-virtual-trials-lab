@@ -182,7 +182,27 @@ export interface TrialResponse extends ResultCaveats {
     enrolment: Enrolment;
     uncertainty: { posterior_draws: number; replicates_per_draw: number };
     validation: ValidationStatus;
+    /** The blind-test record per active arm, looked up after the result. It does not change the result. */
+    track_record?: Record<string, TrackRecord>;
     notice: string;
+}
+
+export interface TrackRecordTrial {
+    trial: string;
+    weeks: number;
+    results: number;
+    mae: number;
+    mean_error: number;
+    held_up: boolean;
+}
+
+export interface TrackRecord {
+    available: boolean;
+    sentence: string;
+    note?: string;
+    drug?: string;
+    closest?: TrackRecordTrial;
+    by_trial?: TrackRecordTrial[];
 }
 
 export interface PowerResponse extends ResultCaveats {
@@ -246,7 +266,7 @@ export interface SafetyResponse {
 
 export interface AssistantReply {
     text: string;
-    source: "claude" | "nim" | "planner" | "intent-model" | "refusal" | "emergency" | "language" | "unsupported";
+    source: "claude" | "nim" | "verified" | "scope" | "planner" | "intent-model" | "refusal" | "emergency" | "language" | "unsupported";
     tool_calls: { tool: string; ok: boolean }[];
     guard_note: string | null;
     sent_to_provider: boolean;
@@ -280,11 +300,28 @@ export interface SimulatedDesign {
     effect_interval95: [number, number];
 }
 
+export interface SurrogateGuide {
+    used: boolean;
+    reachable?: boolean;
+    proposed_mg?: number;
+    predicted_effect?: number;
+    screened?: number;
+    milliseconds?: number;
+    test_mae_vs_simulator?: number;
+    test_r2_vs_simulator?: number;
+}
+
 export interface DesignResponse {
     goal: { drug: string; target_effect: number; weeks: number; background: string; target_power: number };
     steps: DesignStep[];
     simulated_design: SimulatedDesign | null;
     reason: string;
+    surrogate?: SurrogateGuide;
+    simulator_runs?: number;
+    track_record?: TrackRecord;
+    dose_evidence?: { tested: boolean; sentence: string } | null;
+    label_flags?: string[];
+    validation_scope?: string[];
     validation: ValidationStatus;
     not_modelled: string[];
     notice: string;

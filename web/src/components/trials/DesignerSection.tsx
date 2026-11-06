@@ -1,3 +1,4 @@
+import { TrackRecord } from "./TrackRecord";
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Sparkles, TriangleAlert } from "lucide-react";
@@ -123,6 +124,23 @@ const DesignOutcome = ({ design, notice, reason, background, onUse }: { design: 
     </div>
 );
 
+const SurrogateBanner = ({ data }: { data: DesignResponse }) => {
+    const guide = data.surrogate;
+    if (!guide?.used) return null;
+    const unit = data.goal.drug === "semaglutide" ? "mg/week" : "mg/day";
+    return (
+        <div className="my-4 rounded-md border border-border p-3 text-sm" data-testid="surrogate-guide">
+            <p className="font-medium">A trained neural surrogate chose where to start</p>
+            <p className="mt-1 leading-relaxed text-muted-foreground">
+                It screened {guide.screened} doses in <span className="tnum">{guide.milliseconds}</span> ms and {guide.reachable ? "proposed" : "expected no lower dose to reach the target, so it pointed to"}{" "}
+                <span className="tnum">{guide.proposed_mg}</span> {unit}, predicting <span className="tnum">{guide.predicted_effect}</span> points. The simulator then checked{" "}
+                <span className="tnum">{data.simulator_runs}</span> doses, and every number below comes from the simulator. The network approximates the simulator (mean error{" "}
+                <span className="tnum">{guide.test_mae_vs_simulator}</span> points on simulator runs it never saw), not real patients.
+            </p>
+        </div>
+    );
+};
+
 const Result = ({ data, provenance, onUse }: { data: DesignResponse; provenance: Provenance; onUse: (d: SimulatedDesign, background: string) => void }) => {
     const [activeStep, setActiveStep] = useState<number | null>(null);
     const points: DosePoint[] = useMemo(
@@ -135,6 +153,13 @@ const Result = ({ data, provenance, onUse }: { data: DesignResponse; provenance:
     return (
         <div className="mt-8" data-testid="designer-result">
             <ValidationStrip status={data.validation} />
+            <SurrogateBanner data={data} />
+            {data.dose_evidence && (
+                <p className="my-4 rounded-md border border-[hsl(var(--prov-extrapolated))]/50 p-3 text-sm leading-relaxed" data-testid="dose-evidence">
+                    <span className="font-medium">The blind test at this dose. </span>{data.dose_evidence.sentence}
+                </p>
+            )}
+            <TrackRecord records={data.track_record ? { [goal.drug]: data.track_record } : undefined} />
             <div className="mt-3 flex flex-wrap items-center gap-2 lg:mt-0">
                 <h3 className="text-sm font-medium">
                     What it tried, for {goal.drug}, a target of {goal.target_effect} points over {goal.weeks} weeks in {background}
@@ -159,7 +184,7 @@ const Result = ({ data, provenance, onUse }: { data: DesignResponse; provenance:
                             chosenMg={data.simulated_design?.dose_mg ?? null}
                         />
                     </div>
-                    <CaveatsPanel caveats={{ label_flags: [], validation_scope: [], not_modelled: data.not_modelled }} />
+                    <CaveatsPanel caveats={{ label_flags: data.label_flags ?? [], validation_scope: data.validation_scope ?? [], not_modelled: data.not_modelled }} />
                     <ValidationPanel status={data.validation} notice={data.notice} provenance={provenance} />
                 </div>
             </div>
@@ -211,7 +236,7 @@ export const DesignerSection = ({ drugs, offline, onUse }: Props) => {
                     State a goal. See every step of its search for a study that meets it.
                 </h2>
                 <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                    An automated search runs the simulator again and again: it brackets the dose, bisects toward your target, then sizes the study. Every number below comes from a simulator run, and every step it took is listed, including dead ends. No language model writes these numbers.
+                    A neural network trained on simulator runs proposes where to look, and the simulator checks that dose, refines it toward your target, then sizes the study. Every number below comes from a simulator run, and every step it took is listed, including dead ends. No language model writes these numbers.
                 </p>
 
                 <form
