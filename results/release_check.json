@@ -2,12 +2,12 @@
  {
   "name": "engine loads in the browser",
   "ok": true,
-  "detail": "30.0s"
+  "detail": "51.7s"
  },
  {
   "name": "real trial runs",
   "ok": true,
-  "detail": "7.4s"
+  "detail": "7.5s"
  },
  {
   "name": "track record shows a miss and a hold",
@@ -22,7 +22,7 @@
  {
   "name": "designer shows surrogate guidance",
   "ok": true,
-  "detail": "7.9s A trained neural surrogate chose where to startIt screened 400 doses in 3.2 ms and proposed 0.192 mg/week, predicting -1 points. The simulator then checked 3 doses, and every number below comes from the simulat"
+  "detail": "7.9s A trained neural surrogate chose where to startIt screened 400 doses in 3.3 ms and proposed 0.192 mg/week, predicting -1 points. The simulator then checked 3 doses, and every number below comes from the simulat"
  },
  {
   "name": "designer found or explained a design",
@@ -40,6 +40,16 @@
   "detail": ""
  },
  {
+  "name": "simulator race shows real timings",
+  "ok": true,
+  "detail": "0.02 ms vs 4.1 s: About 189,442 times faster"
+ },
+ {
+  "name": "prediction chart shows real counts",
+  "ok": true,
+  "detail": ""
+ },
+ {
   "name": "surrogate sliders use the trained network",
   "ok": true,
   "detail": "a1c −1.28points | Tested on 480 simulator runs it never trained on: HbA1c mean error 0.082 points (R² 0.949), weight 0.336 kg (R"
@@ -48,6 +58,11 @@
   "name": "proof tab shows the real blind result",
   "ok": true,
   "detail": "failed badge: true"
+ },
+ {
+  "name": "basic question answered through retrieval and the real proxy",
+  "ok": true,
+  "detail": "2.2s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorSemaglutide is a GLP-1 receptor agonist sold under names such as Ozempic. It increases ins"
  },
  {
   "name": "copilot gives the code-written failure account",
@@ -72,12 +87,12 @@
  {
   "name": "live model answers through the real proxy with caveats appended",
   "ok": true,
-  "detail": "37.0s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorSimulated 30‑week comparison: semaglutide 1 mg weekly reduced HbA1c by 1.66 percentage points, empagliflozin 25 mg/day by 0.84 pp. Semagluti"
+  "detail": "17.3s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorSimulated 30‑week comparison (Placebo‑controlled, n = 200 per arm, background = any, eGFR 30‑400):\n\n- HbA1c reduction: Semaglutide 1 mg gave"
  },
  {
   "name": "AI calls spent",
   "ok": true,
-  "detail": "2"
+  "detail": "4"
  },
  {
   "name": "no console errors",

@@ -35,6 +35,7 @@ ai_rows = f"""| Layer | What it is | Measured result |
 | Neural surrogate | A small neural network trained on {SURROGATE['runs_used']} simulator runs, with numpy-only inference in the browser, for instant sliders and for guiding the designer | HbA1c mean error {SURROGATE['a1c_mae']} points, R2 {SURROGATE['a1c_r2']} on {SURROGATE['test_runs']} simulator runs it never saw. It learns the simulator, not reality |
 | AI Trial Designer | Takes a goal; the surrogate proposes a dose and the simulator checks and refines it, then sizes the study | Across {DESIGNER['goals']} goals: {DESIGNER['mean_runs_guided']} simulator runs on average against {DESIGNER['mean_runs_plain']} for plain bisection ({DESIGNER['fewer_runs_share']:.0%} fewer); same feasibility verdict on {DESIGNER['same_feasibility_verdict']} of {DESIGNER['goals']}; median dose difference {DESIGNER['median_dose_difference']:.0%} |
 | Live copilot | {COPILOT['model']} on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On {COPILOT['questions']} project-written questions: {COPILOT['answered_by_model']} answered by the model, {COPILOT['written_by_code']} written by code, right tool on {COPILOT['right_tool']} of {COPILOT['questions']}, guard repaired {COPILOT['guard_repair_accepted']} and replaced {COPILOT['guard_replaced_a_reply']}, median {COPILOT['median_seconds']} s. A small sample |
+| Retrieval for ordinary questions | An in-memory vector index (TF-IDF cosine over reviewed notes, numpy-only, no server, runs in the browser). The model answers only from retrieved notes, and the note itself is shown if the model fails | Keyword-level retrieval, not neural embeddings or a hosted vector database |
 | Safety guard | Default-deny on input, and a digit figure no tool produced sends the draft back to the model once, then falls back to computed text | {COPILOT['attack_prompts_refused_before_any_model']} of {COPILOT['attack_prompts']} project-written attack prompts refused before any model call. Blind results are in the section below |
 | Intent model | TF-IDF and logistic regression for greetings and help, runs in the browser, cannot write a number | {INTENT['held_out_accuracy']:.1%} on {INTENT['held_out_phrases']} project-written phrases, a small sample |
 | Blind-test track record | Shows beside each simulated result where that drug held up or missed in the blind test | Added after the blind run; a look-up that changes no prediction |
@@ -63,7 +64,9 @@ An applied AI lab that simulates randomised drug trials in virtual patients buil
 | Power | How many patients a study needs. |
 | Disease progression | The published Ha, Satin and Sherman 2016 model of how type 2 diabetes develops and can reverse. |
 | Safety | Adverse events as reported in real trials, kept apart from simulated numbers. |
-| Live AI copilot | Ask in plain English. It runs the tools, shows them live, and its numbers are checked against their output. |
+| Live AI copilot | Ask in plain English. It runs the tools, shows them live, and its numbers are checked against their output. Ordinary questions are answered from a searchable index of reviewed notes. |
+| Race the simulator | The neural network and the full simulator answer the same question, with both timed live in your browser. |
+| Prediction meets reality | An animated chart moves each frozen prediction to what the real trial reported, misses included. |
 
 ## The Applied AI
 
@@ -165,7 +168,9 @@ We also attacked our own safety guard with blind tests and published the results
 **Key features:**
 - AI Trial Designer: a neural surrogate proposes, the simulator checks, and every step is shown
 - Live AI copilot with visible tool calls, a number guard and a personal-advice refusal
-- Instant neural what-if sliders that one click checks against the full simulator
+- Instant neural what-if sliders, raced live against the full simulator
+- Animated chart moving each frozen prediction to the real trial result
+- Basic questions answered by the model from a vector index of reviewed notes
 - Blind-test track record beside every simulated result, including misses
 - Safety guard tested blind by adversaries, with urgent messages given emergency contacts, published in the README
 - Virtual trials for four real drugs and hypothetical molecules, on patients built from real survey labs
@@ -190,11 +195,11 @@ Audience: INFINEX judges, Applied AI track. Show the live screen throughout.
 | Time | Screen | Say |
 |---|---|---|
 | 0:00 | First screen | "Trials take years. What if a student could rehearse one this afternoon, in a browser, and see how far to trust the answer?" |
-| 0:15 | Copilot: "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks" | "I just ask. A live AI model on NVIDIA plans the experiment, and you can watch it call the tools. It runs on virtual patients built from real health survey data. If a figure in its reply didn't come from the simulator, the reply goes back or gets replaced." |
+| 0:15 | Copilot: "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks", after a quick "What is semaglutide?" | "I just ask. Basic questions are answered from a vector index of reviewed notes. A live AI model on NVIDIA plans the experiment, and you can watch it call the tools. It runs on virtual patients built from real health survey data. If a figure in its reply didn't come from the simulator, the reply goes back or gets replaced." |
 | 0:50 | Copilot: "Should I stop my metformin?" | "And ask about your own medicine, and it refuses before any AI model is called." |
 | 1:00 | AI Trial Designer: empagliflozin, 0.5 point target | "Now I give it a goal. A neural network trained on {SURROGATE['runs_used']} simulator runs screens {400} doses in milliseconds and proposes where to look. The simulator checks that and sizes the study. On {DESIGNER['goals']} test goals that took {DESIGNER['fewer_runs_share']:.0%} fewer simulator runs than plain search. This is a test dose in a simulator, not a dose for anyone, and it shows what the blind test found at that dose." |
-| 1:30 | Surrogate sliders, then run full simulator | "The same network answers these sliders instantly, and one click checks it against the real simulator." |
-| 1:50 | Proof tab | "Here's the part I care about most. We froze and published every prediction, then opened 20 real results once. Mean error {S['mae']} points. Empagliflozin and the kidney strata held up. The 12-week semaglutide trial missed, and so did the metformin arms. {verdict}" |
+| 1:30 | Surrogate sliders, then run full simulator | "The same network answers these sliders instantly. Watch them race: same question, both timed live in this browser." |
+| 1:50 | Prediction meets reality chart | "Here's the part I care about most. We froze and published every prediction, then opened 20 real results once. Mean error {S['mae']} points. Empagliflozin and the kidney strata held up. The 12-week semaglutide trial missed, and so did the metformin arms. {verdict}" |
 | 2:20 | Trial result with the track record card | "So those misses stay on screen. Every result tells you where that drug held up in the blind test and where it missed. Most AI tools hide that." |
 | 2:40 | See it in the body | "And here's what the simulator says is happening, organ by organ." |
 | 2:50 | Title | "MedBase Virtual Trials Lab: research and education, not medical advice." |

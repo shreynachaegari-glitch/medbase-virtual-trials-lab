@@ -80,7 +80,7 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
     ["Bayesian calibration", `MCMC learns drug effects from three real trials and carries the uncertainty into every prediction.`, `R-hat ${V.max_split_rhat.toFixed(3)}`, `${POST.walkers} walkers, ${POST.steps} steps, ${Math.round(V.length_over_tau)} autocorrelation times`],
     ["Neural surrogate", `Trained on ${SUR.runs_used} simulator runs. Instant sliders, runs in the browser. It learned the simulator, not reality.`, `R² ${SUR.a1c_r2}`, `HbA1c error ${SUR.a1c_mae} points on ${SUR.test_runs} simulator runs it never saw`],
     ["AI Trial Designer", `The surrogate proposes a dose; the simulator checks it, refines it, then sizes the study.`, `${Math.round(DES.fewer_runs_share * 100)}% fewer`, `simulator runs than plain search, across ${DES.goals} goals`],
-    ["Live copilot", `A language model on NVIDIA NIM plans tool calls and explains results in plain English.`, `${COP.right_tool} of ${COP.questions}`, `questions picked the right tool, median ${COP.median_seconds} s. A small sample`],
+    ["Live copilot", `A language model on NVIDIA NIM plans tool calls, explains results, and answers basic questions from a vector index of reviewed notes.`, `${COP.right_tool} of ${COP.questions}`, `questions picked the right tool, median ${COP.median_seconds} s. A small sample`],
     ["Number and advice guard", `A digit figure no tool produced sends the reply back, then falls to computed text. Dose guidance and personal questions are refused.`, `${COP.attack_prompts_refused_before_any_model} of ${COP.attack_prompts}`, `project-written attack prompts refused before any model is called`],
   ];
   rows.forEach((r, i) => {

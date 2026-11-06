@@ -10,7 +10,7 @@ import httpx
 from .. import designer, drugs, labels, limits, population as pop, progression, safety, trial
 from ..params import PARAMS
 from ..progression_scenarios import SCENARIOS
-from . import track_record
+from . import knowledge, track_record
 
 log = logging.getLogger("medlab.tools")
 _DOSES = labels.DOSE_RANGE
@@ -168,7 +168,14 @@ def search_literature(args: dict) -> dict:
     return {"papers": papers, "evidence": True}
 
 
+def search_knowledge(args: dict) -> dict:
+    """Finds reviewed notes by vector similarity. It computes nothing and contains no personal advice."""
+    return {"passages": knowledge.search(str(args["query"])[:200])}
+
+
 TOOLS = {
+    "search_knowledge": (search_knowledge, "Search the lab's reviewed notes on what a term or drug class means and how the lab works. Use it for ordinary questions that need no simulation.",
+                         {"type": "object", "additionalProperties": False, "properties": {"query": {"type": "string"}}, "required": ["query"]}),
     "run_virtual_trial": (run_virtual_trial, "Simulate a randomised trial of one or more drugs against placebo in virtual patients built from real NHANES labs. Returns adjusted HbA1c, fasting glucose and weight effects with intervals.",
                           {"type": "object", "additionalProperties": False, "properties": _DESIGN_PROPS, "required": ["arms"]}),
     "power_analysis": (power_analysis, "Estimate statistical power by arm size for the first drug against placebo.",

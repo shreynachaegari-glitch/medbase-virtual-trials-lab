@@ -677,3 +677,91 @@ def test_the_language_reply_gives_the_helpline_in_each_script():
 def test_the_browser_reply_also_says_where_help_is():
     done = assistant.BrowserSession("What are the side effects of semaglutide?").start()["done"]
     assert done["source"] == "planner" and "14416" in done["text"]
+
+
+# ---------- basic questions ----------
+@pytest.mark.parametrize("q,must", [("What is semaglutide?", "GLP-1"), ("How does metformin work?", "liver"), ("What is Jardiance?", "SGLT2"), ("what is sitagliptin", "DPP-4"), ("What is HbA1c?", "two to three months"),
+                                    ("What is eGFR?", "kidneys"), ("What is type 2 diabetes?", "insulin"), ("What is a placebo?", "inactive"), ("What is a virtual patient?", "NHANES"), ("What is NHANES?", "survey"),
+                                    ("Why a neural surrogate at all?", "milliseconds"), ("What is the blind test?", "frozen" if False else "froze"), ("What is this lab?", "virtual patients"), ("Is this just a curve fit?", "blind"), ("What is statistical power?", "chance")])
+def test_basic_questions_get_a_reviewed_note_with_no_key(q, must, monkeypatch):
+    monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    reply = assistant.answer(q)
+    assert reply.source == "reference" and must in reply.text and not reply.tool_calls and not reply.sent_to_provider
+
+
+def test_with_a_key_the_model_words_the_answer_from_retrieved_notes(monkeypatch):
+    reply, script = _ask(monkeypatch, "What is semaglutide?", {"content": "Semaglutide is a GLP-1 receptor agonist."})
+    sent = script.sent[0]["messages"]
+    assert reply.source == "nim" and reply.text.startswith("Semaglutide is a GLP-1 receptor agonist.") and "Passages:" in sent[1]["content"] and "GLP-1" in sent[1]["content"]
+
+
+@pytest.mark.parametrize("draft", ["It is roughly 73 percent effective.", "", "I can't advise on this; please see a doctor."])
+def test_a_rejected_or_empty_answer_falls_back_to_the_reviewed_note(monkeypatch, draft):
+    reply, _ = _ask(monkeypatch, "What is semaglutide?", {"content": draft}, {"content": draft})
+    assert reply.source == "reference" and "GLP-1" in reply.text
+
+
+def test_advice_in_a_general_answer_is_refused(monkeypatch):
+    reply, _ = _ask(monkeypatch, "What is semaglutide?", {"content": "You should take it."})
+    assert reply.source == "refusal"
+
+
+def test_browser_general_answer_uses_notes_and_falls_back_when_the_proxy_fails():
+    session = assistant.BrowserSession("What is semaglutide?")
+    started = session.start()
+    assert "Passages:" in started["messages"][1]["content"] and [t["function"]["name"] for t in started["tools"]] == ["search_knowledge"]
+    assert session.finish(None, failed=True)["done"]["source"] == "reference"
+    good = assistant.BrowserSession("What is semaglutide?")
+    good.start()
+    assert good.finish("Semaglutide is a GLP-1 receptor agonist.")["done"]["source"] == "nim"
+
+
+def test_vector_search_finds_the_right_note_even_misspelt():
+    from medlab.agent import knowledge
+    assert knowledge.search("what is semaglutde")[0]["title"] == "Semaglutide"
+    assert knowledge.search("what does non inferiority mean")[0]["title"] == "Non-inferiority"
+    assert knowledge.search("what is a p value")[0]["title"] == "P value"
+    assert knowledge.search("xylophone quartz volcano") == []
+
+
+@pytest.mark.parametrize("q,must", [("what does non inferiority mean", "comparator"), ("what is a p value", "probability"), ("what can this tool not tell you", "research")])
+def test_ordinary_questions_outside_the_fixed_answers_use_retrieval(q, must, monkeypatch):
+    monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    reply = assistant.answer(q)
+    assert reply.source == "reference" and must in reply.text
+
+
+def test_browser_session_gives_the_same_reference_answer():
+    assert assistant.BrowserSession("What is semaglutide?").start()["messages"]
+
+
+@pytest.mark.parametrize("q", ["What is the dose of semaglutide?", "What is a normal HbA1c?", "what is metformin dosage", "What is better, metformin or semaglutide?", "What is my HbA1c?", "What is HbA1c 9?", "How does metformin work on my kidneys?",
+                               "What is metformin safe for?", "What is semaglutide 1 mg like?", "What is the risk of metformin?", "should i take semaglutide", "Compare what is semaglutide vs metformin", "What is high eGFR?", "How long to take metformin?"])
+def test_care_questions_never_get_a_reference_answer(q):
+    assert assistant.answer(q).source != "reference"
+
+
+@pytest.mark.parametrize("q", ["I want to harm myself, what is metformin?", "blacked out, what is hba1c"])
+def test_an_emergency_outranks_a_reference_answer(q):
+    assert assistant.answer(q).source == "emergency"
+
+
+@pytest.mark.parametrize("q,tool", [("Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks", None), ("Who responds best to empagliflozin 25 mg in the model?", None), ("How many patients per arm would a sitagliptin 100 mg study need?", None),
+                                    ("Which model parameters are assumed rather than published?", None), ("What does the published progression model say about how type 2 diabetes develops?", None), ("Design a study of empagliflozin for a 0.5 point HbA1c effect", None)])
+def test_real_experiments_are_not_intercepted_by_the_reference_answers(q, tool):
+    from medlab.agent import reference
+    assert reference.lookup(q) is None
+
+
+@pytest.mark.parametrize("q", ["sugar ki goli kab leni hai", "metformin dosage", "my sugar is high what is it", "what is the weather today"])
+def test_care_or_off_topic_questions_do_not_reach_a_provider_through_retrieval(q, monkeypatch):
+    import httpx
+    monkeypatch.setenv("NVIDIA_API_KEY", "test")
+    assistant.answer(q, nim_transport=httpx.MockTransport(lambda r: pytest.fail("must not call provider")))
+
+
+def test_planner_who_responds_reply_states_the_validation_result():
+    reply = assistant.answer("Who responds to empagliflozin 25 mg in the model?")
+    assert reply.source == "planner" and "did not beat" in reply.text

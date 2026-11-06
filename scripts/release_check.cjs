@@ -65,6 +65,18 @@ const secs = (t) => ((Date.now() - t) / 1000).toFixed(1) + "s";
   await page.screenshot({ path: `${OUT}/designer-surrogate.png` });
 
   // Sliders on the real trained network.
+  const runFull = page.getByTestId("surrogate-run-full");
+  await runFull.scrollIntoViewIfNeeded();
+  await runFull.click();
+  await page.getByTestId("race-result").waitFor({ timeout: 120000 }).catch(() => {});
+  log("simulator race shows real timings", /times faster/.test((await page.getByTestId("race-result").textContent().catch(() => "")) || ""), `${await page.getByTestId("race-surrogate").textContent().catch(() => "")} vs ${await page.getByTestId("race-simulator").textContent().catch(() => "")}: ${await page.getByTestId("race-result").textContent().catch(() => "")}`);
+  await page.getByTestId("surrogate-race").scrollIntoViewIfNeeded().catch(() => {});
+  await page.screenshot({ path: `${OUT}/simulator-race.png` });
+  const reveal = page.getByTestId("blind-reveal");
+  await reveal.scrollIntoViewIfNeeded().catch(() => {});
+  await page.waitForTimeout(3500);
+  log("prediction chart shows real counts", (await page.getByTestId("blind-within").textContent().catch(() => "")) === "10" && (await page.getByTestId("blind-missed").textContent().catch(() => "")) === "10");
+  await page.screenshot({ path: `${OUT}/prediction-meets-reality.png` });
   const slider = page.getByTestId("surrogate");
   const trained = (await slider.count()) > 0 && (await page.getByTestId("surrogate-not-trained").count()) === 0;
   const before = trained ? await page.getByTestId("surrogate-a1c").textContent().catch(() => "") : "";
@@ -96,6 +108,9 @@ const secs = (t) => ((Date.now() - t) / 1000).toFixed(1) + "s";
     return { secs: secs(start), text: ((await last.textContent().catch(() => "")) || "").slice(0, 1400), source: await sources.first().textContent().catch(() => "") };
   };
   let a;
+  a = await ask("What is semaglutide?");
+  log("basic question answered through retrieval and the real proxy", /GLP-1/.test(a.text), `${a.secs} [${a.source}] ${a.text.slice(0, 150)}`);
+  await page.screenshot({ path: `${OUT}/copilot-basic-question.png` });
   a = await ask("Where did this lab fail?");
   log("copilot gives the code-written failure account", /Written by code/.test(a.source || "") && /Semaglutide phase 2/.test(a.text), `${a.secs} [${a.source}] ${a.text}`);
   await page.screenshot({ path: `${OUT}/copilot-where-it-failed.png` });

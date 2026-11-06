@@ -18,6 +18,7 @@ const STARTERS = [
     "What sample size would a sitagliptin trial need?",
     "How accurate is this lab?",
     "Who responds to empagliflozin?",
+    "What is semaglutide?",
     "What side effects were reported for semaglutide?",
     "Should I stop taking my metformin?",
 ] as const;
@@ -29,6 +30,7 @@ const SOURCE: Record<AssistantReply["source"], { label: string; note: string; cl
     claude: { label: "Claude", note: "A language model wrote this, using simulator tools", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
     nim: { label: NIM_LABEL, note: "", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
     verified: { label: "Written by code", note: "Code wrote this text, so it can't be misquoted", className: "border-foreground/50 text-foreground" },
+    reference: { label: "Reference note", note: "A reviewed note found by vector search. No simulation ran", className: "border-foreground/50 text-foreground" },
     scope: { label: "Not a simulation", note: "This is a fixed message, and no model or simulation ran", className: "border-foreground/50 text-foreground" },
     planner: { label: "Offline planner", note: "No language model: fixed rules ran the tools and filled in the numbers", className: "border-foreground/50 text-foreground" },
     "intent-model": { label: "Small trained model", note: "No language model: it only chooses a fixed or computed reply, so it can't write a number or a claim", className: "border-foreground/50 text-foreground" },
@@ -158,6 +160,7 @@ const Reply = ({ turn, reply, provenance }: { turn: Turn; reply: AssistantReply;
             </div>
         );
     }
+    const reduceReveal = useReducedMotion();
     const showTools = turn.steps.length === 0 || reply.source === "planner";
     return (
         <div className="min-w-0" data-testid="assistant-reply">
@@ -166,7 +169,7 @@ const Reply = ({ turn, reply, provenance }: { turn: Turn; reply: AssistantReply;
                 {source.note && <span className="text-[11px] text-muted-foreground">{source.note}</span>}
                 {provenance === "saved" && <ProvenanceTag provenance={provenance} />}
             </div>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{reply.text}</p>
+            <motion.p initial={reduceReveal ? false : { clipPath: "inset(0 0 100% 0)", opacity: 0.4 }} animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }} transition={{ duration: 0.9, ease: "easeOut" }} className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{reply.text}</motion.p>
             {reply.guard_note && (
                 <p data-testid="assistant-guard" className="mt-2 flex items-start gap-2 rounded-md border border-[hsl(var(--prov-extrapolated))]/50 bg-[hsl(var(--prov-extrapolated))]/10 p-2.5 text-xs leading-relaxed">
                     <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--prov-extrapolated))]" aria-hidden="true" />

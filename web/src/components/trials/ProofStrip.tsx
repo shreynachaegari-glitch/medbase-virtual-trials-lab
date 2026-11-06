@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/trials/api";
 import { checksFrom, contrastKey, fmtNum, fmtShare } from "@/lib/trials/format";
 import type { ContrastRow, Loaded, ValidationReport } from "@/lib/trials/types";
 import { cn } from "@/lib/utils";
+import { BlindReveal } from "./BlindReveal";
 import { CheckBadge, SavedRunTag } from "./bits";
 import { ChainFlag } from "./ValidationPanel";
 
@@ -115,6 +116,7 @@ export const ProofStrip = ({ state, onRetry }: { state: RemoteState<Loaded<Valid
                     </div>
                 </div>
             </div>
+            <BlindReveal contrasts={data.contrasts} />
             <div className="border-t border-border px-4 py-2.5">
                 <Link to={{ search: "?tab=proof" }} className="text-xs text-primary underline-offset-2 hover:underline">See every contrast, including every miss</Link>
             </div>

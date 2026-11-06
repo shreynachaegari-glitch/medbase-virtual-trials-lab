@@ -150,7 +150,7 @@ def _lab_verdict(text: str) -> str | None:
 # Allowlist: only these reach a provider or a simulation. Words that everyday questions share with research,
 # such as "run out of" or "not responding", are written narrowly on purpose.
 _DRUG_NAMES = r"empa|sita|sema|glycomet|istavel|galvus|metf\w+|semag\w+|empag\w+|sitag\w+|ozem\w*|jardi\w*|janu?v\w*|glucophage|wegovy|rybelsus|mounjaro|glp-?1|sglt-?2|dpp-?4"
-_DRUG_TALK = re.compile(rf"\b({_DRUG_NAMES}|drugs?|medicines?|medications?|meds?|mandulu|maathirai|marundhu|goli|davai|dawai|dawa|pills?|tablets?|dos[ei]\w*|regimen|injection|inject\w*|sugar)\b", re.I)
+_DRUG_TALK = re.compile(rf"\b({_DRUG_NAMES}|drugs?|medicines?|medications?|meds?|mandulu|maathirai|marundhu|goli|davai|dawai|dawa|pills?|tablets?|dos[aei]\w*|regimen|injection|inject\w*|sugar)\b", re.I)
 _FRAME = re.compile(
     rf"\b(simulat\w*|sim|compar\w*|versus|vs|trials?|effect size|dropout|comparator|empa-reg|sustain|ukpds|predict\w*|stud(y|ies)|cohort|per arm|arms|placebo|power|sample size|who responds|responders?|subgroups?|design\w*|intervals?|validat\w*|accura\w*|assum\w*|parameters?|model(s|led)?|calibrat\w*|surrogate"
     rf"|virtual|enrol\w*|participants?|mechanism|progression|pathogenesis|natural history|progress\w*|insulin sensitivity|dose.response|weaken\w*|difference between|how many patients|lab|trust|blind test|held.out|rival|seed|reproducib\w*|run\s+(a|an|the|\d|{_DRUG_NAMES}))\b", re.I)

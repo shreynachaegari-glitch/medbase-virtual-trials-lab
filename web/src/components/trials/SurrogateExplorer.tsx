@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Gauge, LoaderCircle } from "lucide-react";
 import { useRemote } from "@/hooks/useRemote";
@@ -82,6 +82,42 @@ const Slider = ({ id, label, value, display, min, max, step, onChange, hint }: {
     </div>
 );
 
+const RACE_REPEATS = 200;
+const RACE_MIN_REAL_MS = 250; // a cached result is not a race, so it is not shown as one
+const fmtMs = (ms: number) => (ms < 1 ? `${ms.toFixed(2)} ms` : ms < 1000 ? `${ms.toFixed(0)} ms` : `${(ms / 1000).toFixed(1)} s`);
+
+/** A real race, timed in this browser: the network's time is measured over repeats, and the simulator's on a live clock. */
+const SimulatorRace = ({ surrogateMs, startedAt, finishedAt, running }: { surrogateMs: number; startedAt: number; finishedAt: number | null; running: boolean }) => {
+    const reduce = useReducedMotion();
+    const [now, setNow] = useState(startedAt);
+    useEffect(() => {
+        if (!running) return;
+        const timer = setInterval(() => setNow(Date.now()), 50);
+        return () => clearInterval(timer);
+    }, [running]);
+    const elapsed = Math.max(0, (finishedAt ?? now) - startedAt);
+    return (
+        <div className="rounded-md border border-border p-3" data-testid="surrogate-race">
+            <p className="label-caps mb-2">Same question, in this browser</p>
+            <div className="space-y-2 text-xs">
+                <div>
+                    <div className="flex justify-between"><span>Neural network</span><span className="tnum font-medium" data-testid="race-surrogate">{fmtMs(surrogateMs)}</span></div>
+                    <div className="mt-1 h-1.5 rounded-full bg-border"><motion.div className="h-full rounded-full bg-[hsl(var(--primary))]" initial={reduce ? false : { width: 0 }} animate={{ width: "100%" }} transition={{ duration: 0.12 }} /></div>
+                </div>
+                <div>
+                    <div className="flex justify-between"><span>Full simulator</span><span className="tnum font-medium" data-testid="race-simulator">{fmtMs(elapsed)}</span></div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-border"><motion.div className="h-full rounded-full bg-foreground" initial={false} animate={{ width: finishedAt ? "100%" : `${Math.min(92, (elapsed / 12000) * 100)}%` }} transition={{ ease: "linear", duration: 0.05 }} /></div>
+                </div>
+            </div>
+            {finishedAt !== null && surrogateMs > 0 && (
+                <motion.p initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 text-sm font-semibold" data-testid="race-result">
+                    About {Number((elapsed / surrogateMs).toPrecision(2)).toLocaleString()} times faster
+                </motion.p>
+            )}
+        </div>
+    );
+};
+
 const Explorer = ({ net, onRunFull, full }: { net: SurrogateNet; onRunFull: (request: FullRunRequest) => void; full: FullRunState }) => {
     const reduce = useReducedMotion();
     const [drug, setDrug] = useState(net.drugs[0]);
@@ -98,6 +134,15 @@ const Explorer = ({ net, onRunFull, full }: { net: SurrogateNet; onRunFull: (req
     // Sensible precision for a dose, which is also what a full run is asked for, so the two compare fairly.
     const mg = Number(doseAt(net, drug, position).toPrecision(2));
     const output = predict(net, { drug, mg, weeks, targetA1c, egfrLow, egfrHigh });
+    const [race, setRace] = useState<{ surrogateMs: number; startedAt: number; finishedAt: number | null } | null>(null);
+    useEffect(() => {
+        if (full.status === "done" || full.status === "error") setRace((r) => (r && r.finishedAt === null ? { ...r, finishedAt: Date.now() } : r));
+    }, [full.status]);
+    const startRace = () => {
+        const started = performance.now();
+        for (let i = 0; i < RACE_REPEATS; i += 1) predict(net, { drug, mg, weeks, targetA1c, egfrLow, egfrHigh });
+        setRace({ surrogateMs: (performance.now() - started) / RACE_REPEATS, startedAt: Date.now(), finishedAt: null });
+    };
     const a1c = output.hba1c_vs_placebo;
     const weight = output.weight_kg_vs_placebo;
     const e = net.evaluation;
@@ -131,12 +176,13 @@ const Explorer = ({ net, onRunFull, full }: { net: SurrogateNet; onRunFull: (req
                 </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-                <button type="button" disabled={full.status === "running"} onClick={() => onRunFull({ drug, mg, weeks, egfrLow, egfrHigh: egfrHigh >= OPEN_ENDED_TRAINING ? OPEN_ENDED_FORM : egfrHigh, predictedA1c: a1c, predictedWeight: weight })} className="btn-outline gap-1.5 !px-3 !py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50" data-testid="surrogate-run-full">
+                <button type="button" disabled={full.status === "running"} onClick={() => { startRace(); onRunFull({ drug, mg, weeks, egfrLow, egfrHigh: egfrHigh >= OPEN_ENDED_TRAINING ? OPEN_ENDED_FORM : egfrHigh, predictedA1c: a1c, predictedWeight: weight }); }} className="btn-outline gap-1.5 !px-3 !py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50" data-testid="surrogate-run-full">
                     {full.status === "running" ? <LoaderCircle className="h-3 w-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <ArrowRight className="h-3 w-3" aria-hidden="true" />}
                     {full.status === "running" ? "Running the full simulator…" : "Check with the full simulator"}
                 </button>
                 <p className="text-[11px] text-muted-foreground">Same drug, dose, duration and kidney band. The full run uses the simulator&rsquo;s own HbA1c entry range, {BACKGROUNDS[0].inSentence}.</p>
             </div>
+            {race && full.status !== "error" && (race.finishedAt === null || race.finishedAt - race.startedAt > RACE_MIN_REAL_MS) && <SimulatorRace surrogateMs={race.surrogateMs} startedAt={race.startedAt} finishedAt={race.finishedAt} running={full.status === "running"} />}
             {full.status === "error" && <p role="alert" data-testid="surrogate-full-error" className="rounded border border-[hsl(var(--prov-extrapolated))]/50 p-2 text-xs">{full.message}</p>}
             {full.status === "done" && (
                 <motion.table initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} className="w-full text-xs" data-testid="surrogate-compare">

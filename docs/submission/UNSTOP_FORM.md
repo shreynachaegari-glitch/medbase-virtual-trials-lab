@@ -17,7 +17,9 @@ We also attacked our own safety guard with blind tests and published the results
 **Key features:**
 - AI Trial Designer: a neural surrogate proposes, the simulator checks, and every step is shown
 - Live AI copilot with visible tool calls, a number guard and a personal-advice refusal
-- Instant neural what-if sliders that one click checks against the full simulator
+- Instant neural what-if sliders, raced live against the full simulator
+- Animated chart moving each frozen prediction to the real trial result
+- Basic questions answered by the model from a vector index of reviewed notes
 - Blind-test track record beside every simulated result, including misses
 - Safety guard tested blind by adversaries, with urgent messages given emergency contacts, published in the README
 - Virtual trials for four real drugs and hypothetical molecules, on patients built from real survey labs

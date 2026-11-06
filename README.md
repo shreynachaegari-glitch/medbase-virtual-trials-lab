@@ -21,7 +21,9 @@ On 20 results from 6 real trials it never saw, predicted HbA1c effects were off 
 | Power | How many patients a study needs. |
 | Disease progression | The published Ha, Satin and Sherman 2016 model of how type 2 diabetes develops and can reverse. |
 | Safety | Adverse events as reported in real trials, kept apart from simulated numbers. |
-| Live AI copilot | Ask in plain English. It runs the tools, shows them live, and its numbers are checked against their output. |
+| Live AI copilot | Ask in plain English. It runs the tools, shows them live, and its numbers are checked against their output. Ordinary questions are answered from a searchable index of reviewed notes. |
+| Race the simulator | The neural network and the full simulator answer the same question, with both timed live in your browser. |
+| Prediction meets reality | An animated chart moves each frozen prediction to what the real trial reported, misses included. |
 
 ## The Applied AI
 
@@ -37,7 +39,8 @@ Registry results ──> Bayesian calibration ───────────�
 | Bayesian calibration | MCMC (emcee, 44 walkers, 6500 steps) learns drug effects from three real trials and carries the uncertainty into every prediction | Split R-hat 1.026, chain length 56 autocorrelation times; blind test below |
 | Neural surrogate | A small neural network trained on 2400 simulator runs, with numpy-only inference in the browser, for instant sliders and for guiding the designer | HbA1c mean error 0.082 points, R2 0.949 on 480 simulator runs it never saw. It learns the simulator, not reality |
 | AI Trial Designer | Takes a goal; the surrogate proposes a dose and the simulator checks and refines it, then sizes the study | Across 36 goals: 3.28 simulator runs on average against 6.03 for plain bisection (46% fewer); same feasibility verdict on 36 of 36; median dose difference 3% |
-| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 6 answered by the model, 3 written by code, right tool on 10 of 10, guard repaired 2 and replaced 1, median 6.1 s. A small sample |
+| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 6 answered by the model, 3 written by code, right tool on 10 of 10, guard repaired 3 and replaced 1, median 5.4 s. A small sample |
+| Retrieval for ordinary questions | An in-memory vector index (TF-IDF cosine over reviewed notes, numpy-only, no server, runs in the browser). The model answers only from retrieved notes, and the note itself is shown if the model fails | Keyword-level retrieval, not neural embeddings or a hosted vector database |
 | Safety guard | Default-deny on input, and a digit figure no tool produced sends the draft back to the model once, then falls back to computed text | 44 of 44 project-written attack prompts refused before any model call. Blind results are in the section below |
 | Intent model | TF-IDF and logistic regression for greetings and help, runs in the browser, cannot write a number | 95.3% on 43 project-written phrases, a small sample |
 | Blind-test track record | Shows beside each simulated result where that drug held up or missed in the blind test | Added after the blind run; a look-up that changes no prediction |
@@ -106,7 +109,7 @@ uvicorn medlab.api:app --port 8000      # API
 cd web && npm ci && npm run dev         # UI, opens on /trials
 ```
 
-Latest test run: 596 passed in 72.70s (0:01:12).
+Latest test run: 649 passed in 73.80s (0:01:13).
 
 ## Credits
 
