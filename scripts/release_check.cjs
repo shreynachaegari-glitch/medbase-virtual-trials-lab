@@ -4,6 +4,7 @@ const BASE = "http://127.0.0.1:8765/";
 const PROXY = "https://medbase-lab-ai.vercel.app/api/chat";
 const ORIGIN = "https://zade06079-medbase-virtual-trials-lab.static.hf.space";
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
+const REVEAL_MS = 2500; // screenshots wait for the word-by-word reveal
 const report = [];
 const log = (name, ok, detail = "") => { report.push({ name, ok, detail }); console.log(`${ok ? "PASS" : "FAIL"}  ${name}  ${detail}`); };
 const secs = (t) => ((Date.now() - t) / 1000).toFixed(1) + "s";
@@ -132,6 +133,7 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   let a;
   a = await ask("What is semaglutide?");
   log("basic question answered through retrieval and the real proxy", /GLP-1/.test(a.text), `${a.secs} [${a.source}] ${a.text.slice(0, 150)}`);
+  await page.waitForTimeout(REVEAL_MS);
   await page.screenshot({ path: `${OUT}/copilot-basic-question.png` });
   a = await ask("why do some diabetes drugs make people pee out sugar");
   const notesLabel = await page.getByTestId("assistant-sources").first().textContent().catch(() => "");
@@ -163,6 +165,7 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   log("a pronoun carries the drug from the last question", /semaglutide side effects/.test(carried) && /label/i.test(a.text), `${a.secs} [${a.source}] ${carried}`);
   a = await ask("Where did this lab fail?");
   log("copilot gives the code-written failure account", /Written by code/.test(a.source || "") && /Semaglutide phase 2/.test(a.text), `${a.secs} [${a.source}] ${a.text}`);
+  await page.waitForTimeout(REVEAL_MS);
   await page.screenshot({ path: `${OUT}/copilot-where-it-failed.png` });
   a = await ask("Should I stop my metformin?");
   log("personal question refused", /Refusal/.test(a.source || "") && /14416/.test(a.text), `${a.secs} [${a.source}]`);
@@ -176,6 +179,7 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   log("urgent message gets the emergency reply", shown);
   a = await ask("Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks");
   log("live model answers through the real proxy with caveats appended", /Accuracy check FAILED/.test(a.text), `${a.secs} [${a.source}] ${a.text.slice(0, 200)}`);
+  await page.waitForTimeout(REVEAL_MS);
   await page.screenshot({ path: `${OUT}/copilot-compare.png` });
   log("AI calls spent", true, String(aiCalls));
   log("no console errors", problems.length === 0, problems.slice(0, 6).join(" || "));

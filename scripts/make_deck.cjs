@@ -15,6 +15,8 @@ const POST = read("posterior.json");
 const GUARD = read("guard_eval.json");
 const SHIP = GUARD.shipped_guard;
 const [B1, B2] = GUARD.blind_runs;
+const DEMO = "https://zade06079-medbase-virtual-trials-lab.static.hf.space";
+const VDB = read("vector_db_eval.json");
 const of = (pair) => `${pair[0]} of ${pair[1]}`;
 const shot = (f) => path.join(root, "results/screens/release", f);
 
@@ -53,10 +55,14 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
 
 // 1. Title
 {
-  const s = slide(null, "Open with the idea: rehearse a trial in a browser, and see how far to trust the answer. Research and education only.");
+  const s = slide(null, "Open with the idea: rehearse a trial in a browser, and see how far to trust the answer. The link on this slide is the live site.");
   s.addText("INFINEX 2K26  |  APPLIED AI", { x: 0.6, y: 0.75, w: 6, h: 0.35, fontFace: BODY, fontSize: 13, bold: true, color: C.accent, charSpacing: 2, margin: 0 });
   s.addText("MedBase Virtual Trials Lab", { x: 0.6, y: 1.25, w: 5.8, h: 2.0, fontFace: HEAD, fontSize: 46, bold: true, color: C.text, margin: 0, valign: "top" });
   s.addText("Rehearse a type 2 diabetes drug trial in your browser, then see how far to trust it.", { x: 0.6, y: 3.45, w: 5.4, h: 1.2, fontFace: BODY, fontSize: 20, color: C.muted, margin: 0, valign: "top" });
+  s.addText([
+    { text: "Try it live", options: { color: C.accent, bold: true, breakLine: true } },
+    { text: DEMO, options: { color: C.text, hyperlink: { url: DEMO } } },
+  ], { x: 0.6, y: 5.0, w: 5.8, h: 0.8, fontFace: BODY, fontSize: 14, margin: 0, valign: "top" });
   s.addText("Simulated results. Not medical advice.", { x: 0.6, y: 6.55, w: 5.6, h: 0.35, fontFace: BODY, fontSize: 12, color: C.muted, margin: 0 });
   picture(s, "first-screen.png", 6.7, 0.75, 6.05, 4.2);
   picture(s, "body-view.png", 8.95, 4.3, 3.8, 2.64);
@@ -72,6 +78,26 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
   s.addText("The trust gap", { x: 7.15, y: 2.15, w: 5.25, h: 0.45, fontFace: HEAD, fontSize: 22, bold: true, color: C.accent, margin: 0 });
   s.addText("Many health AI tools produce confident answers with no way to check them. A learner cannot tell a sourced figure from a plausible one, or see where the tool has been wrong before.", { x: 7.15, y: 2.7, w: 5.25, h: 2.0, fontFace: BODY, fontSize: 18, color: C.text, margin: 0, valign: "top" });
   s.addText("Our answer: virtual patients from real survey data, AI that plans and explains, and a simulator that computes every efficacy number.", { x: 0.6, y: 5.25, w: 12.1, h: 1.1, fontFace: HEAD, fontSize: 24, italic: true, color: C.text, margin: 0 });
+}
+
+// 2b. Solution and key features
+{
+  const s = slide("Our solution: ask in plain English, run a trial, and see how far to trust it", "This is the product in one slide. Then show it live if you can.");
+  const features = [
+    ["Conversational AI copilot", "Explains ideas, follows up on \"why?\", and runs real simulations when you ask about a drug's effect."],
+    ["Virtual trials", "Four real drugs and hypothetical molecules, on virtual patients built from real health survey labs."],
+    ["AI Trial Designer", "Set a goal. A neural network proposes a study, and the simulator checks it step by step."],
+    ["Instant neural sliders", "Move dose or duration and get an answer in milliseconds, then race it against the full simulator."],
+    ["Vector database in the browser", "PostgreSQL with pgvector finds the right notes by meaning, with no server and no account."],
+    ["Public blind test", "Every frozen prediction beside the real result, shown beside each simulated answer, misses included."],
+  ];
+  features.forEach(([title, body], i) => {
+    const x = 0.6 + (i % 3) * 4.1;
+    const y = 1.85 + Math.floor(i / 3) * 2.45;
+    card(s, x, y, 3.9, 2.25);
+    s.addText(title, { x: x + 0.25, y: y + 0.2, w: 3.4, h: 0.65, fontFace: HEAD, fontSize: 18, bold: true, color: C.accent, margin: 0, valign: "top" });
+    s.addText(body, { x: x + 0.25, y: y + 0.9, w: 3.4, h: 1.2, fontFace: BODY, fontSize: 14.5, color: C.text, margin: 0, valign: "top" });
+  });
 }
 
 // 3. The AI layers
@@ -94,6 +120,23 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
   });
 }
 
+// 3b. Technology stack
+{
+  const s = slide("Technology stack", "Point out that the simulator and the database both run on the visitor's own device.");
+  const stack = [
+    ["AI models", ["NVIDIA Nemotron 3.5 on NIM: language model", "nemotron-3-embed-1b: embeddings", "Neural surrogate: a small MLP", "Bayesian MCMC with emcee"]],
+    ["Science", ["Python, NumPy, SciPy", "scikit-learn, statsmodels", "NHANES survey data", "Published trial results"]],
+    ["In the browser", ["React 19, TypeScript, Vite, Tailwind", "Pyodide: the Python simulator", `PostgreSQL and pgvector ${VDB.pgvector}, through PGlite`, "three.js: 3D body views"]],
+    ["Hosting and safety", ["Hugging Face Spaces: static site", "Vercel: proxy that holds the AI key", "Rule-based guard before any model", "Content Security Policy, key scans"]],
+  ];
+  stack.forEach(([title, items], i) => {
+    const x = 0.6 + i * 3.08;
+    card(s, x, 1.6, 2.92, 4.6);
+    s.addText(title, { x: x + 0.2, y: 1.8, w: 2.55, h: 0.5, fontFace: HEAD, fontSize: 19, bold: true, color: C.accent, margin: 0 });
+    s.addText(items.map((text, j) => ({ text, options: { bullet: true, breakLine: j < items.length - 1 } })), { x: x + 0.2, y: 2.4, w: 2.55, h: 3.6, fontFace: BODY, fontSize: 15, color: C.text, margin: 0, paraSpaceAfter: 9, valign: "top" });
+  });
+}
+
 // 4. Designer
 {
   const s = slide("A neural network chooses where to look, so the simulator runs less", "The surrogate screens 400 doses in milliseconds and proposes a start. The simulator checks it and has the last word. The benchmark compares guided against plain search on the same goals.");
@@ -109,7 +152,7 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
   framed(s, "crop-copilot-failure.png", 6.6, 1.75, 6.1, 3.23);
   const items = [
     ["No tool run, no answer", "A reply with no tool behind it is rejected. An early draft invented parameter names."],
-    ["One chance to fix a figure", "The guard names the unsourced number and sends the draft back. A second failure falls to computed text."],
+    ["One chance to fix a figure", "The guard names the unsourced number and sends the draft back. A second failure loses that line, or the whole draft."],
     ["Its failures and designs are written by code", "A paraphrase got the lab's results backwards, and a design must not read as a dose. The model chooses the tool; code writes the text."],
   ];
   items.forEach((it, i) => {
@@ -176,6 +219,27 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
     { text: "The record describes past error and never adjusts the number", options: { bullet: true, breakLine: true } },
     { text: "Added after the blind run; it changes no prediction", options: { bullet: true } },
   ], { x: 0.6, y: 2.85, w: 4.25, h: 3.0, fontFace: BODY, fontSize: 15, color: C.muted, margin: 0, paraSpaceAfter: 10, valign: "top" });
+}
+
+// 7b. Innovation and real-world impact
+{
+  const s = slide("Innovation and real-world impact", "Be plain that nobody outside the project has used it yet. The next step is a pilot with a class.");
+  card(s, 0.6, 1.6, 5.85, 4.75);
+  s.addText("What is new", { x: 0.9, y: 1.8, w: 5.3, h: 0.45, fontFace: HEAD, fontSize: 21, bold: true, color: C.accent, margin: 0 });
+  s.addText([
+    { text: "A real simulator and a real vector database run inside the browser, at no server cost", options: { bullet: true, breakLine: true } },
+    { text: "The language model plans and explains, and code checks its figures against what actually ran", options: { bullet: true, breakLine: true } },
+    { text: "Predictions were frozen before real results were opened, and the failures stay public", options: { bullet: true, breakLine: true } },
+    { text: "We attacked our own safety guard and published what got through", options: { bullet: true } },
+  ], { x: 0.9, y: 2.35, w: 5.3, h: 3.85, fontFace: BODY, fontSize: 16.5, color: C.text, margin: 0, paraSpaceAfter: 10, valign: "top" });
+  card(s, 6.85, 1.6, 5.85, 4.75);
+  s.addText("Who it helps", { x: 7.15, y: 1.8, w: 5.3, h: 0.45, fontFace: HEAD, fontSize: 21, bold: true, color: C.accent, margin: 0 });
+  s.addText([
+    { text: "Students and early researchers can rehearse a study design for free, with no account, on an ordinary laptop", options: { bullet: true, breakLine: true } },
+    { text: "Learners see how far to trust an AI answer, because its track record sits beside it", options: { bullet: true, breakLine: true } },
+    { text: `The AI designer used ${Math.round(DES.fewer_runs_share * 100)}% fewer simulator runs than a plain search, reaching the same verdict`, options: { bullet: true, breakLine: true } },
+    { text: "Next: pilot it with a class, and add Indian patient data", options: { bullet: true } },
+  ], { x: 7.15, y: 2.35, w: 5.3, h: 3.85, fontFace: BODY, fontSize: 16.5, color: C.text, margin: 0, paraSpaceAfter: 10, valign: "top" });
 }
 
 // 8. Scale, limits, links
