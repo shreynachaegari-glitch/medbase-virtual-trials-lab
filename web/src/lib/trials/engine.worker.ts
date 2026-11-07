@@ -8,7 +8,7 @@
 interface PyProxyModule {
     use_labs_file: (path: string) => void;
     handle: (method: string, path: string, body: string | null) => string;
-    session_start: (question: string, previous: string) => string;
+    session_start: (question: string, previous: string, history: string) => string;
     session_vector: (vector: string, stored: string) => string;
     session_tool: (name: string, args: string) => string;
     session_finish: (text: string | null, failed?: boolean) => string;
@@ -144,7 +144,7 @@ const start = async (engineUrl: string, indexUrl: string): Promise<void> => {
 const MAX_QUESTION = 2000;
 const EMBED_TIMEOUT_MS = 8_000;
 const REPLY_CACHE_SIZE = 40;
-const CACHED_SOURCES = new Set(["nim", "reference", "verified"]);
+const CACHED_SOURCES = new Set(["nim", "reference", "verified", "assistant"]);
 const replyCache = new Map<string, string>();
 let engineBase: string | null = null;
 /** The proxy gives NVIDIA 50 s, and its host allows 60 s. */
@@ -213,9 +213,9 @@ const askVectorDb = async (embedding: string): Promise<string> => {
  * proxy holds one. Any network or proxy failure hands the question to the offline planner, which still answers.
  */
 const askModel = async (id: number, api: PyProxyModule, proxyUrl: string, body: string): Promise<string> => {
-    const { question, previous } = JSON.parse(body) as { question?: unknown; previous?: unknown };
+    const { question, previous, history } = JSON.parse(body) as { question?: unknown; previous?: unknown; history?: unknown };
     if (typeof question !== "string" || question.trim() === "" || question.length > MAX_QUESTION) return api.handle("POST", "/api/assistant", body);
-    let start = JSON.parse(api.session_start(question, typeof previous === "string" ? previous.slice(0, MAX_QUESTION) : "")) as SessionStart;
+    let start = JSON.parse(api.session_start(question, typeof previous === "string" ? previous.slice(0, MAX_QUESTION) : "", Array.isArray(history) ? JSON.stringify(history) : "")) as SessionStart;
     if (start.embed !== undefined) {
         const embedding = await embedQuestion(proxyUrl, start.embed);
         start = JSON.parse(api.session_vector(embedding, await askVectorDb(embedding))) as SessionStart;

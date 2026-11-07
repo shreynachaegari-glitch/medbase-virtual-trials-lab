@@ -266,7 +266,7 @@ export interface SafetyResponse {
 
 export interface AssistantReply {
     text: string;
-    source: "claude" | "nim" | "verified" | "reference" | "scope" | "planner" | "intent-model" | "refusal" | "emergency" | "language" | "unsupported";
+    source: "claude" | "nim" | "assistant" | "verified" | "reference" | "scope" | "planner" | "intent-model" | "refusal" | "emergency" | "language" | "unsupported";
     tool_calls: { tool: string; ok: boolean }[];
     guard_note: string | null;
     sent_to_provider: boolean;

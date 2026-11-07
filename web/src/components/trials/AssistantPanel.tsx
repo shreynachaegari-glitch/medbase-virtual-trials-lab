@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Check, CircleDot, LoaderCircle, Send, ShieldAlert, Siren, Sparkles, X } from "lucide-react";
+import { Check, CircleDot, Copy, LoaderCircle, RotateCcw, Send, ShieldAlert, Siren, Sparkles, X } from "lucide-react";
 import { useElapsed } from "@/hooks/useSimRun";
 import { useTransport } from "@/hooks/useTransport";
 import { ApiError, guards, loadSnapshot, postTagged } from "@/lib/trials/api";
@@ -10,6 +10,7 @@ import type { AssistantReply, Health, Provenance } from "@/lib/trials/types";
 import { cn } from "@/lib/utils";
 import { Disclosure } from "@/components/lab/primitives";
 import { ErrorCallout, ProvenanceTag } from "./bits";
+import { RichText } from "./RichText";
 import { EngineWaitNote } from "./EngineStatus";
 
 const STARTERS = [
@@ -26,20 +27,23 @@ const STARTERS = [
 
 const NIM_LABEL = "AI model (NVIDIA NIM), figures checked against the simulator";
 const NIM_NOTES_LABEL = "AI model (NVIDIA NIM), answering only from the notes below";
+const MAX_HISTORY_TURNS = 4;
 const PROMPT_HINTS = [
-    "Ask about a drug, a trial design, or how accurate this lab is",
+    "Ask anything about diabetes, drug trials or this lab",
+    "Try: How does a clinical trial actually work?",
     "Try: Simulate sitagliptin 100 mg against placebo for 26 weeks",
     "Try: What is the applied AI in this lab?",
     "Try: What is an SGLT2 inhibitor?",
     "Try: Who responds to empagliflozin?",
 ];
 const HINT_MS = 3500;
-const FOLLOW_UP_SOURCES = new Set<AssistantReply["source"]>(["claude", "nim", "planner", "reference", "verified"]);
+const FOLLOW_UP_SOURCES = new Set<AssistantReply["source"]>(["claude", "nim", "assistant", "planner", "reference", "verified"]);
 const BROWSER_PLANNER = "Offline planner: runs in your browser, nothing is sent anywhere";
 
 const SOURCE: Record<AssistantReply["source"], { label: string; note: string; className: string }> = {
     claude: { label: "Claude", note: "A language model wrote this, using simulator tools", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
     nim: { label: NIM_LABEL, note: "", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
+    assistant: { label: "AI model, general knowledge", note: "Not checked by the simulator. Code removes any dose or drug effect it can't source", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
     verified: { label: "Written by code", note: "Code wrote this text, so it can't be misquoted", className: "border-foreground/50 text-foreground" },
     reference: { label: "Reference note", note: "A note from the lab\u2019s own library, written for this project. No simulation ran", className: "border-foreground/50 text-foreground" },
     scope: { label: "Not a simulation", note: "This is a fixed message, and no model or simulation ran", className: "border-foreground/50 text-foreground" },
@@ -223,7 +227,7 @@ const splitUrgentLine = (text: string) => {
 };
 
 const Reply = ({ turn, reply, provenance, onAsk, busy }: { turn: Turn; reply: AssistantReply; provenance?: Provenance; onAsk: (text: string) => void; busy: boolean }) => {
-    const reduceReveal = useReducedMotion();
+    const [copied, setCopied] = useState(false);
     const answeredFromNotes = reply.source === "nim" && (reply.sources?.length ?? 0) > 0;
     const base = answeredFromNotes ? { ...SOURCE.nim, label: NIM_NOTES_LABEL } : (SOURCE[reply.source] ?? SOURCE.planner);
     // Only true when the question really stayed here. A fallback from the AI model has already been sent.
@@ -246,11 +250,21 @@ const Reply = ({ turn, reply, provenance, onAsk, busy }: { turn: Turn; reply: As
     return (
         <div className="min-w-0" data-testid="assistant-reply">
             <div className="flex flex-wrap items-center gap-2">
-                <span data-testid="assistant-source" className={cn("rounded-sm border px-1.5 py-0.5 text-[11px] font-semibold", source.className)}>{source.label}</span>
-                {source.note && <span className="text-[11px] text-muted-foreground">{source.note}</span>}
+                {/* General answers read like any assistant's, so screen readers get the source and the page shows no badge. */}
+                <span data-testid="assistant-source" className={reply.source === "assistant" ? "sr-only" : cn("rounded-sm border px-1.5 py-0.5 text-[11px] font-semibold", source.className)}>{source.label}</span>
+                {source.note && reply.source !== "assistant" && <span className="text-[11px] text-muted-foreground">{source.note}</span>}
                 {provenance === "saved" && <ProvenanceTag provenance={provenance} />}
             </div>
-            <motion.p initial={reduceReveal ? false : { clipPath: "inset(0 0 100% 0)", opacity: 0.4 }} animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }} transition={{ duration: 0.9, ease: "easeOut" }} className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{answer}</motion.p>
+            <div className="mt-2"><RichText text={answer} reveal /></div>
+            <button
+                type="button"
+                data-testid="assistant-copy"
+                onClick={() => void navigator.clipboard?.writeText(answer).then(() => setCopied(true)).catch(() => undefined)}
+                className="mt-1.5 inline-flex min-h-7 items-center gap-1 rounded text-[11px] text-muted-foreground transition-colors duration-150 hover:text-foreground"
+            >
+                {copied ? <Check className="h-3 w-3" aria-hidden="true" /> : <Copy className="h-3 w-3" aria-hidden="true" />}
+                {copied ? "Copied" : "Copy answer"}
+            </button>
             {reply.interpreted_as && (
                 <p data-testid="assistant-interpreted" className="mt-2 text-xs text-muted-foreground">Understood as: <span className="text-foreground">{reply.interpreted_as}</span></p>
             )}
@@ -316,6 +330,14 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
     const controller = useRef<AbortController | null>(null);
     const usesModel = mode === "server" || (mode === "browser" && LLM_PROXY !== null);
     const lastQuestion = useRef<string | null>(null);
+    const history = useRef<{ question: string; answer: string }[]>([]);
+    const newChat = () => {
+        controller.current?.abort();
+        setTurns([]);
+        setBusy(false);
+        lastQuestion.current = null;
+        history.current = [];
+    };
     const [hint, setHint] = useState(0);
     useEffect(() => {
         if (reduce || question) return;
@@ -338,9 +360,12 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
         setTurns((all) => (retryOf === undefined ? [fresh, ...all] : all.map((t) => (t.id === id ? fresh : t))));
         setQuestion("");
         try {
-            const { data: reply, provenance } = await postTagged<AssistantReply>("/api/assistant", { question: trimmed, previous: lastQuestion.current }, guards.assistant, current.signal, (event) => update(id, (t) => applyEvent(t, event)));
+            const { data: reply, provenance } = await postTagged<AssistantReply>("/api/assistant", { question: trimmed, previous: lastQuestion.current, history: history.current }, guards.assistant, current.signal, (event) => update(id, (t) => applyEvent(t, event)));
             finish(id, { reply, provenance });
-            if (FOLLOW_UP_SOURCES.has(reply.source)) lastQuestion.current = reply.interpreted_as ?? trimmed;
+            if (FOLLOW_UP_SOURCES.has(reply.source)) {
+                lastQuestion.current = reply.interpreted_as ?? trimmed;
+                history.current = [...history.current, { question: reply.interpreted_as ?? trimmed, answer: splitUrgentLine(reply.text).answer }].slice(-MAX_HISTORY_TURNS);
+            }
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             const failure = error instanceof ApiError ? error : new ApiError("server", "The assistant couldn't answer. Please try again.");
@@ -365,7 +390,7 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
             </div>
             <p className="mt-1 hidden text-xs leading-relaxed text-muted-foreground sm:block">
                 {usesModel
-                    ? "It plans and runs experiments, answers questions from its notes, and follows the conversation, so \u201cwhat about 2 mg?\u201d and \u201cwhat are its side effects?\u201d work. A check outside the model blocks any number no tool produced."
+                    ? "Ask it anything, the way you would any AI assistant. It explains ideas, follows the conversation, and runs real simulations when you ask about a drug\u2019s effect. Checks outside the model block medical advice and any drug figure no tool produced."
                     : "It runs the simulator's tools and reports what they return. A check outside any language model blocks a number no tool produced."}
             </p>
             {usesModel && (
@@ -374,6 +399,37 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                 </p>
             )}
 
+
+
+            {turns.length > 0 && (
+                <ol className="copilot-log mt-4 flex max-h-[34rem] flex-col-reverse gap-3 overflow-y-auto pr-1" aria-live="polite" tabIndex={0} aria-label="Conversation" data-testid="assistant-log">
+                    {turns.map((turn) => (
+                        <motion.li
+                            key={turn.id}
+                            initial={reduce ? false : { opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+                            className="min-w-0 shrink-0"
+                        >
+                            <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-[hsl(var(--primary))]/15 px-3 py-2 text-sm font-medium"><span className="sr-only">You asked: </span>{turn.question}</p>
+                            <div className="mt-2.5">
+                                <LiveSteps turn={turn} />
+                                {turn.reply && <Reply turn={turn} reply={turn.reply} provenance={turn.provenance} onAsk={(text) => void ask(text)} busy={busy} />}
+                                {turn.error && <ErrorCallout error={turn.error} onRetry={() => void ask(turn.question, turn.id)} />}
+                                {!turn.reply && !turn.error && turn.steps.length === 0 && turn.deciding === null && (
+                                    <div className="space-y-1">
+                                        <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+                                            <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                                            Working. If this runs a simulation it can take a while.
+                                        </p>
+                                        <EngineWaitNote />
+                                    </div>
+                                )}
+                            </div>
+                        </motion.li>
+                    ))}
+                </ol>
+            )}
             <form
                 className="mt-3 flex items-end gap-2"
                 onSubmit={(e) => {
@@ -403,8 +459,15 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                     {busy ? <LoaderCircle className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
                 </button>
             </form>
-
-            <ul className="mt-2.5 flex flex-wrap gap-1.5" aria-label="Questions to try">
+            {turns.length > 0 && (
+                <div className="mt-2 flex justify-end">
+                    <button type="button" onClick={newChat} data-testid="assistant-new-chat" className="inline-flex min-h-8 items-center gap-1.5 rounded text-xs text-muted-foreground transition-colors duration-150 hover:text-foreground">
+                        <RotateCcw className="h-3 w-3" aria-hidden="true" />New chat
+                    </button>
+                </div>
+            )}
+            {turns.length === 0 ? (
+                <ul className="mt-2.5 flex flex-wrap gap-1.5" aria-label="Questions to try">
                 {STARTERS.map((text) => (
                     <li key={text}>
                         <button type="button" disabled={busy} onClick={() => void ask(text)} className="rounded-full border border-input px-2.5 py-1 text-left text-xs text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground disabled:opacity-50">
@@ -413,35 +476,16 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                     </li>
                 ))}
             </ul>
-
-            {turns.length > 0 && (
-                <ol className="mt-4 space-y-3" aria-live="polite" data-testid="assistant-log">
-                    {turns.map((turn) => (
-                        <motion.li
-                            key={turn.id}
-                            initial={reduce ? false : { opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-                            className="rounded-md border border-border bg-background/70 p-3"
-                        >
-                            <p className="text-sm font-medium"><span className="sr-only">You asked: </span>{turn.question}</p>
-                            <div className="mt-2.5 border-t border-border pt-2.5">
-                                <LiveSteps turn={turn} />
-                                {turn.reply && <Reply turn={turn} reply={turn.reply} provenance={turn.provenance} onAsk={(text) => void ask(text)} busy={busy} />}
-                                {turn.error && <ErrorCallout error={turn.error} onRetry={() => void ask(turn.question, turn.id)} />}
-                                {!turn.reply && !turn.error && turn.steps.length === 0 && turn.deciding === null && (
-                                    <div className="space-y-1">
-                                        <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
-                                            <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                                            Working. If this runs a simulation it can take a while.
-                                        </p>
-                                        <EngineWaitNote />
-                                    </div>
-                                )}
-                            </div>
-                        </motion.li>
-                    ))}
-                </ol>
+            ) : (
+                <div className="mt-2"><Disclosure summary="More questions to try">            <ul className="flex flex-wrap gap-1.5" aria-label="Questions to try">
+                {STARTERS.map((text) => (
+                    <li key={text}>
+                        <button type="button" disabled={busy} onClick={() => void ask(text)} className="rounded-full border border-input px-2.5 py-1 text-left text-xs text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground disabled:opacity-50">
+                            {text}
+                        </button>
+                    </li>
+                ))}
+            </ul></Disclosure></div>
             )}
 
             <div className="mt-3">
@@ -454,6 +498,7 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                                   ? "An AI model plans, through a proxy that holds its key. The simulator runs on this device, and the offline planner answers if the AI service is unavailable."
                                   : health ? `Answers come from ${MODE[health.assistant_mode]}.` : "The assistant mode is not known, because the server has not answered."}
                         </p>
+                        <p>General answers come from the AI model&rsquo;s own knowledge. They are not checked by the simulator and can be wrong. Code removes any dose or drug effect it can&rsquo;t source.</p>
                         <p>It refuses questions about your own or someone else&rsquo;s treatment. Please talk to a doctor or pharmacist.</p>
                     </div>
                 </Disclosure>

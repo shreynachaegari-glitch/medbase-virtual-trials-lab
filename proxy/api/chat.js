@@ -21,7 +21,7 @@ const RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
 const RETRY_DELAY_MS = 400;
 const RETRY_ONLY_WITHIN_MS = 15_000;
 // Hashes of the lab's own prompts and tool lists, so this can't be used as a general AI. Python tests keep them in step.
-const ALLOWED_PROMPTS = new Set(["b9323543050b03f64e867260803497be388f7d0f08f3f693d03465479ad93b31", "d3341e57afd1155b57abdc4de31a32e438d1aeb0beff879eaf49dd47ef2eb332"]);
+const ALLOWED_PROMPTS = new Set(["11c1e6da2c5a5ec37bcf7988e43a1796009d0b2fb43d795ca62cd8633ed8b7f0", "b9323543050b03f64e867260803497be388f7d0f08f3f693d03465479ad93b31", "d3341e57afd1155b57abdc4de31a32e438d1aeb0beff879eaf49dd47ef2eb332"]);
 const ALLOWED_TOOLS = new Set(["186c4883759e6ef2042f0807ec1cc35f34019f4827dc47bfb981b8fffef7e253", "c03ae0ed1be97f62461c4464ad6b19aebae9369a5dca9c3432684eeef387f06b"]);
 const ROLES = new Set(["system", "user", "assistant", "tool"]);
 const sha256 = (text) => createHash("sha256").update(text).digest("hex");

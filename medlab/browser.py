@@ -43,10 +43,14 @@ def use_labs_file(path: str) -> None:
 _session = None
 
 
-def session_start(question: str, previous: str = "") -> str:
+def session_start(question: str, previous: str = "", history: str = "") -> str:
     """Begins a model conversation for the worker; the worker makes the network calls."""
     global _session
-    _session = assistant.BrowserSession(question, previous or None, wants_vector=True)
+    try:
+        turns = json.loads(history) if history else []
+    except ValueError:
+        turns = []
+    _session = assistant.BrowserSession(question, previous or None, wants_vector=True, history=turns, assistant_mode=True)
     return json.dumps(_session.start(), default=str)
 
 

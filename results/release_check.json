@@ -7,7 +7,7 @@
  {
   "name": "engine loads in the browser",
   "ok": true,
-  "detail": "18.9s"
+  "detail": "19.9s"
  },
  {
   "name": "the page carries a security policy",
@@ -52,7 +52,7 @@
  {
   "name": "designer shows surrogate guidance",
   "ok": true,
-  "detail": "7.9s A trained neural surrogate chose where to startIt screened 400 doses in 7.1 ms and proposed 0.192 mg/week, predicting -1 points. The simulator then checked 3 doses, and every number below comes from the simulat"
+  "detail": "7.9s A trained neural surrogate chose where to startIt screened 400 doses in 3.8 ms and proposed 0.192 mg/week, predicting -1 points. The simulator then checked 3 doses, and every number below comes from the simulat"
  },
  {
   "name": "designer found or explained a design",
@@ -72,7 +72,7 @@
  {
   "name": "simulator race shows real timings",
   "ok": true,
-  "detail": "0.03 ms vs 5.3 s: About 160,000 times faster"
+  "detail": "0.06 ms vs 5.3 s: About 95,000 times faster"
  },
  {
   "name": "prediction chart shows real counts",
@@ -92,17 +92,17 @@
  {
   "name": "basic question answered through retrieval and the real proxy",
   "ok": true,
-  "detail": "1.2s [AI model (NVIDIA NIM), answering only from the notes below] AI model (NVIDIA NIM), answering only from the notes belowSemaglutide is a GLP-1 receptor agonist that increases insulin release when glucose is high,"
+  "detail": "1.5s [AI model, general knowledge] AI model, general knowledgeSemaglutide is a GLP-1 receptor agonist. In the lab it increases insulin release when glucose is high, reduces glucagon, an"
  },
  {
   "name": "the vector database answered, and shows its query",
   "ok": true,
-  "detail": "Vector database: pgvector, running in your browser · 7.1 msSELECT title, 1 - (embedding <="
+  "detail": "Vector database: pgvector, running in your browser · 7.9 msSELECT title, 1 - (embedding <="
  },
  {
   "name": "a paraphrase finds its note by meaning",
   "ok": true,
-  "detail": "1.2s [AI model (NVIDIA NIM), answering only from the notes below] Vector database: pgvector, running in your browser · 7.1 msSELECT title, 1 - (embedding <=> $1) AS score FROM notes ORDER BY embedding <=> $1Sulfonylurea0.51SGLT20.47Biguanide0.45 AI model (NVIDIA NIM), answering only from the notes belowSGLT2 inhibitors, such as empagliflozin, block a kidney protein called SGLT2 that normally takes gluco"
+  "detail": "1.4s [AI model, general knowledge] Vector database: pgvector, running in your browser · 7.9 msSELECT title, 1 - (embedding <=> $1) AS score FROM notes ORDER BY embedding <=> $1Sulfonylurea0.51SGLT20.47Biguanide0.45 AI model, general knowledgeSGLT2 inhibitors, such as empagliflozin, work by blocking the SGLT2 protein that the kidneys use to reabsorb glucose into the blood. "
  },
  {
   "name": "the answer shows its real trace and next questions",
@@ -110,39 +110,64 @@
   "detail": ""
  },
  {
-  "name": "an off-topic question is declined",
+  "name": "a general question gets a real answer, with no helpline on it",
   "ok": true,
-  "detail": "0.3s [Not a simulation]"
+  "detail": "1.2s [AI model, general knowledge] AI model, general knowledgeThe capital of France is Paris.Copy answerGuard: A general questionAI model: A language model"
+ },
+ {
+  "name": "the copilot explains an idea in its own words",
+  "ok": true,
+  "detail": "1.7s [AI model, general knowledge]"
+ },
+ {
+  "name": "a general answer carries no visible badge",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "a vague follow-up uses the conversation",
+  "ok": true,
+  "detail": "1.2s [AI model, general knowledge] AI model, general knowledgeA clinical trial tests a new treatment in people. It usually happens in steps. Phase 1 checks"
+ },
+ {
+  "name": "asking a drug's effect runs the simulator",
+  "ok": true,
+  "detail": "8.4s [AI model (NVIDIA NIM), figures checked against the simulator] Understood as: Simulate semaglutide 1 mg against placebo for 26 weeks"
+ },
+ {
+  "name": "a question about a relative is still refused",
+  "ok": true,
+  "detail": "0.2s [Refusal]"
  },
  {
   "name": "a simulation question runs",
   "ok": true,
-  "detail": "10.1s [AI model (NVIDIA NIM), figures checked against the simulator]"
+  "detail": "10.3s [AI model (NVIDIA NIM), figures checked against the simulator]"
  },
  {
   "name": "a follow-up carries the last experiment",
   "ok": true,
-  "detail": "7.1s [AI model (NVIDIA NIM), figures checked against the simulator] Understood as: Simulate sitagliptin 50 mg against placebo for 26 weeks"
+  "detail": "9.7s [AI model (NVIDIA NIM), figures checked against the simulator] Understood as: Simulate sitagliptin 50 mg against placebo for 26 weeks"
  },
  {
   "name": "a pronoun carries the drug from the last question",
   "ok": true,
-  "detail": "0.2s [Offline planner: runs in your browser, nothing is sent anywhere] Understood as: what are semaglutide side effects?"
+  "detail": "0.6s [Offline planner: runs in your browser, nothing is sent anywhere] Understood as: what are semaglutide side effects?"
  },
  {
   "name": "copilot gives the code-written failure account",
   "ok": true,
-  "detail": "0.3s [Written by code] Written by codeCode wrote this text, so it can't be misquotedValidation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Held up in: EMPA-REG MET, EMPA-REG RENAL, SUSTAIN 2, Sitagliptin monotherapy. Missed in: Semaglutide phase 2, Sitagliptin + metformin factorial. The model was closer than the rival on 12 of 20 results, but that gap is not statistically reliable. Largest misses: Semaglutide phase 2, Semaglutide 0.4 mg: predicted -1.145, observed -0.5; Sitagliptin + metformin factorial, Sitagliptin 50 mg b.i.d + Metformin 1000 mg b.i.d.: predicted -1.506, observed -2.07; Semaglutide phase 2, Semaglutide 0.1 mg: predicted -0.627, observed -0.1.Guard: A research question, so it may use a model and the simulatorSimulator: 1 tool ran on this device or the lab's serverWritten by code: Code wrote this text, so it can't be misquotedThis account of the blind test is written by code, so it cannot be misquoted.This question was not sent to an AI provider.Tools that ranRead the validation reportWhat is the rival?What are the validation checks?What is the neural surrogate?"
+  "detail": "0.2s [Written by code] Written by codeCode wrote this text, so it can't be misquotedValidation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Held up in: EMPA-REG MET, EMPA-REG RENAL, SUSTAIN 2, Sitagliptin monotherapy. Missed in: Semaglutide phase 2, Sitagliptin + metformin factorial. The model was closer than the rival on 12 of 20 results, but that gap is not statistically reliable. Largest misses: Semaglutide phase 2, Semaglutide 0.4 mg: predicted -1.145, observed -0.5; Sitagliptin + metformin factorial, Sitagliptin 50 mg b.i.d + Metformin 1000 mg b.i.d.: predicted -1.506, observed -2.07; Semaglutide phase 2, Semaglutide 0.1 mg: predicted -0.627, observed -0.1.Copy answerGuard: A research question, so it may use a model and the simulatorSimulator: 1 tool ran on this device or the lab's serverWritten by code: Code wrote this text, so it can't be misquotedThis account of the blind test is written by code, so it cannot be misquoted.This question was not sent to an AI provider.Tools that ranRead the validation reportWhat is the rival?What are the validation checks?What is the neural surrogate?"
  },
  {
   "name": "personal question refused",
   "ok": true,
-  "detail": "0.1s [Refusal]"
+  "detail": "0.3s [Refusal]"
  },
  {
   "name": "unframed drug question gets a fixed reply",
   "ok": true,
-  "detail": "0.1s [Not a simulation]"
+  "detail": "0.3s [Not a simulation]"
  },
  {
   "name": "urgent message gets the emergency reply",
@@ -152,12 +177,12 @@
  {
   "name": "live model answers through the real proxy with caveats appended",
   "ok": true,
-  "detail": "14.2s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorSimulated over 30 weeks, semaglutide 1 mg weekly produced a larger HbA1c reduction than empagliflozin 25 mg daily. The tool reported the HbA"
+  "detail": "14.1s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorSemaglutide 1 mg achieved a mean HbA1c reduction of 1.66 percentage points, while empagliflozin 25 mg reduced HbA1c by 0.84 percentage point"
  },
  {
   "name": "AI calls spent",
   "ok": true,
-  "detail": "14"
+  "detail": "19"
  },
  {
   "name": "no console errors",

@@ -57,6 +57,7 @@ class TrialIn(BaseModel):
 class QuestionIn(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
     previous: str | None = Field(default=None, max_length=2000)  # the last question, so "what about 2 mg?" can follow it
+    history: list | None = Field(default=None, max_length=20)  # only the browser's conversational route reads this
 
 
 class DesignIn(BaseModel):

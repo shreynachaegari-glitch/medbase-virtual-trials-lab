@@ -39,7 +39,7 @@ Registry results ──> Bayesian calibration ───────────�
 | Bayesian calibration | MCMC (emcee, 44 walkers, 6500 steps) learns drug effects from three real trials and carries the uncertainty into every prediction | Split R-hat 1.026, chain length 56 autocorrelation times; blind test below |
 | Neural surrogate | A small neural network trained on 2400 simulator runs, with numpy-only inference in the browser, for instant sliders and for guiding the designer | HbA1c mean error 0.082 points, R2 0.949 on 480 simulator runs it never saw. It learns the simulator, not reality |
 | AI Trial Designer | Takes a goal; the surrogate proposes a dose and the simulator checks and refines it, then sizes the study | Across 36 goals: 3.28 simulator runs on average against 6.03 for plain bisection (46% fewer); same feasibility verdict on 36 of 36; median dose difference 3% |
-| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 7 answered by the model, 3 written by code, right tool on 10 of 10, guard repaired 1 and replaced 0, median 4.1 s. A small sample |
+| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 7 answered by the model, 3 written by code, right tool on 10 of 10, guard repaired 3 and replaced 0, median 4.7 s. A small sample |
 | Vector database and retrieval | PostgreSQL with pgvector, compiled to WebAssembly by PGlite, running in the visitor's browser, with no server or account (PostgreSQL 18.6 (PGlite 0.5.15), pgvector 0.8.7). It holds embeddings of 71 notes written for this project (nvidia/nemotron-3-embed-1b, saved in the repo), and the question is embedded through the proxy only after the guard clears it. numpy is the fallback, then TF-IDF. The model may use only the notes found, and code then checks that its wording came from them | On 60 blind, held-out questions, scored once: right note in the top 3 98.3%, top 1 83.3%. 10 of those were still declined, after a later safety fix. None of 30 must-refuse messages reached a model. Scored with numpy; the database returned the same notes on 184 of 184 questions, median query 4.33 ms under Node. The first blind list scored 58.8% on TF-IDF alone, which is why embeddings were added; that list was then used for tuning |
 | Safety guard | Default-deny on input, and a digit figure no tool produced sends the draft back to the model once, then falls back to computed text | 44 of 44 project-written attack prompts refused before any model call. Blind results are in the section below |
 | Intent model | TF-IDF and logistic regression for greetings and help, runs in the browser, cannot write a number | 95.3% on 43 project-written phrases, a small sample |
@@ -62,6 +62,7 @@ The last row is the current state but it is optimistic, and no blind test has be
 
 Known limits:
 
+- General-knowledge answers come from the language model, as the copilot's "How this answers" section says, and carry no badge on the answer itself. Code removes doses and drug effects it can't source and refuses care advice, but other statements can be wrong.
 - The guard checks that each figure has a source, not its sign or the sentence around it. A model reply can still misdescribe a correct number, so read the figures beside it.
 - A terse question naming a drug with a research word cannot be told apart from a person's own question. It gets a population figure with its failed checks and the emergency line, never a personal answer.
 - Regex rules cannot catch every implied piece of advice in free text. Reproduce the table with `scripts/eval_guard.py`.
@@ -114,7 +115,7 @@ uvicorn medlab.api:app --port 8000      # API
 cd web && npm ci && npm run dev         # UI, opens on /trials
 ```
 
-Latest test run: 832 passed in 79.70s (0:01:19).
+Latest test run: 942 passed in 80.81s (0:01:20).
 
 ## Credits
 

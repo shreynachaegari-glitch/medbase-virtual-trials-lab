@@ -360,3 +360,16 @@
   .text-ai, .aurora::before, .aurora::after, .copilot-live::before { animation: none; }
 }
 
+/* A checked reply appears word by word. All of it is in the page from the start. */
+.ai-word {
+  animation: ai-word 280ms ease-out both;
+}
+@keyframes ai-word {
+  from { opacity: 0; filter: blur(3px); }
+  to { opacity: 1; filter: blur(0); }
+}
+.copilot-log { scrollbar-width: thin; }
+@media (prefers-reduced-motion: reduce) {
+  .ai-word { animation: none; }
+}
+

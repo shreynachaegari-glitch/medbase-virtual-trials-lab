@@ -49,7 +49,7 @@ def proxy_lock_in_step() -> bool:
     proxy = (ROOT / "proxy" / "api" / "chat.js").read_text()
     digest = lambda text: hashlib.sha256(text.encode()).hexdigest()  # noqa: E731
     specs = [assistant._tool_specs_openai(), assistant._general_tool_specs()]
-    wanted = [digest(assistant.SYSTEM), digest(assistant.GENERAL_SYSTEM)] + [digest(json.dumps(s, separators=(",", ":"), ensure_ascii=False)) for s in specs]
+    wanted = [digest(assistant.SYSTEM), digest(assistant.GENERAL_SYSTEM), digest(assistant.ASSISTANT_SYSTEM)] + [digest(json.dumps(s, separators=(",", ":"), ensure_ascii=False)) for s in specs]
     return all(value in proxy for value in wanted)
 
 

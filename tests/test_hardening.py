@@ -21,7 +21,7 @@ def _compact(value) -> str:
     return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
 
 
-@pytest.mark.parametrize("prompt", [assistant.SYSTEM, assistant.GENERAL_SYSTEM])
+@pytest.mark.parametrize("prompt", [assistant.SYSTEM, assistant.GENERAL_SYSTEM, assistant.ASSISTANT_SYSTEM])
 def test_the_proxy_accepts_the_labs_current_prompts(prompt):
     assert _sha(prompt) in PROXY, "a prompt changed: update ALLOWED_PROMPTS in proxy/api/chat.js and redeploy the proxy first"
 

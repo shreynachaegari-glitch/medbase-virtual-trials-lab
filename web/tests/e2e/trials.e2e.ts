@@ -367,7 +367,8 @@ test.describe("with the API up", () => {
         await expect(page.getByTestId("assistant-guard").first()).toContainText("no tool produced");
         await expect(page.getByTestId("assistant-tools").first()).toContainText("Read the validation report");
         await expect(page.getByTestId("assistant-sent").first()).toHaveText("This question was not sent to an AI provider.");
-        await panel.getByRole("button", { name: "Should I stop taking my metformin?" }).click();
+        await panel.getByLabel("Your question for the Lab Assistant").fill("Should I stop taking my metformin?");
+        await panel.getByRole("button", { name: "Send question" }).click();
         await expect(page.getByTestId("assistant-source").first()).toHaveText("Refusal");
         const box = panel.getByLabel("Your question for the Lab Assistant");
         await box.fill("Can I combine glipizide with this?");

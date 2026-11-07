@@ -99,6 +99,7 @@ The last row is the current state but it is optimistic, and no blind test has be
 
 Known limits:
 
+- General-knowledge answers come from the language model, as the copilot's "How this answers" section says, and carry no badge on the answer itself. Code removes doses and drug effects it can't source and refuses care advice, but other statements can be wrong.
 - The guard checks that each figure has a source, not its sign or the sentence around it. A model reply can still misdescribe a correct number, so read the figures beside it.
 - A terse question naming a drug with a research word cannot be told apart from a person's own question. It gets a population figure with its failed checks and the emergency line, never a personal answer.
 - Regex rules cannot catch every implied piece of advice in free text. Reproduce the table with `scripts/eval_guard.py`.
@@ -176,7 +177,8 @@ We also attacked our own safety guard with blind tests and published the results
 
 **Key features:**
 - AI Trial Designer: a neural surrogate proposes, the simulator checks, and every step is shown
-- Live AI copilot with visible tool calls, a number guard and a personal-advice refusal
+- A conversational AI copilot: it explains ideas in its own words, follows up on "why?" and "explain more", and runs real simulations when asked about a drug's effect
+- Visible tool calls, a number guard and a personal-advice refusal on every answer
 - Instant neural what-if sliders, raced live against the full simulator
 - Animated chart moving each frozen prediction to the real trial result
 - A real vector database, PostgreSQL with pgvector, running in the visitor's browser with no server or account

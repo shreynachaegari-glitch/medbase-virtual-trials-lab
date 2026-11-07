@@ -16,7 +16,8 @@ We also attacked our own safety guard with blind tests and published the results
 
 **Key features:**
 - AI Trial Designer: a neural surrogate proposes, the simulator checks, and every step is shown
-- Live AI copilot with visible tool calls, a number guard and a personal-advice refusal
+- A conversational AI copilot: it explains ideas in its own words, follows up on "why?" and "explain more", and runs real simulations when asked about a drug's effect
+- Visible tool calls, a number guard and a personal-advice refusal on every answer
 - Instant neural what-if sliders, raced live against the full simulator
 - Animated chart moving each frozen prediction to the real trial result
 - A real vector database, PostgreSQL with pgvector, running in the visitor's browser with no server or account

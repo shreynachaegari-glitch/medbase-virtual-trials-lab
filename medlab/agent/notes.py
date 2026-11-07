@@ -32,7 +32,7 @@ TRIALS = (
 
 AI_STACK = (
     ("Applied AI in this lab", "This lab applies AI in layers. Bayesian MCMC calibrates drug effects on real trials and keeps the uncertainty. A neural surrogate gives instant answers and guides the trial designer. A language model turns plain English into experiments and calls the simulator's tools. Vector search grounds answers to ordinary questions in notes. A rule-based guard sits in front of all of it, and the simulator computes every number."),
-    ("How the copilot works", "The copilot first passes each question through a rule-based guard. Ordinary questions go to vector search, and a language model answers only from the notes found. Experiment questions go to a language model that chooses simulator tools. Code then checks every figure in the reply against what the tools returned, and sends back or replaces anything it cannot match."),
+    ("How the copilot works", "The copilot first passes each question through a rule-based guard. Ordinary questions go to vector search, and a language model answers conversationally from the notes found and its general knowledge, remembering the last few turns. Experiment questions go to a language model that chooses simulator tools. Code then checks the reply: figures against what the tools returned, wording about the lab against its notes, and any dose or drug effect it cannot source is removed."),
     ("AI model used", f"The copilot's language model is {MODEL_NAME}, an NVIDIA Nemotron model served through NVIDIA NIM. A small proxy holds the API key, so no key is in the browser. If the service is unavailable, a rule-based offline planner answers instead."),
     ("RAG", "RAG means retrieval-augmented generation: find relevant text first, then have a language model answer only from it, so it does not rely on memory. Here the copilot retrieves up to three notes by vector search and shows which ones it used."),
     ("Vector search", "A vector database stores text as lists of numbers so that similar text can be found by distance. This lab runs a real one in your browser: PostgreSQL with the pgvector extension, compiled to WebAssembly by PGlite, so it needs no server or account. The notes are embedded with an NVIDIA model, and a question's embedding is compared with them by cosine distance. If it cannot load, numpy does the same calculation, and if embeddings are unavailable, keyword vectors are used."),
@@ -47,6 +47,11 @@ AI_STACK = (
 )
 
 ALL_NOTES = BASICS + TRIALS + AI_STACK
+# Facts about the lab itself, where a language model must not fill gaps from memory.
+ABOUT_THE_LAB = frozenset(title for title, _ in AI_STACK) | {
+    "This lab", "Copilot", "Safety guard", "Not modelled", "Using the lab", "Limits", "Rival", "Blind test", "Blind test result", "Neural surrogate",
+    "Bayesian calibration", "Virtual patient", "Digital twin", "Trial analysis", "NHANES", "Curve fit",
+}
 
 # How people ask for a note, in their own words. Embedded with the note, so a question finds it by meaning, and never shown.
 ASKED_AS = {

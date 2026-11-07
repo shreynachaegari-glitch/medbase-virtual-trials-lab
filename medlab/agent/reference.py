@@ -63,6 +63,11 @@ def is_general(question: str) -> bool:
     return not _NOT_REFERENCE.search(text) and not _A_NUMBER.search(_NAMES_WITH_DIGITS.sub(" ", text))
 
 
+def is_drug_mechanism_question(question: str) -> bool:
+    """"How does it work?" asks about the mechanism, which the notes explain, and not about the size of its effect."""
+    return bool(re.search(r"\bhow (?:does|do) \w+ (?:really |actually )?work\b", question, re.I))
+
+
 def named_drugs(question: str) -> list[str]:
     """The lab's drugs a question names, by generic or brand name, in the order they are listed."""
     lowered = question.lower()

@@ -68,8 +68,13 @@ _METER_EXTREME = re.compile(r"(meter|reading)\D{0,20}\b(HI|LO)\b|\bsays (HI|LO)\
 GLUCOSE_DANGER_LOW, GLUCOSE_DANGER_HIGH, GLUCOSE_NOT_A_READING = 54, 400, 20
 
 
+_DESPAIR = re.compile(r"\b(feel\w*)\s+(?:\w+\s+){0,2}(hopeless|worthless)\b|\bno reason to live\b", re.I)
+
+
 def _is_urgent(text: str) -> bool:
     """Severe symptoms, overdose, self-harm or a dangerous glucose reading. Checked before anything else, so a research word can't hide one."""
+    if _DESPAIR.search(text):
+        return True
     if _ALWAYS_URGENT.search(text):
         return True
     if _NOT_URGENT.search(text):
@@ -294,20 +299,50 @@ MIN_TRIMMED_CHARS = 25
 _SAFETY_MEANING = re.compile(r"\b(unsafe|safe|risks?|warn\w*|avoid\w*|do not|don'?t|never|caution\w*|danger\w*|serious|severe|adverse|death|fatal|contraindicat\w*|should not|shouldn'?t|not recommended|harm\w*|side effects?)\b", re.I)
 
 
-def without_unsourced(text: str, results: list[dict], years: list) -> str | None:
-    """The reply with only the lines or sentences that hold an unsourced figure removed, or None if no sourced figure would remain."""
+def _cut_parts(text: str, is_bad) -> str | None:
+    """The text without the lines or sentences is_bad flags, or None if a flagged part carries a safety warning."""
     kept_lines = []
     for line in text.split("\n"):
-        if not unsourced_or_raw(line, results, years):
+        if not is_bad(line):
             kept_lines.append(line)
             continue
         parts = _SENTENCE_END.split(line)
-        good = [part for part in parts if not unsourced_or_raw(part, results, years)]
+        good = [part for part in parts if not is_bad(part)]
         if any(_SAFETY_MEANING.search(part) for part in parts if part not in good):
             return None
         if good:
             kept_lines.append(" ".join(good))
-    trimmed = "\n".join(kept_lines).strip()
+    return "\n".join(kept_lines).strip()
+
+
+_NAMES_WITH_NUMBERS = re.compile(r"\b(glp-?1|sglt-?2|dpp-?4|hba1c|a1c|type[\s-]*[12]|phase[\s-]*[1-4]|t2dm?|t1dm?)\b", re.I)
+_A_FIGURE = re.compile(r"\d+(?:\.\d+)?")
+_DOSE_FIGURE = re.compile(r"\d+(?:\.\d+)?\s*(?:mg|mcg|\u00b5g|micrograms?|milligrams?|units?|iu)\b", re.I)
+_DRUG_OR_CLASS = re.compile(
+    r"\b(metformin|semaglutide|empagliflozin|sitagliptin|ozempic|wegovy|rybelsus|jardiance|januvia|glucophage|insulins?|glp-?1|sglt-?2|dpp-?4|sulfonylureas?|biguanides?|"
+    r"liraglutide|tirzepatide|mounjaro|dulaglutide|dapagliflozin|canagliflozin|glipizide|glimepiride|pioglitazone|linagliptin|\w+gliflozin|\w+gliptin|\w+glutide)\b", re.I)
+_EFFECT_TERM = re.compile(r"\b(hba1c|a1c|glucose|blood sugar|percentage points?|points?|percent|weight|kg|kilograms?|pounds?|lbs?|lower\w*|reduc\w*|drop\w*|dos[ae]\w*|daily|weekly|twice)\b|%", re.I)
+
+
+def without_unsourced_drug_figures(text: str, source_text: str, subject_is_a_drug: bool = False) -> str | None:
+    """General knowledge may hold dates and facts, but a dose or a drug's effect must come from the simulator or the conversation."""
+    known = set(_A_FIGURE.findall(_NAMES_WITH_NUMBERS.sub(" ", source_text)))
+
+    def is_bad(part: str) -> bool:
+        figures = _A_FIGURE.findall(_NAMES_WITH_NUMBERS.sub(" ", part))
+        if all(figure in known for figure in figures):
+            return False
+        return bool(_DOSE_FIGURE.search(part)) or ((subject_is_a_drug or bool(_DRUG_OR_CLASS.search(part))) and bool(_EFFECT_TERM.search(part)))
+
+    trimmed = _cut_parts(text, is_bad)
+    return trimmed or None
+
+
+def without_unsourced(text: str, results: list[dict], years: list) -> str | None:
+    """The reply with only the lines or sentences that hold an unsourced figure removed, or None if no sourced figure would remain."""
+    trimmed = _cut_parts(text, lambda part: bool(unsourced_or_raw(part, results, years)))
+    if trimmed is None:
+        return None
     if len(trimmed) < MIN_TRIMMED_CHARS or not re.search(r"\d", trimmed) or unsourced_or_raw(trimmed, results, years):
         return None
     return trimmed
@@ -325,6 +360,7 @@ def _in_another_language(raw: str, normal: str) -> bool:
     return bool(_LATIN_ACCENT.search(raw) or _FOREIGN_WORD.search(normal))
 
 
+_FIGURE_OF_SPEECH = re.compile(r"\blike i(?:['\u2019]?m| am) (?:a )?(?:\d+|five|six|seven|eight|nine|ten|eleven|twelve|beginner|novice)\b", re.I)
 _LEET = str.maketrans({"0": "o", "1": "l", "3": "e", "4": "a", "5": "s"})
 _DIGIT_NAMES = re.compile(r"^(hba1c|a1c|t2dm?|t1dm?|glp1|glp|sglt2|dpp4|v[3-6]|nct\d+|nhanes\d*|p\d+|r2|q\d+|phase\d)$", re.I)
 _DISGUISED_WORD = re.compile(r"\b[a-z]+\d[a-z0-9]*\b", re.I)
@@ -357,7 +393,7 @@ def classify(text: str) -> str:
         return "personal"
     if _about_the_product(normal):
         return "chat"
-    plain = _without_research_phrases(_undisguised(normal))
+    plain = _FIGURE_OF_SPEECH.sub(" ", _without_research_phrases(_undisguised(normal)))
     if any(p.search(plain) for p in _PERSONAL) or _OWN_GLUCOSE.search(_undisguised(normal)):
         return "personal"
     lab = _lab_verdict(normal)
@@ -383,9 +419,33 @@ def is_personal_request(text: str) -> bool:
     return classify(text) in {"personal", "emergency", "language"}
 
 
+_ADVICE_COMMAND = re.compile(
+    r"\b(stop|start|skip|double|quit)\s+(taking|using)\s+(your|the|this|it)\b"
+    r"|\b(stop|skip|double|change|increase|lower|reduce|raise)\s+your\s+(dose|dosage|insulin|medicines?|medications?|tablets?|pills?|metformin|semaglutide|empagliflozin|sitagliptin|ozempic)\b", re.I)
+
+
+_CARE_WORD = re.compile(r"\b(take|taking|dose|dosage|medicines?|medications?|tablets?|pills?|inject\w*|prescri\w*|insulin|stop|start|switch|skip|metformin|semaglutide|empagliflozin|sitagliptin|ozempic|wegovy|jardiance|januvia|\d+\s*mg)\b", re.I)
+_TALKS_ABOUT_THE_LAB = re.compile(r"\b(simulat\w*|explore|virtual|in this lab|in a trial|in the lab|run a|talk to|speak (to|with)|ask (a|your)|see a)\b", re.I)
+
+
+def looks_like_care_advice(reply: str) -> bool:
+    """For a conversational reply: advice wording only counts in a sentence about someone's medicine, not in "you can run a simulation here"."""
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", reply):
+        if looks_like_advice(sentence) and _CARE_WORD.search(sentence) and not _TALKS_ABOUT_THE_LAB.search(sentence):
+            return True
+    return False
+
+
+def mentions_a_person(text: str) -> bool:
+    """The personal rules alone, without the judgement on a lab value that a bare "lower HbA1c" would trip."""
+    normal = " ".join(_normalise(text).replace("_", " ").split())
+    plain = _without_research_phrases(_undisguised(normal))
+    return any(p.search(plain) for p in _PERSONAL) or bool(_OWN_GLUCOSE.search(_undisguised(normal))) or _is_urgent(normal)
+
+
 def looks_like_advice(reply: str) -> bool:
     normal = " ".join(_normalise(reply).split()).replace("*", "").replace("_", " ")
-    return bool(_ADVICE.search(normal) or _ADVICE_INDIRECT.search(normal))
+    return bool(_ADVICE.search(normal) or _ADVICE_INDIRECT.search(normal) or _ADVICE_COMMAND.search(normal))
 
 
 def looks_like_refusal(reply: str) -> bool:

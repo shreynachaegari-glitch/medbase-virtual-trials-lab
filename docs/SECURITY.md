@@ -26,6 +26,8 @@ To re-run the automated checks: `.venv/bin/python scripts/security_check.py` (re
 - **Questions sent to a provider leave the device.** The proxy stores no question text, but the lab does not control what NVIDIA keeps. The page warns visitors not to enter personal details.
 - **The Content Security Policy is delivered by a meta tag.** A static host gives no control of headers, so `frame-ancestors` cannot be set, and `style-src` allows inline styles because the animation library needs them. Web workers are governed by the host's headers, not this tag.
 - **The regex guard is not airtight.** See the guard tables in the README. It suits a supervised demo. Language detection is a word list, so some non-English messages will be missed and reach a provider.
+- **The copilot answers general questions on purpose.** So a request that replays its prompt can get a general answer, within the size and rate limits. The proxy's lock stops custom prompts and tools, not ordinary chat.
+- **General-knowledge answers are not verified.** The copilot's "How this answers" section says so, and code removes doses and drug effects it can't source and refuses care advice, but other statements come from the language model and can be wrong.
 - **A replayed conversation can still be forged within the caps.** Someone can write fake assistant turns that fit the limits. Replies on the real page are checked in the browser, but the proxy can't check a reply it forwards to someone else.
 - **No third-party penetration test has been done.** These measures were checked by the project's own tests and an internal adversarial review.
 
