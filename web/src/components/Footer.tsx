@@ -14,14 +14,14 @@ const Footer = () => (
                     </p>
                 </div>
                 <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                    <Link to="/learn" className="text-muted-foreground hover:text-foreground">
-                        Learn
+                    <Link to="/trials" className="text-muted-foreground hover:text-foreground">
+                        Virtual Trials
+                    </Link>
+                    <Link to="/anatomy" className="text-muted-foreground hover:text-foreground">
+                        Anatomy
                     </Link>
                     <Link to="/lab" className="text-muted-foreground hover:text-foreground">
                         Lab
-                    </Link>
-                    <Link to="/trials" className="text-muted-foreground hover:text-foreground">
-                        Virtual Trials
                     </Link>
                     <Link to="/evidence" className="text-muted-foreground hover:text-foreground">
                         Evidence

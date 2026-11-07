@@ -14,12 +14,12 @@ from dataclasses import dataclass, field, replace
 import httpx
 
 from .. import labels, limits
-from . import guard, intent, knowledge, reference, tools, track_record
+from . import guard, intent, knowledge, notes, reference, tools, track_record
 
 log = logging.getLogger("medlab.assistant")
 CLAUDE_MODEL = os.environ.get("MEDLAB_CLAUDE_MODEL", "claude-opus-5-5")
 NIM_URL = os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
-NIM_MODEL = os.environ.get("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b")
+NIM_MODEL = os.environ.get("NVIDIA_MODEL", notes.MODEL_NAME)
 MAX_TURNS = 4
 MAX_REPLY_TOKENS = 4000
 MAX_QUESTION = 2000
@@ -44,7 +44,7 @@ SYSTEM = (
 
 GENERAL_SYSTEM = (
     "You answer ordinary questions for a research-only type 2 diabetes drug-trial simulator, using only the passages in the user's message.\n"
-    "Reply in at most three plain sentences. Copy any number exactly, and don't add facts the passages don't contain. If they don't answer the question, say the lab's notes don't cover it.\n"
+    "Give a complete answer in two to four plain sentences, drawing on every passage that helps, and stick closely to their wording. Copy any number or name exactly, and don't add facts the passages don't contain. If no passage relates to the question at all, reply with only the word NOT_COVERED. If one partly answers it, give that part.\n"
     "Never advise anyone about their own treatment or dose, and never say what anyone should do with a medicine. No markdown."
 )
 NO_TOOL_NOTE = "The AI answered without running a tool, so its reply was replaced with computed text."
@@ -114,7 +114,7 @@ def _strip(text: str) -> str:
 
 def _clean(text: str) -> str:
     """Removes hidden reasoning and bold markers. The model talking about the guard is not an answer, so that counts as empty."""
-    stripped = _strip(text)
+    stripped = re.sub(r"^\s*answer\s*:\s*", "", _strip(text), flags=re.I)
     return "" if _UNUSABLE.search(stripped) else stripped
 
 
@@ -126,6 +126,11 @@ class Reply:
     results: list[dict] = field(default_factory=list)
     guard_note: str | None = None
     sent_to_provider: bool = False
+    passages: list[dict] = field(default_factory=list)  # the notes a model was given, best first
+    kind: str = ""  # what the guard called the question
+    interpreted_as: str | None = None  # the full question, when this one was a follow-up
+    retrieval: str = ""  # "neural" or "keyword", for what found the notes
+    question: str = ""
 
 
 def _tool_specs_claude() -> list[dict]:
@@ -149,6 +154,11 @@ class _Ledger:
     def has_result(self) -> bool:
         """A failed tool is not a tool run, and its error text cannot vouch for anything."""
         return any(c["ok"] for c in self.calls)
+
+    def record_notes(self, question: str, passages: list[dict]) -> None:
+        """The notes already found are what a reply may quote, whichever kind of vector found them."""
+        self.calls.append({"tool": "search_knowledge", "args": {"query": question}, "ok": True})
+        self.simulator.append({"passages": passages})
 
     def run(self, name: str, args: dict) -> dict:
         result = tools.execute(name, args)
@@ -479,6 +489,10 @@ def _own_record(question: str) -> Reply | None:
     return Reply(_blind_test_account(report), "verified", ledger.calls, ledger.simulator, RECORD_NOTE)
 
 
+_ABOUT_THE_LAB = re.compile(r"\b(this|the|your)\s+(lab|site|tool|app|project|simulator|simulation|model|ai|copilot|assistant|system)\b|\bvirtual patients?\b|\bhow (does|do) (it|this|you)\b|\bhow it works\b|\bwork here\b", re.I)
+_RUN_FOR_ME = re.compile(r"^\W*(can|could|will|would) you\b.*\b(trial|simulation|study|experiment)s?\b", re.I)
+
+
 def _conversational(question: str) -> Reply | None:
     """Small talk and status, answered without a provider or a simulation. Drug questions never stop here."""
     if _parse_arms(question) or _ASKS_ABOUT_THE_BLIND_TEST.search(question):
@@ -486,6 +500,8 @@ def _conversational(question: str) -> Reply | None:
     guess = intent.predict(question)
     if guess["confidence"] < intent.CONFIDENCE or guess["intent"] == "research":
         return None
+    if guess["intent"] == "how_it_works" and not _ABOUT_THE_LAB.search(question):
+        return None  # the small model leans towards this reply, and it would answer an unrelated question with it
     if guess["intent"] == "lab_status":
         ledger = _Ledger()
         return Reply(_status_reply(ledger), "intent-model", ledger.calls, ledger.simulator)
@@ -495,17 +511,193 @@ def _conversational(question: str) -> Reply | None:
 _MAY_BE_BASIC = {"research", "scope", "chat", "safety"}  # never personal, emergency, language or unsupported
 
 
-def _general(question: str, kind: str) -> tuple[Reply | None, list[dict]]:
+def _general(question: str, kind: str, vector=None) -> tuple[Reply | None, list[dict]]:
     """For an ordinary question: the fixed answer if one exists, and the notes a model may answer from."""
+    if kind == "unsupported":  # what insulin is can be explained, even though the lab can't simulate it
+        known = reference.lookup(question)
+        if known or (vector is not None and reference.is_general(question)):
+            passages = knowledge.search(question, vector=vector)
+            return (Reply(known or passages[0]["text"], "reference"), passages) if (known or passages) else (None, [])
+        return None, []
     if kind not in _MAY_BE_BASIC:
         return None, []
+    compared = reference.compare(question)
+    if compared:
+        return Reply(compared, "reference"), []
     known = reference.lookup(question)
-    if not known and kind == "chat" and _conversational(question) is not None and intent.predict(question)["intent"] != "how_it_works":
+    if not known and kind == "chat" and _is_small_talk(question):
         return None, []  # small talk has its own fixed replies; "how it works" is too broad to beat a matching note
-    passages = knowledge.search(question) if (known or (kind == "chat" and reference.is_general(question))) else []
+    concept = kind == "research" and _is_concept_question(question)
+    by_meaning = kind == "scope" and vector is not None and reference.is_general(question)
+    plain_chat = kind == "chat" and (reference.is_general(question) or guard.about_the_product(question))
+    passages = knowledge.search(question, vector=vector) if (known or concept or by_meaning or plain_chat) else []
+    if concept and not known and (not passages or (vector is None and passages[0]["score"] < knowledge.STRONG_SCORE)):
+        return None, []
     if known:
         return Reply(known, "reference"), passages
     return (Reply(passages[0]["text"], "reference"), passages) if passages else (None, [])
+
+
+_EXPERIMENT = re.compile(r"\b(simulate\w*|run|design|power for|what if|who responds|enrol\w*|arms?|parameters?|assum\w*|finished|done|ready|status|running)\b|\d\s*(mg|weeks?|wks?)\b", re.I)
+
+
+NOT_COVERED = "NOT_COVERED"
+BEYOND_NOTES_NOTE = "The AI's reply went beyond the lab's notes, so code withheld it."
+GROUNDED_MIN = 0.6
+_LONG_WORD = re.compile(r"[a-z]{4,}")
+_STEM = 5  # the same word with a different ending still counts
+
+
+def _went_beyond_notes(raw: str, clean: str, passages: list[dict], ledger: "_Ledger") -> bool:
+    """Only a reply that passed the other checks is judged here; those have their own fallbacks."""
+    if not clean or guard.looks_like_advice(raw) or guard.looks_like_refusal(clean) or guard.unsourced_or_raw(clean, ledger.simulator, ledger.years):
+        return False
+    return not grounded_in_notes(clean, passages)
+
+
+def _beyond_notes_reply(fallback: "Reply | None", passages: list[dict], retrieval: str = "keyword") -> "Reply":
+    """A close match means the note itself answers the question. Otherwise the question was off topic and the model filled the gap."""
+    if fallback is not None and passages and passages[0]["score"] >= knowledge.CLOSE_MATCH[retrieval]:
+        return replace(fallback, guard_note=BEYOND_NOTES_NOTE + " This is the note it was given.", sent_to_provider=True)
+    return Reply(guard.OFF_TOPIC, "scope", guard_note=BEYOND_NOTES_NOTE, sent_to_provider=True)
+
+
+def grounded_in_notes(text: str, passages: list[dict]) -> bool:
+    """A model told to use only the notes can still answer from memory, so code checks that its words came from them."""
+    source = {w[:_STEM] for p in passages for w in _LONG_WORD.findall(f"{p['title']} {p['text']}".lower())}
+    words = _LONG_WORD.findall(text.lower())
+    return bool(words) and sum(w[:_STEM] in source for w in words) / len(words) >= GROUNDED_MIN
+
+
+SMALL_TALK_MAX_WORDS = 5
+_SAFETY_WORD = re.compile(r"\b(side effects?|adverse|safety|safe|harm\w*|risks?|warnings?|danger\w*)\b", re.I)
+
+
+def _is_small_talk(question: str) -> bool:
+    """Hello and thanks are short. A longer question the small model happens to recognise may still be one a note answers."""
+    if len(question.split()) > SMALL_TALK_MAX_WORDS or guard.about_the_product(question):
+        return False
+    return _conversational(question) is not None and intent.predict(question)["intent"] != "how_it_works"
+
+
+def _worth_embedding(question: str, kind: str) -> bool:
+    """The guard has already cleared this question, and only one a note might answer leaves the device for an embedding."""
+    if kind not in {"chat", "research", "scope", "unsupported"} or reference.compare(question):
+        return False
+    if kind == "research" and not _is_concept_question(question):
+        return False
+    if kind == "chat" and _is_small_talk(question):
+        return False
+    return bool(reference.lookup(question)) or reference.is_general(question) or guard.about_the_product(question)
+
+
+def _is_concept_question(question: str) -> bool:
+    """A question about an idea, with no drug or experiment in it, is answered from notes and not by running tools."""
+    return not reference.named_drugs(question) and not _parse_arms(question) and not _EXPERIMENT.search(question) and not _ASKS_ABOUT_THE_BLIND_TEST.search(question) and reference.is_general(question)
+
+
+_FOLLOW_CUE = re.compile(r"^\W*(what about|how about|and\b|same\b|now\b|then\b|try\b|instead\b|at\b|with\b|for\b|using\b|make it\b)|^\W*\d+(\.\d+)?\s*(mg|weeks?|wks?)\W*$", re.I)
+_FOLLOW_MAX_WORDS = 9
+_DOSE_TEXT = r"\d+(?:\.\d+)?\s*mg\b"
+_WEEKS_TEXT = r"\d+\s*(?:-\s*)?(?:weeks?|wks?)\b"
+
+
+def _with_new_drug(previous: str, drug: str, dose: str | None) -> str:
+    first = reference.named_drugs(previous)
+    if not first:
+        return previous
+    new = f"{drug} {dose or _fmt_mg(_DRUG_DEFAULT_MG[drug])}"
+    pattern = rf"\b{first[0]}\b(\s+{_DOSE_TEXT})?"
+    return re.sub(pattern, new, previous, count=1, flags=re.I)
+
+
+def _fmt_mg(mg: float) -> str:
+    return f"{mg:g} mg"
+
+
+def resolve_followup(question: str, previous: str | None) -> str | None:
+    """"What about 2 mg?" after an experiment means that experiment again at 2 mg. The merged text then meets the guard as usual."""
+    if not previous or len(question.split()) > _FOLLOW_MAX_WORDS or not _FOLLOW_CUE.match(question):
+        return None
+    if guard.classify(question) in {"personal", "emergency", "language", "unsupported", "safety"}:
+        return None
+    if guard.classify(previous) != "research" or not reference.named_drugs(previous):
+        return None
+    dose = re.search(_DOSE_TEXT, question, re.I)
+    weeks = re.search(_WEEKS_TEXT, question, re.I)
+    drugs = reference.named_drugs(question)
+    merged = previous
+    if drugs:
+        merged = _with_new_drug(merged, drugs[0], dose.group(0) if dose else None)
+    elif dose:
+        merged = re.sub(_DOSE_TEXT, dose.group(0), merged, count=1, flags=re.I) if re.search(_DOSE_TEXT, merged, re.I) else _with_new_drug(merged, reference.named_drugs(merged)[0], dose.group(0))
+    if weeks:
+        merged = re.sub(_WEEKS_TEXT, weeks.group(0), merged, count=1, flags=re.I) if re.search(_WEEKS_TEXT, merged, re.I) else f"{merged} for {weeks.group(0)}"
+    if merged == previous or guard.classify(merged) != "research":
+        return None
+    return merged
+
+
+_STAGE_FOR_KIND = {
+    "research": "A research question, so it may use a model and the simulator", "chat": "A general question", "safety": "A question about reported side effects",
+    "scope": "Not a research question", "personal": "A personal medical question, so it stops here", "emergency": "Possibly urgent, so it stops here",
+    "language": "Not in English, so it stops here", "unsupported": "Outside what the lab models",
+}
+_WRITER = {
+    "verified": ("Written by code", "Code wrote this text, so it can't be misquoted"), "planner": ("Offline planner", "Fixed rules ran the tools and filled in the numbers"),
+    "reference": ("Fixed note", "A note from the lab's own library, shown as written"), "intent-model": ("Fixed reply", "A small model chose a fixed reply"),
+}
+_TOOLS_THAT_ARE_NOT_EXPERIMENTS = {"search_knowledge"}
+
+
+def trace_of(reply: Reply) -> list[dict]:
+    """What really happened to this question, step by step, for the page to show. Nothing here is decorative."""
+    steps = [{"stage": "Guard", "detail": _STAGE_FOR_KIND.get(reply.kind or "", "Checked before anything else ran")}]
+    if reply.passages:
+        best = reply.passages[0]
+        how = "By meaning, with neural embeddings" if reply.retrieval == "neural" else "By wording, with keyword vectors"
+        steps.append({"stage": "Vector search", "detail": f"{how}: {len(reply.passages)} note{'s' if len(reply.passages) != 1 else ''}. Best match: {best['title']}"})
+    ran = [c for c in reply.tool_calls if c.get("ok") and c["tool"] not in _TOOLS_THAT_ARE_NOT_EXPERIMENTS]
+    if ran:
+        steps.append({"stage": "Simulator", "detail": f"{len(ran)} tool{'s' if len(ran) != 1 else ''} ran on this device or the lab's server"})
+    if reply.source in {"nim", "claude"}:
+        steps.append({"stage": "AI model", "detail": "A language model wrote this reply"})
+        checked = "Its wording and figures came from the notes" if reply.passages else "Every figure matched what the tools returned"
+        steps.append({"stage": "Checks", "detail": f"Rewritten after failing a check. {checked}" if reply.guard_note == REPAIRED_NOTE else checked})
+    elif reply.source in _WRITER:
+        stage, detail = _WRITER[reply.source]
+        steps.append({"stage": stage, "detail": detail})
+    else:
+        steps.append({"stage": "Fixed reply", "detail": "No model and no simulation ran"})
+    return steps
+
+
+_COMPARE_SUGGESTION = "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks"
+_ACCURACY_SUGGESTION = "How accurate is this lab?"
+
+
+def _trial_suggestion(drug: str) -> str:
+    return f"Simulate {drug} {_fmt_mg(_DRUG_DEFAULT_MG[drug])} against placebo for 26 weeks"
+
+
+def suggestions(question: str, source: str) -> list[str]:
+    """Up to three next questions, each one the copilot can really do. Emergencies get none, so nothing distracts from getting help."""
+    if source in {"emergency", "language"}:
+        return []
+    drugs = reference.named_drugs(question)
+    if len(drugs) >= 2:
+        options = [f"Compare {drugs[0]} {_fmt_mg(_DRUG_DEFAULT_MG[drugs[0]])} and {drugs[1]} {_fmt_mg(_DRUG_DEFAULT_MG[drugs[1]])} over 30 weeks", f"What is {drugs[0]}?", f"What is {drugs[1]}?"]
+    elif drugs and source not in {"refusal", "scope"}:
+        drug = drugs[0]
+        options = [_trial_suggestion(drug), f"Who responds to {drug}?", f"What side effects were reported for {drug}?", _ACCURACY_SUGGESTION]
+    elif source == "verified":
+        options = ["What is the rival?", "What are the validation checks?", "What is the neural surrogate?"]
+    elif source in {"refusal", "scope", "unsupported"}:
+        options = ["What is HbA1c?", _ACCURACY_SUGGESTION, _COMPARE_SUGGESTION]
+    else:
+        options = ["What is the applied AI in this lab?", _ACCURACY_SUGGESTION, _COMPARE_SUGGESTION]
+    same = question.strip().lower().rstrip("?")
+    return [o for o in options if o.lower().rstrip("?") != same][:3]
 
 
 def _general_messages(question: str, passages: list[dict]) -> list[dict]:
@@ -521,8 +713,15 @@ class BrowserSession:
     """One model conversation driven from outside Python, as a web worker must: it holds the only network
     access there. The same ledger and guard apply, so a browser run is held to the server's rules."""
 
-    def __init__(self, question: str):
-        self.question = (question or "").strip()[:MAX_QUESTION]
+    def __init__(self, question: str, previous: str | None = None, wants_vector: bool = False):
+        asked = (question or "").strip()[:MAX_QUESTION]
+        self.interpreted_as = resolve_followup(asked, (previous or "").strip()[:MAX_QUESTION] or None)
+        self.question = self.interpreted_as or asked
+        self.kind = ""
+        self.passages: list[dict] = []
+        self.wants_vector = wants_vector  # only the browser has a route to an embedding service
+        self.vector = None
+        self.embedded = False
         self.ledger = _Ledger()
         self.turns = 0
         self.repaired = False
@@ -532,27 +731,35 @@ class BrowserSession:
         """Either a finished reply, or what the model needs to begin."""
         if not self.question:
             raise ValueError("question is empty")
-        kind = guard.classify(self.question)
+        kind = self.kind = guard.classify(self.question)
         own = _own_record(self.question) if kind in _MAY_BE_BASIC else None
         if own is not None:
-            return {"done": _reply_dict(own)}
-        self.fallback, passages = _general(self.question, kind)
+            return {"done": self._dict(own)}
+        if _RUN_FOR_ME.match(self.question) and not reference.named_drugs(self.question) and kind == "chat":
+            return {"done": self._dict(Reply(_CONVERSATION["help"], "scope"))}
+        if self.wants_vector and _worth_embedding(self.question, kind):
+            self.wants_vector = False
+            return {"embed": self.question[:knowledge.MAX_EMBEDDED]}
+        self.fallback, passages = _general(self.question, kind, self.vector)
+        self.passages = passages
         if passages:
-            self.ledger.run("search_knowledge", {"query": self.question})
+            self.ledger.record_notes(self.question, passages)
             return {"messages": _general_messages(self.question, passages), "tools": _general_tool_specs(), "max_turns": MAX_TURNS}
         if self.fallback is not None:
-            return {"done": _reply_dict(self.fallback)}
+            return {"done": self._dict(self.fallback)}
         canned = {"personal": guard.REFUSAL, "emergency": guard.EMERGENCY, "language": guard.LANGUAGE, "unsupported": guard.UNSUPPORTED, "scope": guard.SCOPE}
         if kind in canned:
-            return {"done": _reply_dict(Reply(canned[kind], "refusal" if kind == "personal" else kind))}
+            return {"done": self._dict(Reply(canned[kind], "refusal" if kind == "personal" else kind))}
         _ASSUMED.clear()
+        if kind == "safety" and not reference.named_drugs(self.question) and not _SAFETY_WORD.search(self.question):
+            return {"done": self._dict(Reply(guard.OFF_TOPIC, "scope"))}
         if kind == "safety":
-            return {"done": _reply_dict(Reply(_safety_answer(self.question, self.ledger), "planner", self.ledger.calls))}
+            return {"done": self._dict(Reply(_safety_answer(self.question, self.ledger), "planner", self.ledger.calls))}
         conversational = _conversational(self.question)
         if conversational is not None:
-            return {"done": _reply_dict(conversational)}
+            return {"done": self._dict(conversational)}
         if kind == "chat":  # no research frame, so it never reaches a provider
-            return {"done": _reply_dict(Reply(guard.SCOPE, "scope"))}
+            return {"done": self._dict(Reply(guard.OFF_TOPIC, "scope"))}
         return {"messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": self.question}], "tools": _tool_specs_openai(), "max_turns": MAX_TURNS}
 
     def run_tool(self, name: str, args_json: str) -> str:
@@ -565,6 +772,17 @@ class BrowserSession:
             return tools.to_text({"error": "tool arguments were not valid JSON"})
         return tools.to_text(self.ledger.run(name, grounded_args(args, self.question)))
 
+    def resume_with_vector(self, raw: str) -> dict:
+        """Carries on after the embedding call. A failed call leaves the keyword index to do the search."""
+        self.vector = knowledge.parse_vector(raw)
+        self.embedded = True  # the text left this device even if the answer that came back was unusable
+        return self.start()
+
+    def _dict(self, reply: Reply) -> dict:
+        retrieval = "neural" if self.vector is not None else "keyword"
+        return _reply_dict(replace(reply, kind=self.kind, passages=self.passages, interpreted_as=self.interpreted_as, question=self.question,
+                                   retrieval=retrieval, sent_to_provider=reply.sent_to_provider or self.embedded))
+
     def _ask_again(self, request: str) -> dict:
         self.repaired = True
         return {"repair": request}
@@ -574,13 +792,22 @@ class BrowserSession:
         note = "The AI service is unavailable, so the offline planner answered." if failed else None
         raw, clean = _strip(text or ""), _clean(text or "")
         ledger = self.ledger
+        if not failed and self.passages and NOT_COVERED in raw:
+            self.passages = []
+            return {"done": self._dict(Reply(guard.OFF_TOPIC, "scope", sent_to_provider=True))}
+        if not failed and self.passages and _went_beyond_notes(raw, clean, self.passages, ledger):
+            log.warning("reply blocked: it went beyond the notes")
+            reply = _beyond_notes_reply(self.fallback, self.passages, "neural" if self.vector is not None else "keyword")
+            if reply.source != "reference":
+                self.passages = []
+            return {"done": self._dict(reply)}
         if not failed:
             refused = guard.looks_like_advice(raw) or (not ledger.has_result and bool(clean) and guard.looks_like_refusal(clean))
             if refused:
-                return {"done": _reply_dict(Reply(guard.REFUSAL, "refusal", sent_to_provider=True))}
+                return {"done": self._dict(Reply(guard.REFUSAL, "refusal", sent_to_provider=True))}
             written = _code_written(ledger)
             if written is not None:
-                return {"done": _reply_dict(Reply(written[0], "verified", ledger.calls, guard_note=written[1], sent_to_provider=True))}
+                return {"done": self._dict(Reply(written[0], "verified", ledger.calls, guard_note=written[1], sent_to_provider=True))}
             if not clean:
                 if not self.repaired:
                     return self._ask_again(guard.EMPTY_REPLY_REQUEST)
@@ -593,15 +820,15 @@ class BrowserSession:
             else:
                 unsourced = guard.unsourced_or_raw(clean, ledger.simulator, ledger.years)
                 if not unsourced:
-                    return {"done": _reply_dict(Reply(_with_caveats(clean, ledger), "nim", ledger.calls, guard_note=REPAIRED_NOTE if self.repaired else None, sent_to_provider=True))}
+                    return {"done": self._dict(Reply(_with_caveats(clean, ledger), "nim", ledger.calls, guard_note=REPAIRED_NOTE if self.repaired else None, sent_to_provider=True))}
                 log.warning("reply blocked; unsourced numbers %s", unsourced)
                 if not self.repaired:
                     return self._ask_again(guard.repair_request(unsourced))
                 note = "The AI's reply included numbers no tool produced, so it was replaced with computed text."
         if self.fallback is not None:
-            return {"done": _reply_dict(replace(self.fallback, sent_to_provider=True))}
+            return {"done": self._dict(replace(self.fallback, sent_to_provider=True))}
         planner = _Ledger()
-        return {"done": _reply_dict(Reply(_plan(self.question, planner), "planner", planner.calls, guard_note=note, sent_to_provider=True))}
+        return {"done": self._dict(Reply(_plan(self.question, planner), "planner", planner.calls, guard_note=note, sent_to_provider=True))}
 
 
 _NEEDS_URGENT_LINE = {"claude", "nim", "planner"}
@@ -617,31 +844,45 @@ def _with_urgent_line(reply: Reply) -> Reply:
 def _reply_dict(reply: Reply) -> dict:
     reply = _with_urgent_line(reply)
     return {"text": reply.text, "source": reply.source, "tool_calls": [{"tool": c["tool"], "ok": c["ok"]} for c in reply.tool_calls],
-            "guard_note": reply.guard_note, "sent_to_provider": reply.sent_to_provider}
+            "guard_note": reply.guard_note, "sent_to_provider": reply.sent_to_provider, "interpreted_as": reply.interpreted_as,
+            "sources": [{"title": p["title"], "score": p["score"]} for p in reply.passages] if reply.source in {"nim", "claude", "reference"} else [],
+            "retrieval": (reply.retrieval or None) if reply.passages else None,
+            "trace": trace_of(reply), "suggestions": suggestions(reply.question, reply.source)}
 
 
-def answer(question: str, claude_client=None, nim_transport=None) -> Reply:
-    return _with_urgent_line(_answer(question, claude_client, nim_transport))
+reply_dict = _reply_dict
+
+
+def answer(question: str, claude_client=None, nim_transport=None, previous: str | None = None) -> Reply:
+    asked = (question or "").strip()[:MAX_QUESTION]
+    interpreted = resolve_followup(asked, (previous or "").strip()[:MAX_QUESTION] or None)
+    full = interpreted or asked
+    reply = _with_urgent_line(_answer(full, claude_client, nim_transport))
+    return replace(reply, kind=guard.classify(full) if full else "", interpreted_as=interpreted, question=full)
 
 
 def _answer_general(question: str, fallback: Reply, passages: list[dict], claude_client, nim_transport) -> Reply:
     """A model words the answer from retrieved notes. Anything the guard rejects falls back to the note itself."""
     key = os.environ.get("NVIDIA_API_KEY", "")
     if claude_client is not None or os.environ.get("ANTHROPIC_API_KEY") or not key or not passages:
-        return fallback
+        return replace(fallback, passages=passages)
     ledger = _Ledger()
-    ledger.run("search_knowledge", {"query": question})
+    ledger.record_notes(question, passages)
     try:
         text = _run_nim(question, ledger, key, nim_transport, _general_messages(question, passages))
     except ProviderError as exc:
         log.warning("provider failed, using the note: %s", exc)
-        return fallback
+        return replace(fallback, passages=passages)
     raw, clean = _strip(text), _clean(text)
+    if NOT_COVERED in raw:
+        return Reply(guard.OFF_TOPIC, "scope", sent_to_provider=True)
+    if _went_beyond_notes(raw, clean, passages, ledger):
+        return _beyond_notes_reply(fallback, passages)
     if guard.looks_like_advice(raw):
         return Reply(guard.REFUSAL, "refusal", sent_to_provider=True)
     if not clean or guard.looks_like_refusal(clean) or guard.unsourced_or_raw(clean, ledger.simulator, ledger.years):
-        return replace(fallback, sent_to_provider=True)
-    return Reply(clean, "nim", ledger.calls, ledger.simulator, REPAIRED_NOTE if ledger.repaired else None, sent_to_provider=True)
+        return replace(fallback, sent_to_provider=True, passages=passages)
+    return Reply(clean, "nim", ledger.calls, ledger.simulator, REPAIRED_NOTE if ledger.repaired else None, sent_to_provider=True, passages=passages)
 
 
 def _answer(question: str, claude_client=None, nim_transport=None) -> Reply:
@@ -652,6 +893,8 @@ def _answer(question: str, claude_client=None, nim_transport=None) -> Reply:
     own = _own_record(question) if kind in _MAY_BE_BASIC else None
     if own is not None:
         return own
+    if _RUN_FOR_ME.match(question) and not reference.named_drugs(question) and kind == "chat":
+        return Reply(_CONVERSATION["help"], "scope")
     fallback, passages = _general(question, kind)
     if fallback is not None:
         return _answer_general(question, fallback, passages, claude_client, nim_transport)
@@ -659,6 +902,8 @@ def _answer(question: str, claude_client=None, nim_transport=None) -> Reply:
     if kind in canned:
         return Reply(canned[kind], "refusal" if kind == "personal" else kind)
     _ASSUMED.clear()
+    if kind == "safety" and not reference.named_drugs(question) and not _SAFETY_WORD.search(question):
+        return Reply(guard.OFF_TOPIC, "scope")
     if kind == "safety":  # always the same sourced answer, never a model's wording or an efficacy number
         ledger = _Ledger()
         return Reply(_safety_answer(question, ledger), "planner", ledger.calls, ledger.simulator)
@@ -667,7 +912,7 @@ def _answer(question: str, claude_client=None, nim_transport=None) -> Reply:
     if conversational is not None:
         return conversational
     if kind == "chat":  # no research frame, so it never reaches a provider
-        return Reply(guard.SCOPE, "scope")
+        return Reply(guard.OFF_TOPIC, "scope")
 
     ledger = _Ledger()
     note = None

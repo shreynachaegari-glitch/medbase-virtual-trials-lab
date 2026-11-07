@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 /**
- * Interface-language support. Only the interface (navigation, sign-in, chatbot chrome) is
+ * Interface-language support. Only the interface (navigation, chatbot chrome) is
  * translated; condition records and database results stay in English, and the chatbot says so.
  * `speech` is the BCP-47 tag used for text-to-speech and speech recognition.
  */
@@ -22,8 +22,6 @@ const T: Record<string, Partial<Record<LangId, string>>> = {
     Evidence: { hi: "साक्ष्य", te: "ఆధారాలు", ta: "சான்றுகள்" },
     Methods: { hi: "पद्धति", te: "పద్ధతులు", ta: "முறைகள்" },
     Funding: { hi: "वित्त पोषण", te: "నిధులు", ta: "நிதி" },
-    "Demo sign-in": { hi: "डेमो साइन इन", te: "డెమో సైన్ ఇన్", ta: "டெமோ உள்நுழைவு" },
-    "Researcher sign in": { hi: "शोधकर्ता साइन इन", te: "పరిశోధకుల సైన్ ఇన్", ta: "ஆராய்ச்சியாளர் உள்நுழைவு" },
     "MedBase helper": { hi: "मेडबेस सहायक", te: "మెడ్‌బేస్ సహాయకుడు", ta: "மெட்பேஸ் உதவியாளர்" },
     "Scripted guide, not an AI model": {
         hi: "स्क्रिप्टेड गाइड, AI मॉडल नहीं",
@@ -38,7 +36,6 @@ const T: Record<string, Partial<Record<LangId, string>>> = {
     },
     "Browse conditions": { hi: "बीमारियाँ देखें", te: "వ్యాధులను చూడండి", ta: "நோய்களைப் பார்க்க" },
     "How does the Lab work?": { hi: "प्रयोगशाला कैसे काम करती है?", te: "ల్యాబ్ ఎలా పనిచేస్తుంది?", ta: "ஆய்வகம் எப்படி செயல்படுகிறது?" },
-    "Researcher sign-in": { hi: "शोधकर्ता साइन इन", te: "పరిశోధకుల సైన్ ఇన్", ta: "ஆராய்ச்சியாளர் உள்நுழைவு" },
     "Region, soil and food info": {
         hi: "क्षेत्र, मिट्टी और भोजन की जानकारी",
         te: "ప్రాంతం, నేల, ఆహార సమాచారం",
@@ -46,7 +43,7 @@ const T: Record<string, Partial<Record<LangId, string>>> = {
     },
     "Type a message": { hi: "संदेश लिखें", te: "సందేశం టైప్ చేయండి", ta: "செய்தியை உள்ளிடவும்" },
     notFound: {
-        en: "I could not find that. Try a condition name, or ask about the Lab, sign-in, or region and food information. For personal medical questions, please see a clinician.",
+        en: "I could not find that. Try a condition name, or ask about the Lab or region and food information. For personal medical questions, please see a clinician.",
         hi: "मुझे यह नहीं मिला। किसी बीमारी का नाम (अंग्रेज़ी में) आज़माएँ, या प्रयोगशाला के बारे में पूछें। व्यक्तिगत चिकित्सा प्रश्नों के लिए कृपया डॉक्टर से मिलें।",
         te: "నాకు అది దొరకలేదు. వ్యాధి పేరును (ఇంగ్లీష్‌లో) ప్రయత్నించండి, లేదా ల్యాబ్ గురించి అడగండి. వ్యక్తిగత వైద్య ప్రశ్నలకు దయచేసి వైద్యుడిని కలవండి.",
         ta: "அது கிடைக்கவில்லை. நோயின் பெயரை (ஆங்கிலத்தில்) முயற்சிக்கவும், அல்லது ஆய்வகம் பற்றி கேளுங்கள். தனிப்பட்ட மருத்துவ கேள்விகளுக்கு மருத்துவரை அணுகவும்.",

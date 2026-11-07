@@ -271,3 +271,92 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Applied AI polish. Everything here stops when the visitor asks for less motion. */
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+
+.text-ai {
+  background: linear-gradient(90deg, hsl(217 91% 72%), hsl(189 85% 62%), hsl(262 85% 78%), hsl(217 91% 72%));
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: ai-shimmer 10s linear infinite;
+}
+@keyframes ai-shimmer {
+  to { background-position: -300% 0; }
+}
+
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  width: 46rem;
+  height: 22rem;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.16;
+  will-change: transform;
+}
+.aurora::before {
+  top: -9rem;
+  left: -8rem;
+  background: hsl(217 91% 60%);
+  animation: aurora-drift 18s ease-in-out infinite alternate;
+}
+.aurora::after {
+  top: -7rem;
+  right: -10rem;
+  background: hsl(262 85% 62%);
+  animation: aurora-drift 22s ease-in-out infinite alternate-reverse;
+}
+@keyframes aurora-drift {
+  to { transform: translate3d(9rem, 3rem, 0) scale(1.12); }
+}
+
+@property --copilot-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.copilot-shell { position: relative; }
+.copilot-live::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--copilot-angle), transparent 0 55%, hsl(217 91% 66%), hsl(189 85% 62%), hsl(262 85% 72%), transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+  animation: copilot-spin 2.4s linear infinite;
+}
+@keyframes copilot-spin {
+  to { --copilot-angle: 360deg; }
+}
+
+.trace-link {
+  display: block;
+  width: 0.9rem;
+  height: 1px;
+  background: linear-gradient(90deg, hsl(var(--primary) / 0.25), hsl(var(--primary)));
+}
+
+.ai-flow { position: relative; }
+.ai-flow::before {
+  content: "";
+  position: absolute;
+  top: 0.875rem;
+  bottom: 1.5rem;
+  left: 0.875rem;
+  width: 1px;
+  background: linear-gradient(180deg, hsl(var(--primary) / 0.65), hsl(262 85% 72% / 0.25));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-ai, .aurora::before, .aurora::after, .copilot-live::before { animation: none; }
+}
+

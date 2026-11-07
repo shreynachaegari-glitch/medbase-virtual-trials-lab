@@ -56,6 +56,7 @@ class TrialIn(BaseModel):
 
 class QuestionIn(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
+    previous: str | None = Field(default=None, max_length=2000)  # the last question, so "what about 2 mg?" can follow it
 
 
 class DesignIn(BaseModel):
@@ -132,9 +133,7 @@ def design_study(body: DesignIn) -> dict:
 
 
 def ask(body: QuestionIn) -> dict:
-    reply = assistant.answer(body.question)
-    return {"text": reply.text, "source": reply.source, "tool_calls": [{"tool": c["tool"], "ok": c["ok"]} for c in reply.tool_calls],
-            "guard_note": reply.guard_note, "sent_to_provider": reply.sent_to_provider}
+    return assistant.reply_dict(assistant.answer(body.question, previous=body.previous))
 
 
 def progression_scenarios() -> dict:

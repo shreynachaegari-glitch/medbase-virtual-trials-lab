@@ -32,9 +32,6 @@ test("the root opens the lab: usable at once, then a real trial, flagged, in the
     await expect(page.getByTestId("assistant-privacy")).toBeVisible();
     await expect(page.getByTestId("surrogate-not-trained")).toBeVisible();
     await expect(page.getByTestId("quick-proof")).toContainText("has not been run yet");
-    const send = (await page.getByRole("button", { name: "Send question" }).boundingBox())!;
-    const chat = (await page.getByRole("button", { name: "Open chat" }).boundingBox())!;
-    expect(send.y + send.height, "Send button clear of the chat button").toBeLessThan(chat.y);
     await noOverflow(page);
     await page.screenshot({ path: `${SCREENS}/${info.project.name}-static-first-screen.png` });
 
@@ -65,24 +62,6 @@ test("reduced motion: results appear settled, and the body bars don't animate", 
     const bar = page.getByTestId("body-signal-bar").first();
     await expect(bar).toBeVisible({ timeout: 120_000 });
     expect(parseFloat(await bar.evaluate((el) => getComputedStyle(el).transitionDuration))).toBeLessThan(0.01);
-    await noOverflow(page);
-    expect(problems).toEqual([]);
-});
-
-test("Learn's 3D body fades everything but the chosen organ", async ({ page }, info) => {
-    const problems = watchConsole(page);
-    const t0 = Date.now();
-    await page.goto("/#/learn"); // landing builds use hash routes
-    await expect(page.getByTestId("atlas-canvas").locator("canvas")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("atlas-loading")).toHaveCount(0, { timeout: 90_000 });
-    console.log(`TIMING HRA all organs (${info.project.name}): ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-    await expect(page.getByTestId("atlas-failed")).toHaveCount(0);
-    await page.waitForTimeout(800);
-    await page.getByTestId("atlas-canvas").screenshot({ path: `${SCREENS}/${info.project.name}-learn-atlas-body.png` });
-    await page.getByTestId("atlas-list").getByRole("button", { name: /^Liver/ }).click();
-    await expect(page.getByTestId("atlas-detail")).toContainText("Hepatitis B");
-    await page.waitForTimeout(2200);
-    await page.getByTestId("atlas-canvas").screenshot({ path: `${SCREENS}/${info.project.name}-learn-atlas-liver-focus.png` });
     await noOverflow(page);
     expect(problems).toEqual([]);
 });

@@ -39,8 +39,8 @@ Registry results ──> Bayesian calibration ───────────�
 | Bayesian calibration | MCMC (emcee, 44 walkers, 6500 steps) learns drug effects from three real trials and carries the uncertainty into every prediction | Split R-hat 1.026, chain length 56 autocorrelation times; blind test below |
 | Neural surrogate | A small neural network trained on 2400 simulator runs, with numpy-only inference in the browser, for instant sliders and for guiding the designer | HbA1c mean error 0.082 points, R2 0.949 on 480 simulator runs it never saw. It learns the simulator, not reality |
 | AI Trial Designer | Takes a goal; the surrogate proposes a dose and the simulator checks and refines it, then sizes the study | Across 36 goals: 3.28 simulator runs on average against 6.03 for plain bisection (46% fewer); same feasibility verdict on 36 of 36; median dose difference 3% |
-| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 6 answered by the model, 3 written by code, right tool on 10 of 10, guard repaired 3 and replaced 1, median 5.4 s. A small sample |
-| Retrieval for ordinary questions | An in-memory vector index (TF-IDF cosine over reviewed notes, numpy-only, no server, runs in the browser). The model answers only from retrieved notes, and the note itself is shown if the model fails | Keyword-level retrieval, not neural embeddings or a hosted vector database |
+| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 6 answered by the model, 4 written by code, right tool on 9 of 10, guard repaired 3 and replaced 0, median 9.9 s. A small sample |
+| Retrieval for ordinary questions | Hybrid vector search over 71 notes written for this project: neural embeddings (nvidia/nemotron-3-embed-1b, saved in the repo, with the question embedded through the proxy only after the guard clears it), with an in-browser TF-IDF index as the fallback. No hosted database: numpy cosine similarity in the browser. The model may use only the notes found, and code then checks that its wording came from them | On 60 blind, held-out questions, scored once: right note in the top 3 98.3%, top 1 83.3%. 10 of those were still declined, after a later safety fix. None of 30 must-refuse messages reached a model. The first blind list scored 58.8% on TF-IDF alone, which is why embeddings were added; that list was then used for tuning |
 | Safety guard | Default-deny on input, and a digit figure no tool produced sends the draft back to the model once, then falls back to computed text | 44 of 44 project-written attack prompts refused before any model call. Blind results are in the section below |
 | Intent model | TF-IDF and logistic regression for greetings and help, runs in the browser, cannot write a number | 95.3% on 43 project-written phrases, a small sample |
 | Blind-test track record | Shows beside each simulated result where that drug held up or missed in the blind test | Added after the blind run; a look-up that changes no prediction |
@@ -65,6 +65,7 @@ Known limits:
 - The guard checks that each figure has a source, not its sign or the sentence around it. A model reply can still misdescribe a correct number, so read the figures beside it.
 - A terse question naming a drug with a research word cannot be told apart from a person's own question. It gets a population figure with its failed checks and the emergency line, never a personal answer.
 - Regex rules cannot catch every implied piece of advice in free text. Reproduce the table with `scripts/eval_guard.py`.
+- The notes behind ordinary answers were written for this project, not reviewed by a clinician. They explain ideas and never say what anyone should take.
 
 It answers with Claude (`ANTHROPIC_API_KEY`), NVIDIA NIM (`NVIDIA_API_KEY`), or an offline planner when no key is set or a provider fails. Reproduce the numbers above with `scripts/eval_designer.py`, `scripts/eval_copilot.py` and `scripts/train_surrogate.py`.
 
@@ -109,7 +110,7 @@ uvicorn medlab.api:app --port 8000      # API
 cd web && npm ci && npm run dev         # UI, opens on /trials
 ```
 
-Latest test run: 649 passed in 73.80s (0:01:13).
+Latest test run: 768 passed in 73.39s (0:01:13).
 
 ## Credits
 

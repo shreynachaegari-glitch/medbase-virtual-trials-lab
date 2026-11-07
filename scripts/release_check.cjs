@@ -7,6 +7,7 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 const report = [];
 const log = (name, ok, detail = "") => { report.push({ name, ok, detail }); console.log(`${ok ? "PASS" : "FAIL"}  ${name}  ${detail}`); };
 const secs = (t) => ((Date.now() - t) / 1000).toFixed(1) + "s";
+require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.json", { force: true }); // a crash must not leave an old pass behind
 (async () => {
   const browser = await chromium.launch({ args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader", "--ignore-gpu-blocklist"] });
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -16,16 +17,30 @@ const secs = (t) => ((Date.now() - t) / 1000).toFixed(1) + "s";
   page.on("pageerror", (e) => problems.push("pageerror: " + String(e).slice(0, 200)));
   page.on("response", (r) => { if (r.status() >= 400 && !r.url().includes("vercel.app")) failed.push(`${r.status()} ${r.url().slice(0, 110)}`); });
   let aiCalls = 0;
+  // Runs the proxy code that is about to be deployed, against the real NVIDIA services. The key stays in this process.
+  const env = require("fs").readFileSync("/home/tg/hello-world/medbase-lab/.env", "utf8").match(/NVIDIA_API_KEY\s*=\s*["']?([^"'\s]+)/);
+  process.env.NVIDIA_API_KEY = process.env.NVIDIA_API_KEY || (env && env[1]) || "";
+  process.env.ALLOWED_ORIGINS = ORIGIN;
+  const { default: proxyHandler } = await import("/home/tg/hello-world/medbase-lab/proxy/api/chat.js");
   await page.route(PROXY, async (route) => {
     if (route.request().method() === "OPTIONS") return route.fulfill({ status: 204, headers: CORS });
     aiCalls += 1;
-    const res = await fetch(PROXY, { method: "POST", headers: { "Content-Type": "application/json", Origin: ORIGIN }, body: route.request().postData(), signal: AbortSignal.timeout(58000) });
-    return route.fulfill({ status: res.status, headers: CORS, contentType: "application/json", body: await res.text() });
+    const out = { status: 200, body: null };
+    const res = { setHeader() {}, status(code) { out.status = code; return this; }, json(value) { out.body = value; return this; }, end() { return this; } };
+    await proxyHandler({ method: "POST", headers: { origin: ORIGIN, "x-forwarded-for": `release-check-${aiCalls}` }, body: JSON.parse(route.request().postData()) }, res);
+    return route.fulfill({ status: out.status, headers: CORS, contentType: "application/json", body: JSON.stringify(out.body) });
   });
   let t = Date.now();
   await page.goto(BASE);
   await page.getByTestId("engine-ready").waitFor({ timeout: 240000 }).catch(() => {});
   log("engine loads in the browser", await page.getByTestId("engine-ready").isVisible().catch(() => false), secs(t));
+  log("Virtual Trials is the first page and the first link", /\/trials/.test(page.url()) && (await page.getByRole("navigation", { name: "Main" }).getByRole("link").first().textContent()) === "Virtual Trials");
+  log("no sign-in and no Learn link", (await page.getByText(/sign[- ]?in/i).count()) === 0 && (await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Learn" }).count()) === 0);
+  const layers = page.getByTestId("ai-layer");
+  await page.getByTestId("ai-stack").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1600);
+  log("Applied AI panel shows six layers with real figures", (await layers.count()) === 6 && /98/.test((await page.getByTestId("ai-stack").textContent()) || ""), ((await page.getByTestId("ai-stack").textContent()) || "").slice(0, 240));
+  await page.getByTestId("ai-stack").screenshot({ path: `${OUT}/applied-ai-panel.png` });
   await page.screenshot({ path: `${OUT}/first-screen.png` });
 
   // Real trial, with the track record beside it.
@@ -111,6 +126,18 @@ const secs = (t) => ((Date.now() - t) / 1000).toFixed(1) + "s";
   a = await ask("What is semaglutide?");
   log("basic question answered through retrieval and the real proxy", /GLP-1/.test(a.text), `${a.secs} [${a.source}] ${a.text.slice(0, 150)}`);
   await page.screenshot({ path: `${OUT}/copilot-basic-question.png` });
+  a = await ask("why do some diabetes drugs make people pee out sugar");
+  const notesLabel = await page.getByTestId("assistant-sources").first().textContent().catch(() => "");
+  log("a paraphrase finds its note by meaning", /SGLT2/.test(a.text) && /neural embeddings/.test(notesLabel), `${a.secs} [${a.source}] ${notesLabel} ${a.text.slice(0, 160)}`);
+  log("the answer shows its real trace and next questions", (await page.getByTestId("assistant-trace").first().textContent().catch(() => "")).includes("Vector search") && (await page.getByTestId("assistant-suggestions").first().locator("button").count()) > 0);
+  await panel.screenshot({ path: `${OUT}/copilot-neural-answer.png` });
+  a = await ask("What is the capital of France?");
+  log("an off-topic question is declined", /outside what this lab covers/.test(a.text), `${a.secs} [${a.source}]`);
+  a = await ask("Simulate sitagliptin 100 mg against placebo for 26 weeks");
+  log("a simulation question runs", /Accuracy check FAILED/.test(a.text), `${a.secs} [${a.source}]`);
+  a = await ask("what about 50 mg?");
+  const understood = await page.getByTestId("assistant-interpreted").first().textContent().catch(() => "");
+  log("a follow-up carries the last experiment", /sitagliptin 50 mg/.test(understood), `${a.secs} [${a.source}] ${understood}`);
   a = await ask("Where did this lab fail?");
   log("copilot gives the code-written failure account", /Written by code/.test(a.source || "") && /Semaglutide phase 2/.test(a.text), `${a.secs} [${a.source}] ${a.text}`);
   await page.screenshot({ path: `${OUT}/copilot-where-it-failed.png` });

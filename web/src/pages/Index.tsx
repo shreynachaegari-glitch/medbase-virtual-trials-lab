@@ -107,8 +107,8 @@ const Index = () => {
                                     <Link to="/lab" className="btn-solid">
                                         Run a simulation
                                     </Link>
-                                    <Link to="/learn" className="btn-outline">
-                                        Browse {diseases.length} conditions
+                                    <Link to="/anatomy" className="btn-outline">
+                                        Explore {diseases.length} conditions in 3D
                                     </Link>
                                 </motion.div>
                             </div>
@@ -188,10 +188,10 @@ const Index = () => {
                                     to diagnose one.
                                 </p>
                                 <Link
-                                    to="/learn"
+                                    to="/anatomy"
                                     className="mt-5 inline-block text-sm text-primary hover:underline"
                                 >
-                                    Browse the library →
+                                    Explore the 3D anatomy →
                                 </Link>
                             </Reveal>
 

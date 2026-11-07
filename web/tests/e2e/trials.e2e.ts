@@ -105,14 +105,12 @@ test.describe("with the API up", () => {
         await expect(box).toBeEditable();
         const height = page.viewportSize()!.height;
         expect((await box.boundingBox())!.y).toBeLessThan(height);
-        // The prompt and its Send button sit clear of the corner chat button, on the first screen.
-        const send = (await page.getByRole("button", { name: "Send question" }).boundingBox())!;
-        const chat = (await page.getByRole("button", { name: "Open chat" }).boundingBox())!;
-        expect(send.y + send.height, "Send button is above the chat button").toBeLessThan(chat.y);
+        // The copilot is on screen here, so nothing in the corner competes with it.
+        await expect(page.getByTestId("copilot-launcher")).toHaveCount(0);
         await expect(page.getByRole("heading", { level: 1 })).toContainText("simulated");
         await expect(page.getByTestId("quick-proof")).toContainText("V3");
         await expect(page.getByTestId("quick-proof").locator('[data-state="fail"]')).toHaveText("FAIL");
-        await expect(page.getByTestId("surrogate-not-trained")).toContainText("hasn\u2019t been trained yet");
+        await expect(page.getByTestId("surrogate")).toBeVisible();
         expect(page.locator("#designer")).toBeTruthy();
         await shot(page, "first-screen", info.project.name, false);
     });
@@ -321,11 +319,11 @@ test.describe("with the API up", () => {
         await expect(table.locator("tbody tr")).toHaveCount(16);
         await shot(page, "safety", info.project.name);
 
-        await page.getByRole("radio", { name: "Metformin" }).click();
+        await page.getByTestId("safety-tab").getByRole("radio", { name: "Metformin" }).click();
         await expect(paper).toContainText("Fixture metformin arm");
         await expect(page.getByTestId("no-placebo")).toBeVisible();
         await expect(table).toContainText("Comparator");
-        await page.getByRole("radio", { name: "Empagliflozin" }).click();
+        await page.getByTestId("safety-tab").getByRole("radio", { name: "Empagliflozin" }).click();
         await expect(paper).toContainText("Fixture empagliflozin arm");
         await expect(boxed).toHaveCount(0);
     });
@@ -392,7 +390,6 @@ test.describe("with the API up", () => {
         await expect(emergency).toHaveAttribute("role", "alert");
         const size = await emergency.locator("p").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
         expect(size).toBeGreaterThanOrEqual(18);
-        await expect(page.getByRole("button", { name: "Open chat" })).toBeVisible();
         await shot(page, "assistant", info.project.name);
     });
 
@@ -807,17 +804,34 @@ test("the drug note in the Lab now links to Virtual Trials", async ({ page }) =>
     await expect(page.getByText("Why there is no drug simulation here")).toHaveCount(0);
 });
 
-test("the older Lab carries the new cautions, and sign-in no longer implies identity", async ({ page }, info) => {
+test("the older Lab carries the new cautions, and nothing asks anyone to sign in", async ({ page }, info) => {
     await mockApi(page);
     await page.route(/^https?:\/\/(?!localhost)/, (route) => route.abort());
     await page.goto("/lab");
     await expect(page.getByTestId("share-link-note")).toContainText("Don\u2019t enter real patient values");
     await expect(page.locator("main")).toContainText("Hypoglycaemia is not modelled");
     await expect(page.getByText("Researcher ID", { exact: true })).toHaveCount(0);
-    await expect(page.locator("body")).toContainText("does not verify who you are");
     if (info.project.name === "mobile") await page.getByRole("button", { name: "Open menu" }).click();
-    await page.getByRole("button", { name: "Demo sign-in" }).first().click();
-    await expect(page.getByRole("dialog")).toContainText("neither proves who you are");
+    await expect(page.getByRole("button", { name: /sign[- ]?in/i })).toHaveCount(0);
+    await expect(page.locator("body")).not.toContainText(/sign[- ]?in/i);
+    const firstLink = page.getByRole("navigation", { name: "Main" }).getByRole("link").first();
+    await expect(firstLink).toHaveText("Virtual Trials");
+    await expect(firstLink).toHaveAttribute("href", "/trials");
+});
+
+test("Learn has moved into Anatomy, and old links still arrive", async ({ page }, info) => {
+    await mockApi(page);
+    await page.route(/^https?:\/\/(?!localhost)/, (route) => route.abort());
+    await page.goto("/learn");
+    await expect(page).toHaveURL(/\/anatomy$/);
+    await page.goto("/learn/diabetes");
+    await expect(page).toHaveURL(/\/conditions\/diabetes$/);
+    await expect(page.getByRole("link", { name: /Anatomy/ }).first()).toBeVisible();
+    await expect(page.getByTestId("copilot-launcher")).toBeVisible();
+    await page.getByTestId("copilot-launcher").click();
+    await expect(page).toHaveURL(/\/trials$/);
+    if (info.project.name === "mobile") await page.getByRole("button", { name: "Open menu" }).click();
+    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Learn" })).toHaveCount(0);
 });
 
 test("the built bundle holds no fixtures", async ({ request }) => {

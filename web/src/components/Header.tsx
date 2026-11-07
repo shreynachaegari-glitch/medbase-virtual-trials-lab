@@ -3,14 +3,12 @@ import { NavLink, Link, useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AuthButton } from "@/components/ResearcherAuth";
 import { LANGS, useLang, type LangId } from "@/i18n";
 
 const nav = [
-    { to: "/learn", label: "Learn" },
+    { to: "/trials", label: "Virtual Trials" },
     { to: "/anatomy", label: "Anatomy" },
     { to: "/lab", label: "Lab" },
-    { to: "/trials", label: "Virtual Trials" },
     { to: "/evidence", label: "Evidence" },
     { to: "/methods", label: "Methods" },
     { to: "/funding", label: "Funding" },
@@ -38,7 +36,7 @@ const Header = () => {
     return (
         <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
             <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 px-4 sm:px-6">
-                <Link to={import.meta.env.VITE_LANDING ? "/home" : "/"} className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
+                <Link to="/" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
                     <span className="text-[15px] font-semibold tracking-tight">MedBase</span>
                     <span className="label-caps hidden sm:inline lg:hidden xl:inline">Virtual Laboratory</span>
                 </Link>
@@ -75,7 +73,7 @@ const Header = () => {
                     })}
                 </nav>
 
-                <div className="hidden items-center gap-2 lg:flex">{picker}<AuthButton /></div>
+                <div className="hidden items-center gap-2 lg:flex">{picker}</div>
 
                 {/* The links do not fit beside the wordmark on a phone, so they fold into a menu. */}
                 <button
@@ -97,7 +95,7 @@ const Header = () => {
                     className="border-t border-border px-2 pb-3 pt-2 lg:hidden"
                     onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
                 >
-                    <div className="flex items-center gap-2 px-1 pb-2">{picker}<AuthButton /></div>
+                    <div className="flex items-center gap-2 px-1 pb-2">{picker}</div>
                     {nav.map((item) => (
                         <NavLink
                             key={item.to}

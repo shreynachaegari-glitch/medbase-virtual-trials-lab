@@ -169,12 +169,12 @@ def search_literature(args: dict) -> dict:
 
 
 def search_knowledge(args: dict) -> dict:
-    """Finds reviewed notes by vector similarity. It computes nothing and contains no personal advice."""
+    """Finds the lab's own notes by vector similarity. It computes nothing and contains no personal advice."""
     return {"passages": knowledge.search(str(args["query"])[:200])}
 
 
 TOOLS = {
-    "search_knowledge": (search_knowledge, "Search the lab's reviewed notes on what a term or drug class means and how the lab works. Use it for ordinary questions that need no simulation.",
+    "search_knowledge": (search_knowledge, "Search the lab's notes on what a term or drug class means and how the lab works. Use it for ordinary questions that need no simulation.",
                          {"type": "object", "additionalProperties": False, "properties": {"query": {"type": "string"}}, "required": ["query"]}),
     "run_virtual_trial": (run_virtual_trial, "Simulate a randomised trial of one or more drugs against placebo in virtual patients built from real NHANES labs. Returns adjusted HbA1c, fasting glucose and weight effects with intervals.",
                           {"type": "object", "additionalProperties": False, "properties": _DESIGN_PROPS, "required": ["arms"]}),

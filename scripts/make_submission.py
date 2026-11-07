@@ -16,6 +16,9 @@ FAILED = [CHECKS[k] for k in CHECKS if not S[k]]
 SURROGATE = json.loads(Path("results/surrogate_eval.json").read_text())
 DESIGNER = json.loads(Path("results/designer_eval.json").read_text())["summary"]
 COPILOT = json.loads(Path("results/copilot_eval.json").read_text())["summary"]
+RETRIEVAL = json.loads(Path("results/retrieval_eval.json").read_text())
+HELD_OUT = RETRIEVAL["held_out"]
+FIRST_RUN = RETRIEVAL["first_blind_run"]
 INTENT = json.loads(Path("results/intent_eval.json").read_text())
 GUARD = json.loads(Path("results/guard_eval.json").read_text())
 SHIPPED = GUARD["shipped_guard"]
@@ -35,7 +38,7 @@ ai_rows = f"""| Layer | What it is | Measured result |
 | Neural surrogate | A small neural network trained on {SURROGATE['runs_used']} simulator runs, with numpy-only inference in the browser, for instant sliders and for guiding the designer | HbA1c mean error {SURROGATE['a1c_mae']} points, R2 {SURROGATE['a1c_r2']} on {SURROGATE['test_runs']} simulator runs it never saw. It learns the simulator, not reality |
 | AI Trial Designer | Takes a goal; the surrogate proposes a dose and the simulator checks and refines it, then sizes the study | Across {DESIGNER['goals']} goals: {DESIGNER['mean_runs_guided']} simulator runs on average against {DESIGNER['mean_runs_plain']} for plain bisection ({DESIGNER['fewer_runs_share']:.0%} fewer); same feasibility verdict on {DESIGNER['same_feasibility_verdict']} of {DESIGNER['goals']}; median dose difference {DESIGNER['median_dose_difference']:.0%} |
 | Live copilot | {COPILOT['model']} on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On {COPILOT['questions']} project-written questions: {COPILOT['answered_by_model']} answered by the model, {COPILOT['written_by_code']} written by code, right tool on {COPILOT['right_tool']} of {COPILOT['questions']}, guard repaired {COPILOT['guard_repair_accepted']} and replaced {COPILOT['guard_replaced_a_reply']}, median {COPILOT['median_seconds']} s. A small sample |
-| Retrieval for ordinary questions | An in-memory vector index (TF-IDF cosine over reviewed notes, numpy-only, no server, runs in the browser). The model answers only from retrieved notes, and the note itself is shown if the model fails | Keyword-level retrieval, not neural embeddings or a hosted vector database |
+| Retrieval for ordinary questions | Hybrid vector search over {HELD_OUT['notes']} notes written for this project: neural embeddings (nvidia/nemotron-3-embed-1b, saved in the repo, with the question embedded through the proxy only after the guard clears it), with an in-browser TF-IDF index as the fallback. No hosted database: numpy cosine similarity in the browser. The model may use only the notes found, and code then checks that its wording came from them | On {HELD_OUT['answerable']} blind, held-out questions, scored once: right note in the top 3 {HELD_OUT['hit_at_3']:.1%}, top 1 {HELD_OUT['hit_at_1']:.1%}. {HELD_OUT['after_safety_fix']['answerable_declined']} of those were still declined, after a later safety fix. None of {HELD_OUT['must_refuse']} must-refuse messages reached a model. The first blind list scored {FIRST_RUN['hit_at_3']:.1%} on TF-IDF alone, which is why embeddings were added; that list was then used for tuning |
 | Safety guard | Default-deny on input, and a digit figure no tool produced sends the draft back to the model once, then falls back to computed text | {COPILOT['attack_prompts_refused_before_any_model']} of {COPILOT['attack_prompts']} project-written attack prompts refused before any model call. Blind results are in the section below |
 | Intent model | TF-IDF and logistic regression for greetings and help, runs in the browser, cannot write a number | {INTENT['held_out_accuracy']:.1%} on {INTENT['held_out_phrases']} project-written phrases, a small sample |
 | Blind-test track record | Shows beside each simulated result where that drug held up or missed in the blind test | Added after the blind run; a look-up that changes no prediction |
@@ -98,6 +101,7 @@ Known limits:
 - The guard checks that each figure has a source, not its sign or the sentence around it. A model reply can still misdescribe a correct number, so read the figures beside it.
 - A terse question naming a drug with a research word cannot be told apart from a person's own question. It gets a population figure with its failed checks and the emergency line, never a personal answer.
 - Regex rules cannot catch every implied piece of advice in free text. Reproduce the table with `scripts/eval_guard.py`.
+- The notes behind ordinary answers were written for this project, not reviewed by a clinician. They explain ideas and never say what anyone should take.
 
 It answers with Claude (`ANTHROPIC_API_KEY`), NVIDIA NIM (`NVIDIA_API_KEY`), or an offline planner when no key is set or a provider fails. Reproduce the numbers above with `scripts/eval_designer.py`, `scripts/eval_copilot.py` and `scripts/train_surrogate.py`.
 
@@ -170,7 +174,9 @@ We also attacked our own safety guard with blind tests and published the results
 - Live AI copilot with visible tool calls, a number guard and a personal-advice refusal
 - Instant neural what-if sliders, raced live against the full simulator
 - Animated chart moving each frozen prediction to the real trial result
-- Basic questions answered by the model from a vector index of reviewed notes
+- Ordinary questions answered from neural vector search, with the notes and match scores shown and code checking that the wording came from them
+- Follow-ups such as "what about 2 mg?" that carry the last experiment forward, and suggested next questions
+- A live trace of each answer: guard, vector search, simulator, model and checks
 - Blind-test track record beside every simulated result, including misses
 - Safety guard tested blind by adversaries, with urgent messages given emergency contacts, published in the README
 - Virtual trials for four real drugs and hypothetical molecules, on patients built from real survey labs
@@ -195,7 +201,7 @@ Audience: INFINEX judges, Applied AI track. Show the live screen throughout.
 | Time | Screen | Say |
 |---|---|---|
 | 0:00 | First screen | "Trials take years. What if a student could rehearse one this afternoon, in a browser, and see how far to trust the answer?" |
-| 0:15 | Copilot: "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks", after a quick "What is semaglutide?" | "I just ask. Basic questions are answered from a vector index of reviewed notes. A live AI model on NVIDIA plans the experiment, and you can watch it call the tools. It runs on virtual patients built from real health survey data. If a figure in its reply didn't come from the simulator, the reply goes back or gets replaced." |
+| 0:15 | Copilot: "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks", after a quick "What is semaglutide?" | "I just ask. Ordinary questions are answered from a neural vector search over the lab's notes, and you can see which notes it used. A live AI model on NVIDIA plans the experiment, and you can watch it call the tools. It runs on virtual patients built from real health survey data. If a figure in its reply didn't come from the simulator, the reply goes back or gets replaced." |
 | 0:50 | Copilot: "Should I stop my metformin?" | "And ask about your own medicine, and it refuses before any AI model is called." |
 | 1:00 | AI Trial Designer: empagliflozin, 0.5 point target | "Now I give it a goal. A neural network trained on {SURROGATE['runs_used']} simulator runs screens {400} doses in milliseconds and proposes where to look. The simulator checks that and sizes the study. On {DESIGNER['goals']} test goals that took {DESIGNER['fewer_runs_share']:.0%} fewer simulator runs than plain search. This is a test dose in a simulator, not a dose for anyone, and it shows what the blind test found at that dose." |
 | 1:30 | Surrogate sliders, then run full simulator | "The same network answers these sliders instantly. Watch them race: same question, both timed live in this browser." |

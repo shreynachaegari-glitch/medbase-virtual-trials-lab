@@ -24,6 +24,20 @@ globalThis.fetch = async (_url, init) => {
 };
 
 const good = { messages: [{ role: "user", content: "hi" }], tools: [] };
+const fetchChat = globalThis.fetch;
+globalThis.fetch = async (url, init) => {
+  sent = { url, body: JSON.parse(init.body) };
+  return { ok: true, json: async () => ({ data: [{ embedding: [0.6, 0.8] }] }) };
+};
+const embedded = await call("https://allowed.example", { embed: "what is hba1c" });
+assert.equal(embedded.status, 200);
+assert.deepEqual(embedded.json.vector, [0.6, 0.8]);
+assert.match(sent.url, /embeddings$/);
+assert.equal(sent.body.input_type, "query");
+assert.equal((await call("https://allowed.example", { embed: "x".repeat(501) })).status, 400);
+assert.equal((await call("https://allowed.example", { embed: 12 })).status, 400);
+assert.equal((await call("https://blocked.example", { embed: "what is hba1c" })).status, 403);
+globalThis.fetch = fetchChat;
 const allowed = await call("https://allowed.example", good);
 assert.equal(allowed.status, 200);
 assert.equal(allowed.json.message.content, "ok");

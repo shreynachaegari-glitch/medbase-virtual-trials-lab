@@ -11,8 +11,8 @@ const apiTarget = process.env.MEDLAB_API ?? 'http://localhost:8000'
 const proxy = { '/api': { target: apiTarget, changeOrigin: true } }
 
 // A static host may not send unknown paths to the app, so each top-level route gets its own real
-// page. 404.html covers deeper links such as /learn/tb on hosts that honour it.
-const STATIC_ROUTES = ['trials', 'home', 'lab', 'learn', 'anatomy', 'evidence', 'methods', 'funding']
+// page. 404.html covers deeper links such as /conditions/tb on hosts that honour it.
+const STATIC_ROUTES = ['trials', 'home', 'lab', 'anatomy', 'evidence', 'methods', 'funding']
 const staticPages = (): Plugin => ({
   name: 'static-pages',
   apply: 'build',

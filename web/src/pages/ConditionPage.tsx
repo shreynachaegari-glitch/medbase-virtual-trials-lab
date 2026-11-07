@@ -32,8 +32,8 @@ const ConditionPage = () => {
                     <p className="mt-3 text-sm text-muted-foreground">
                         No record with that identifier exists in the knowledge base.
                     </p>
-                    <Link to="/learn" className="mt-6 inline-block text-sm text-primary hover:underline">
-                        ← Back to the knowledge base
+                    <Link to="/anatomy" className="mt-6 inline-block text-sm text-primary hover:underline">
+                        ← Back to anatomy
                     </Link>
                 </main>
                 <Footer />
@@ -48,8 +48,8 @@ const ConditionPage = () => {
             <Header />
 
             <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-10 sm:px-6">
-                <Link to="/learn" className="text-xs text-muted-foreground hover:text-foreground">
-                    ← Knowledge base
+                <Link to="/anatomy" className="text-xs text-muted-foreground hover:text-foreground">
+                    ← Anatomy
                 </Link>
 
                 <header className="mt-4 max-w-3xl">

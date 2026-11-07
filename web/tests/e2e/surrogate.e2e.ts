@@ -105,6 +105,7 @@ test("checks itself against a full run, and stays in place to show the gap", asy
 test("shows a not-trained state, with no numbers, when the file doesn't exist", async ({ page }) => {
     const problems = watchConsole(page);
     await mockApi(page);
+    await page.route("**/*surrogate*.json", (route) => route.fulfill({ status: 404, body: "" }));
     await page.goto("/trials");
     await expect(page.getByTestId("surrogate-not-trained")).toBeVisible();
     await expect(page.getByTestId("surrogate-a1c")).toHaveCount(0);

@@ -43,11 +43,16 @@ def use_labs_file(path: str) -> None:
 _session = None
 
 
-def session_start(question: str) -> str:
+def session_start(question: str, previous: str = "") -> str:
     """Begins a model conversation for the worker; the worker makes the network calls."""
     global _session
-    _session = assistant.BrowserSession(question)
+    _session = assistant.BrowserSession(question, previous or None, wants_vector=True)
     return json.dumps(_session.start(), default=str)
+
+
+def session_vector(raw: str) -> str:
+    """Carries on after the worker asked the proxy for the question's embedding. An empty string means that failed."""
+    return json.dumps(_session.resume_with_vector(raw or ""), default=str)
 
 
 def session_tool(name: str, args_json: str) -> str:

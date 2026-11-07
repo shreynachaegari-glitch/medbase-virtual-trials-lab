@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Check, CircleDot, LoaderCircle, Send, ShieldAlert, Siren, Sparkles, X } from "lucide-react";
 import { useElapsed } from "@/hooks/useSimRun";
@@ -13,6 +13,7 @@ import { ErrorCallout, ProvenanceTag } from "./bits";
 import { EngineWaitNote } from "./EngineStatus";
 
 const STARTERS = [
+    "What is the applied AI in this lab?",
     "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks",
     "Does empagliflozin weaken in kidney disease?",
     "What sample size would a sitagliptin trial need?",
@@ -24,13 +25,23 @@ const STARTERS = [
 ] as const;
 
 const NIM_LABEL = "AI model (NVIDIA NIM), figures checked against the simulator";
+const NIM_NOTES_LABEL = "AI model (NVIDIA NIM), answering only from the notes below";
+const PROMPT_HINTS = [
+    "Ask about a drug, a trial design, or how accurate this lab is",
+    "Try: Simulate sitagliptin 100 mg against placebo for 26 weeks",
+    "Try: What is the applied AI in this lab?",
+    "Try: What is an SGLT2 inhibitor?",
+    "Try: Who responds to empagliflozin?",
+];
+const HINT_MS = 3500;
+const FOLLOW_UP_SOURCES = new Set<AssistantReply["source"]>(["claude", "nim", "planner"]);
 const BROWSER_PLANNER = "Offline planner: runs in your browser, nothing is sent anywhere";
 
 const SOURCE: Record<AssistantReply["source"], { label: string; note: string; className: string }> = {
     claude: { label: "Claude", note: "A language model wrote this, using simulator tools", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
     nim: { label: NIM_LABEL, note: "", className: "border-[hsl(var(--primary))] text-[hsl(217_91%_72%)]" },
     verified: { label: "Written by code", note: "Code wrote this text, so it can't be misquoted", className: "border-foreground/50 text-foreground" },
-    reference: { label: "Reference note", note: "A reviewed note found by vector search. No simulation ran", className: "border-foreground/50 text-foreground" },
+    reference: { label: "Reference note", note: "A note from the lab\u2019s own library, written for this project. No simulation ran", className: "border-foreground/50 text-foreground" },
     scope: { label: "Not a simulation", note: "This is a fixed message, and no model or simulation ran", className: "border-foreground/50 text-foreground" },
     planner: { label: "Offline planner", note: "No language model: fixed rules ran the tools and filled in the numbers", className: "border-foreground/50 text-foreground" },
     "intent-model": { label: "Small trained model", note: "No language model: it only chooses a fixed or computed reply, so it can't write a number or a claim", className: "border-foreground/50 text-foreground" },
@@ -144,8 +155,69 @@ const LiveSteps = ({ turn }: { turn: Turn }) => {
     );
 };
 
-const Reply = ({ turn, reply, provenance }: { turn: Turn; reply: AssistantReply; provenance?: Provenance }) => {
-    const base = SOURCE[reply.source] ?? SOURCE.planner;
+/** Each stage this question really went through, lit in order. Nothing here plays unless it happened. */
+const Trace = ({ steps }: { steps: NonNullable<AssistantReply["trace"]> }) => {
+    const reduce = useReducedMotion();
+    return (
+        <ol className="mt-3 flex flex-wrap items-center gap-y-1.5" aria-label="What happened to this question" data-testid="assistant-trace">
+            {steps.map((step, i) => (
+                <motion.li
+                    key={step.stage}
+                    title={step.detail}
+                    initial={reduce ? false : { opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.16, duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+                    className="flex items-center"
+                >
+                    {i > 0 && <span className="trace-link" aria-hidden="true" />}
+                    <span className="rounded-full border border-[hsl(var(--primary))]/50 bg-[hsl(var(--primary))]/10 px-2 py-0.5 text-[11px] font-medium">
+                        {step.stage}
+                        <span className="sr-only">: {step.detail}</span>
+                    </span>
+                </motion.li>
+            ))}
+        </ol>
+    );
+};
+
+/** The notes vector search found, with their real match scores. */
+const Sources = ({ sources, retrieval }: { sources: NonNullable<AssistantReply["sources"]>; retrieval: AssistantReply["retrieval"] }) => {
+    const reduce = useReducedMotion();
+    return (
+        <div className="mt-3" data-testid="assistant-sources">
+            <p className="label-caps">{retrieval === "neural" ? "Notes found by meaning, with neural embeddings" : "Notes found by wording, with keyword vectors"}</p>
+            <ul className="mt-1.5 space-y-1">
+                {sources.map((source) => (
+                    <li key={source.title} className="grid grid-cols-[minmax(0,1fr)_4.5rem_2.25rem] items-center gap-2 text-xs">
+                        <span className="truncate">{source.title}</span>
+                        <span className="block h-1 overflow-hidden rounded-full bg-border" aria-hidden="true">
+                            <motion.span
+                                className="block h-full origin-left rounded-full bg-[hsl(var(--primary))]"
+                                initial={reduce ? false : { scaleX: 0 }}
+                                animate={{ scaleX: source.score }}
+                                transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+                            />
+                        </span>
+                        <span className="tnum text-right text-muted-foreground">{source.score.toFixed(2)}</span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+const URGENT_LINE = /If this is urgent, call 112 now\. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night\.\s*/;
+
+/** The helpline stays on every reply that needs it, set apart so the answer reads as an answer. */
+const splitUrgentLine = (text: string) => {
+    const match = text.match(URGENT_LINE);
+    return match ? { answer: text.replace(URGENT_LINE, "").trim(), urgent: match[0].trim() } : { answer: text, urgent: null };
+};
+
+const Reply = ({ turn, reply, provenance, onAsk, busy }: { turn: Turn; reply: AssistantReply; provenance?: Provenance; onAsk: (text: string) => void; busy: boolean }) => {
+    const reduceReveal = useReducedMotion();
+    const answeredFromNotes = reply.source === "nim" && (reply.sources?.length ?? 0) > 0;
+    const base = answeredFromNotes ? { ...SOURCE.nim, label: NIM_NOTES_LABEL } : (SOURCE[reply.source] ?? SOURCE.planner);
     // Only true when the question really stayed here. A fallback from the AI model has already been sent.
     const inBrowser = provenance === "browser" && reply.source === "planner" && !reply.sent_to_provider;
     const source = inBrowser ? { ...base, label: BROWSER_PLANNER, note: "" } : reply.source === "planner" && reply.sent_to_provider ? { ...base, label: "Offline planner, in place of the AI's reply", note: "" } : base;
@@ -160,8 +232,9 @@ const Reply = ({ turn, reply, provenance }: { turn: Turn; reply: AssistantReply;
             </div>
         );
     }
-    const reduceReveal = useReducedMotion();
+    const { answer, urgent } = splitUrgentLine(reply.text);
     const showTools = turn.steps.length === 0 || reply.source === "planner";
+    const toolsRun = reply.tool_calls.filter((call) => call.tool !== "search_knowledge"); // the notes it found are listed above
     return (
         <div className="min-w-0" data-testid="assistant-reply">
             <div className="flex flex-wrap items-center gap-2">
@@ -169,23 +242,29 @@ const Reply = ({ turn, reply, provenance }: { turn: Turn; reply: AssistantReply;
                 {source.note && <span className="text-[11px] text-muted-foreground">{source.note}</span>}
                 {provenance === "saved" && <ProvenanceTag provenance={provenance} />}
             </div>
-            <motion.p initial={reduceReveal ? false : { clipPath: "inset(0 0 100% 0)", opacity: 0.4 }} animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }} transition={{ duration: 0.9, ease: "easeOut" }} className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{reply.text}</motion.p>
+            <motion.p initial={reduceReveal ? false : { clipPath: "inset(0 0 100% 0)", opacity: 0.4 }} animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }} transition={{ duration: 0.9, ease: "easeOut" }} className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{answer}</motion.p>
+            {reply.interpreted_as && (
+                <p data-testid="assistant-interpreted" className="mt-2 text-xs text-muted-foreground">Understood as: <span className="text-foreground">{reply.interpreted_as}</span></p>
+            )}
+            {reply.trace && reply.trace.length > 0 && <Trace steps={reply.trace} />}
+            {(reply.sources?.length ?? 0) > 0 && <Sources sources={reply.sources ?? []} retrieval={reply.retrieval} />}
             {reply.guard_note && (
                 <p data-testid="assistant-guard" className="mt-2 flex items-start gap-2 rounded-md border border-[hsl(var(--prov-extrapolated))]/50 bg-[hsl(var(--prov-extrapolated))]/10 p-2.5 text-xs leading-relaxed">
                     <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--prov-extrapolated))]" aria-hidden="true" />
                     {reply.guard_note}
                 </p>
             )}
+            {urgent && <p data-testid="assistant-urgent" className="mt-3 text-[11px] leading-relaxed text-muted-foreground">{urgent}</p>}
             {!inBrowser && (
                 <p className="mt-2 text-[11px] text-muted-foreground" data-testid="assistant-sent">
                     {reply.sent_to_provider ? "This question was sent to an AI provider." : "This question was not sent to an AI provider."}
                 </p>
             )}
-            {showTools && reply.tool_calls.length > 0 && (
+            {showTools && toolsRun.length > 0 && (
                 <div className="mt-3">
                     <p className="label-caps">Tools that ran</p>
                     <ul className="mt-1.5 flex flex-wrap gap-1.5" data-testid="assistant-tools">
-                        {reply.tool_calls.map((call, i) => (
+                        {toolsRun.map((call, i) => (
                             <li key={`${call.tool}-${i}`} className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-1.5 py-0.5 text-xs">
                                 {call.ok ? <Check className="h-3 w-3 text-[hsl(var(--pass))]" aria-hidden="true" /> : <X className="h-3 w-3 text-[hsl(var(--fail))]" aria-hidden="true" />}
                                 {TOOL_NAMES[call.tool] ?? call.tool}
@@ -195,8 +274,17 @@ const Reply = ({ turn, reply, provenance }: { turn: Turn; reply: AssistantReply;
                     </ul>
                 </div>
             )}
-            {showTools && reply.tool_calls.length === 0 && reply.source !== "refusal" && (
+            {showTools && toolsRun.length === 0 && reply.source !== "refusal" && (
                 <p className="mt-3 text-xs text-muted-foreground">No tools ran for this reply, so it contains no simulator results.</p>
+            )}
+            {(reply.suggestions?.length ?? 0) > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5" data-testid="assistant-suggestions" aria-label="Ask next">
+                    {reply.suggestions?.map((text) => (
+                        <button key={text} type="button" disabled={busy} onClick={() => onAsk(text)} className="rounded-full border border-[hsl(var(--primary))]/40 px-2.5 py-1 text-left text-xs transition-[background-color,border-color] duration-150 ease-out hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10 disabled:opacity-50">
+                            {text}
+                        </button>
+                    ))}
+                </div>
             )}
         </div>
     );
@@ -209,7 +297,7 @@ const applyEvent = (turn: Turn, event: EngineEvent): Turn => {
     return { ...turn, steps: [...turn.steps, { index: event.index, name: event.name, args: event.args, status: event.status, startedAt: Date.now() }] };
 };
 
-/** The way into the lab: a question in, real experiments out, every number checked. The site guide in the corner is separate. */
+/** The way into the lab: a question in, real experiments out, every number checked. */
 export const AssistantPanel = ({ health, className }: { health: Health | null; className?: string }) => {
     const reduce = useReducedMotion();
     const { mode } = useTransport();
@@ -219,6 +307,13 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
     const nextId = useRef(0);
     const controller = useRef<AbortController | null>(null);
     const usesModel = mode === "server" || (mode === "browser" && LLM_PROXY !== null);
+    const lastExperiment = useRef<string | null>(null);
+    const [hint, setHint] = useState(0);
+    useEffect(() => {
+        if (reduce || question) return;
+        const timer = setInterval(() => setHint((i) => (i + 1) % PROMPT_HINTS.length), HINT_MS);
+        return () => clearInterval(timer);
+    }, [reduce, question]);
 
     const update = (id: number, change: (turn: Turn) => Turn) => setTurns((all) => all.map((t) => (t.id === id ? change(t) : t)));
     const finish = (id: number, patch: Partial<Turn>) => update(id, (t) => ({ ...t, ...patch }));
@@ -235,8 +330,9 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
         setTurns((all) => (retryOf === undefined ? [fresh, ...all] : all.map((t) => (t.id === id ? fresh : t))));
         setQuestion("");
         try {
-            const { data: reply, provenance } = await postTagged<AssistantReply>("/api/assistant", { question: trimmed }, guards.assistant, current.signal, (event) => update(id, (t) => applyEvent(t, event)));
+            const { data: reply, provenance } = await postTagged<AssistantReply>("/api/assistant", { question: trimmed, previous: lastExperiment.current }, guards.assistant, current.signal, (event) => update(id, (t) => applyEvent(t, event)));
             finish(id, { reply, provenance });
+            if (FOLLOW_UP_SOURCES.has(reply.source) && reply.tool_calls.some((call) => call.ok && call.tool !== "search_knowledge")) lastExperiment.current = reply.interpreted_as ?? trimmed;
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             const failure = error instanceof ApiError ? error : new ApiError("server", "The assistant couldn't answer. Please try again.");
@@ -254,14 +350,14 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
     };
 
     return (
-        <section aria-labelledby="copilot-heading" data-testid="assistant-panel" className={cn("rounded-lg border border-foreground/25 bg-card/70 p-4 shadow-[0_24px_60px_-40px_hsl(217_91%_60%/0.6)] sm:p-5", className)}>
+        <section aria-labelledby="copilot-heading" data-testid="assistant-panel" data-busy={busy} className={cn("copilot-shell rounded-lg border border-foreground/25 bg-card/70 p-4 shadow-[0_24px_60px_-40px_hsl(217_91%_60%/0.6)] sm:p-5", busy && "copilot-live", className)}>
             <div className="flex flex-wrap items-center gap-2">
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
-                <h2 id="copilot-heading" className="text-base font-semibold tracking-tight">Ask the Lab Assistant to run an experiment</h2>
+                <h2 id="copilot-heading" className="text-base font-semibold tracking-tight">Ask the AI copilot</h2>
             </div>
             <p className="mt-1 hidden text-xs leading-relaxed text-muted-foreground sm:block">
                 {usesModel
-                    ? "An AI model plans the experiments and the simulator runs them. A check outside the model blocks any number no tool produced."
+                    ? "It plans and runs experiments, answers questions from its notes, and remembers your last experiment, so \u201cwhat about 2 mg?\u201d works. A check outside the model blocks any number no tool produced."
                     : "It runs the simulator's tools and reports what they return. A check outside any language model blocks a number no tool produced."}
             </p>
             {usesModel && (
@@ -291,7 +387,7 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                                 void ask(question);
                             }
                         }}
-                        placeholder="Ask about a drug, a trial design, or how accurate this lab is"
+                        placeholder={PROMPT_HINTS[hint]}
                         className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground"
                     />
                 </div>
@@ -323,7 +419,7 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                             <p className="text-sm font-medium"><span className="sr-only">You asked: </span>{turn.question}</p>
                             <div className="mt-2.5 border-t border-border pt-2.5">
                                 <LiveSteps turn={turn} />
-                                {turn.reply && <Reply turn={turn} reply={turn.reply} provenance={turn.provenance} />}
+                                {turn.reply && <Reply turn={turn} reply={turn.reply} provenance={turn.provenance} onAsk={(text) => void ask(text)} busy={busy} />}
                                 {turn.error && <ErrorCallout error={turn.error} onRetry={() => void ask(turn.question, turn.id)} />}
                                 {!turn.reply && !turn.error && turn.steps.length === 0 && turn.deciding === null && (
                                     <div className="space-y-1">
@@ -351,7 +447,6 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                                   : health ? `Answers come from ${MODE[health.assistant_mode]}.` : "The assistant mode is not known, because the server has not answered."}
                         </p>
                         <p>It refuses questions about your own or someone else&rsquo;s treatment. Please talk to a doctor or pharmacist.</p>
-                        <p>The chat button in the corner is a separate scripted guide to MedBase. It is not an AI model and runs no simulations.</p>
                     </div>
                 </Disclosure>
             </div>

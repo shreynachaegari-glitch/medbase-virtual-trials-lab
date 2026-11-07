@@ -35,6 +35,8 @@ LANGUAGE = (
     "ఈ సహాయకం ఆంగ్ల పరిశోధన ప్రశ్నలకు మాత్రమే, చికిత్స సలహా ఇవ్వదు. దయచేసి వైద్యుడిని లేదా ఫార్మసిస్టును సంప్రదించండి। "
     "இந்த உதவியாளர் ஆங்கில ஆய்வுக் கேள்விகளுக்கு மட்டுமே; சிகிச்சை ஆலோசனை தராது. மருத்துவரையோ மருந்தாளரையோ அணுகவும்."
 )
+OFF_TOPIC = (URGENT_LINE + "That's outside what this lab covers. I run and explain simulated type 2 diabetes drug trials. "
+             "You could ask 'What is the applied AI in this lab?', 'How accurate is this lab?', or 'Compare semaglutide 1 mg with empagliflozin 25 mg over 30 weeks'.")
 SCOPE = (
     URGENT_LINE +
     "I only run and explain simulated trials, so I can't answer questions about taking or choosing a medicine. If this is about anyone's own care, please ask a doctor or pharmacist. "
@@ -260,6 +262,36 @@ _NOT_A_CLAIM = re.compile(
 )
 
 
+_ABOUT_THE_PRODUCT = re.compile(
+    r"^\W*(?:"
+    r"(?:is|are|does|do|will|where|who|what|how|can)\b[a-z\s']*\b(?:my|our) (?:data|questions?|messages?|chats?|information|info|privacy|conversations?)\b[a-z\s']*"
+    r"|(?:do|does|will|can) (?:you|it|this|the site) (?:store|save|keep|log|share|see|read) (?:what i (?:type|ask)|anything about me)(?: or anything about me)?"
+    r"|(?:can|could|will|would) you (?:please )?(?:run|do|simulate|design) (?:a |an |the |some )?(?:virtual |simulated )?(?:trial|simulation|study|experiment)s?(?: for me)?"
+    r"|(?:how do i|how can i|where do i) (?:start|begin|use (?:this|it|the (?:site|website|lab|tool|copilot|chatbot|assistant))|(?:run|start|launch) (?:a |an |the )?(?:virtual |simulated )?(?:trial|simulation|experiment|study)s?)(?: here| on here| on this site)?(?:,? step by step)?"
+    r"|(?:walk|take) me through (?:what happens (?:after|when) i (?:type|ask) (?:a )?question(?: into the (?:chatbot|copilot|assistant))?|how (?:this|it|the site|the copilot) works)"
+    r"|how is python running (?:inside|in) my browser"
+    r")\W*$", re.I)
+# The words a question about the site is allowed to use. Whatever is left must pass the personal rules on its own.
+_PRODUCT_WORDS = re.compile(
+    r"\b(?:my|our) (?:data|questions?|messages?|chats?|information|info|privacy|conversations?|browser)\b|\bwhat i (?:type|ask)\b|\babout me\b|\bfor me\b"
+    r"|\b(?:do|does|will|can|could|would) (?:you|it|this)\b|\bhow (?:do|can) i\b|\bwhere do i\b|\b(?:walk|take) me through\b|\bwhen i (?:type|ask)\b|\bafter i (?:type|ask)\b", re.I)
+_HEALTH_WORD = re.compile(
+    r"\b(sugar|glucose|a1c|hba1c|insulin|diabet\w*|dos[ae]\w*|medicines?|medications?|health|reports?|lab|labs|blood|kidneys?|egfr|bad|good|okay|ok|high|low|normal|"
+    r"pills?|tablets?|pens?|injections?|jabs?|taking|take|took|stop\w*|switch\w*|feel\w*|sick|ill|pain\w*|pregnan\w*|treatment|doctor|drugs?|symptoms?)\b", re.I)
+_ASKS_FOR_THE_PROMPT = re.compile(r"\b(system|hidden|initial|secret) (prompt|instructions?|message)\b|\byour (prompt|instructions|rules) (word|verbatim|exactly)\b|\b(print|show|reveal|repeat|leak)\b.*\byour (prompt|instructions|rules)\b", re.I)
+
+
+def _about_the_product(normal: str) -> bool:
+    """"Is my data stored?" asks about the site. A closed list of phrasings only: a health word, a drug or a person makes it personal again."""
+    if not _ABOUT_THE_PRODUCT.match(normal) or _HEALTH_WORD.search(normal) or _names_a_drug(normal):
+        return False
+    return not any(p.search(_PRODUCT_WORDS.sub(" ", normal)) for p in _PERSONAL)
+
+
+def about_the_product(text: str) -> bool:
+    return _about_the_product(" ".join(_normalise(text).replace("_", " ").split()))
+
+
 def classify(text: str) -> str:
     """One of emergency, language, personal, unsupported, safety, scope, chat or research. Only research reaches a provider."""
     folded = _normalise(text)
@@ -270,6 +302,10 @@ def classify(text: str) -> str:
     normal = " ".join(folded.replace("_", " ").split())
     if _is_urgent(normal):
         return "emergency"
+    if _ASKS_FOR_THE_PROMPT.search(normal):
+        return "personal"
+    if _about_the_product(normal):
+        return "chat"
     plain = _without_research_phrases(normal)
     if any(p.search(plain) for p in _PERSONAL):
         return "personal"

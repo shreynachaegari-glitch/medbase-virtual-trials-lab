@@ -25,12 +25,12 @@ test("the MedBase home page stays reachable from the logo", async ({ page }) => 
     await page.route("https://cdn.jsdelivr.net/**", (route) => route.abort("failed"));
     await page.goto("/trials/");
     await page.getByRole("link", { name: /MedBase/ }).first().click();
-    await expect(page).toHaveURL(/\/home$/);
-    await expect(page.getByRole("heading", { level: 1 })).not.toContainText("simulated type 2 diabetes drug trial");
+    await expect(page).toHaveURL(/\/trials$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("simulated type 2 diabetes drug trial");
 });
 
 test("other top-level pages open directly", async ({ request }) => {
-    for (const path of ["/lab/", "/home/", "/learn/", "/evidence/", "/methods/", "/funding/", "/anatomy/"]) {
+    for (const path of ["/lab/", "/home/", "/evidence/", "/methods/", "/funding/", "/anatomy/"]) {
         expect((await request.get(path)).status(), path).toBe(200);
     }
 });

@@ -14,6 +14,7 @@ import type { SimulatedDesign, TrialResponse, ValidationReport } from "@/lib/tri
 import { cn } from "@/lib/utils";
 import { CheckBadge, ErrorCallout, RunProgress } from "@/components/trials/bits";
 import { AssistantPanel } from "@/components/trials/AssistantPanel";
+import { AiStack } from "@/components/trials/AiStack";
 import { EngineBanner, EnginePill, ModeBadge } from "@/components/trials/EngineStatus";
 import { DesignerSection } from "@/components/trials/DesignerSection";
 import { PowerTab } from "@/components/trials/PowerTab";
@@ -254,14 +255,15 @@ const TrialsPage = () => {
 
             <main className="flex-1">
                 <div className="relative overflow-hidden border-b border-border">
+                    <div className="aurora pointer-events-none absolute inset-0" aria-hidden="true" />
                     <div className="grid-field grid-fade pointer-events-none absolute inset-0" aria-hidden="true" />
                     <div className="relative mx-auto max-w-[1400px] px-4 pb-8 pt-3 sm:px-6 sm:pt-6 lg:pt-8">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                            <p className="label-caps">Virtual Trials</p>
+                            <p className="label-caps">Applied AI for drug trials</p>
                             <ModeBadge />
                         </div>
-                        <h1 className="mt-2 max-w-4xl text-[1.6rem] font-semibold leading-[1.12] tracking-tight sm:mt-3 sm:text-4xl">
-                            Run a simulated type 2 diabetes drug trial now, and see how far to trust it.
+                        <h1 className="text-balance mt-2 max-w-4xl text-[1.6rem] font-semibold leading-[1.12] tracking-tight sm:mt-3 sm:text-4xl">
+                            Run a simulated type 2 diabetes drug trial now, and <span className="text-ai">see how far to trust it.</span>
                         </h1>
                         <p className="mt-1.5 max-w-3xl text-sm leading-snug text-muted-foreground sm:mt-2 sm:leading-relaxed">
                             Virtual patients built from real lab results. Ask a question, or move a slider.
@@ -271,7 +273,8 @@ const TrialsPage = () => {
                         </div>
                         <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
                             <AssistantPanel health={healthData} />
-                            <SurrogateExplorer onRunFull={onRunFull} full={fullState} />
+                            <div className="min-w-0 lg:row-span-2"><SurrogateExplorer onRunFull={onRunFull} full={fullState} /></div>
+                            <div className="min-w-0 lg:col-start-1 lg:row-start-2"><AiStack /></div>
                         </div>
                         {/* Below the panels: the prompt and sliders come first, and this happens in the background. */}
                         <div className="mt-3 space-y-2 empty:hidden">

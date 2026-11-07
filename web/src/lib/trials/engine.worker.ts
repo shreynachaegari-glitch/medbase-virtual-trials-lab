@@ -8,7 +8,8 @@
 interface PyProxyModule {
     use_labs_file: (path: string) => void;
     handle: (method: string, path: string, body: string | null) => string;
-    session_start: (question: string) => string;
+    session_start: (question: string, previous: string) => string;
+    session_vector: (vector: string) => string;
     session_tool: (name: string, args: string) => string;
     session_finish: (text: string | null, failed?: boolean) => string;
 }
@@ -138,6 +139,7 @@ const start = async (engineUrl: string, indexUrl: string): Promise<void> => {
 };
 
 const MAX_QUESTION = 2000;
+const EMBED_TIMEOUT_MS = 8_000;
 /** The proxy gives NVIDIA 50 s, and its host allows 60 s. */
 const PROXY_TIMEOUT_MS = 58_000;
 
@@ -147,6 +149,7 @@ interface ToolCall {
 }
 
 interface SessionStart {
+    embed?: string;
     done?: unknown;
     messages?: unknown[];
     tools?: unknown[];
@@ -162,14 +165,27 @@ const toolFailed = (result: string): boolean => {
     }
 };
 
+/** A question's embedding as JSON, or "" if the service can't give one, in which case the keyword index searches instead. */
+const embedQuestion = async (proxyUrl: string, text: string): Promise<string> => {
+    try {
+        const response = await fetch(proxyUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ embed: text }), signal: AbortSignal.timeout(EMBED_TIMEOUT_MS) });
+        if (!response.ok) return "";
+        const { vector } = (await response.json()) as { vector?: unknown };
+        return Array.isArray(vector) ? JSON.stringify(vector) : "";
+    } catch {
+        return "";
+    }
+};
+
 /**
  * The AI plans and asks; the engine computes and has the last word. No key is ever in the browser: only the
  * proxy holds one. Any network or proxy failure hands the question to the offline planner, which still answers.
  */
 const askModel = async (id: number, api: PyProxyModule, proxyUrl: string, body: string): Promise<string> => {
-    const { question } = JSON.parse(body) as { question?: unknown };
+    const { question, previous } = JSON.parse(body) as { question?: unknown; previous?: unknown };
     if (typeof question !== "string" || question.trim() === "" || question.length > MAX_QUESTION) return api.handle("POST", "/api/assistant", body);
-    const start = JSON.parse(api.session_start(question)) as SessionStart;
+    let start = JSON.parse(api.session_start(question, typeof previous === "string" ? previous.slice(0, MAX_QUESTION) : "")) as SessionStart;
+    if (start.embed !== undefined) start = JSON.parse(api.session_vector(await embedQuestion(proxyUrl, start.embed))) as SessionStart;
     const reply = (done: unknown) => JSON.stringify({ status: 200, body: done });
     if (start.done !== undefined) return reply(start.done);
 

@@ -473,7 +473,7 @@ const AnatomyPage = () => {
                                 {info.related.map((id) => {
                                     const d = getDiseaseById(id);
                                     return d ? (
-                                        <Link key={id} to={`/learn/${id}`} className="text-xs text-sky-300 hover:underline">
+                                        <Link key={id} to={`/conditions/${id}`} className="text-xs text-sky-300 hover:underline">
                                             {d.name}
                                         </Link>
                                     ) : null;

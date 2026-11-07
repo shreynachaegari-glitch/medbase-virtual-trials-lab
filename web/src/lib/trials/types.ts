@@ -270,6 +270,16 @@ export interface AssistantReply {
     tool_calls: { tool: string; ok: boolean }[];
     guard_note: string | null;
     sent_to_provider: boolean;
+    /** The full question, when this one was a follow-up such as "what about 2 mg?". */
+    interpreted_as?: string | null;
+    /** The notes vector search found, best first. */
+    sources?: { title: string; score: number }[];
+    /** How the notes were found: by meaning with neural embeddings, or by wording with keyword vectors. */
+    retrieval?: "neural" | "keyword" | null;
+    /** What really happened to this question, step by step. */
+    trace?: { stage: string; detail: string }[];
+    /** Next questions the copilot can really do. */
+    suggestions?: string[];
 }
 
 export interface DoseResult {
