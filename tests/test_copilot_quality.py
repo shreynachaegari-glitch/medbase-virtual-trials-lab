@@ -309,3 +309,39 @@ def test_a_personal_question_cannot_pass_as_a_question_about_the_site(question):
 ])
 def test_real_questions_about_the_site_still_work(question):
     assert guard.classify(question) == "chat", question
+
+
+def _db_scores(row_title):
+    notes = knowledge._notes()
+    saved = knowledge._note_vectors()
+    row = [title for title, _ in notes].index(row_title)
+    return saved[row], {title: float(saved[i] @ saved[row]) for i, (title, _) in enumerate(notes)}
+
+
+def test_scores_from_the_vector_database_give_the_same_notes_as_numpy():
+    vector, scores = _db_scores("RAG")
+    assert knowledge.search("What is RAG?", vector=vector, scores=scores) == knowledge.search("What is RAG?", vector=vector)
+
+
+def test_a_reply_says_when_the_vector_database_found_its_notes():
+    vector, scores = _db_scores("RAG")
+    session = assistant.BrowserSession("What is RAG?", wants_vector=True)
+    session.start()
+    assert "messages" in session.resume_with_vector(json.dumps(vector.tolist()), json.dumps({"scores": scores, "query_ms": 2.5}))
+    done = session.finish("RAG means retrieval-augmented generation.")["done"]
+    assert done["retrieval"] == "pgvector" and done["query_ms"] == 2.5
+    assert "pgvector" in next(step["detail"] for step in done["trace"] if step["stage"] == "Vector search")
+
+
+@pytest.mark.parametrize("stored", ["", json.dumps({"scores": {"RAG": 0.9}, "query_ms": 1}), json.dumps({"scores": "nope"}), json.dumps({"scores": {"RAG": "x"}})])
+def test_a_missing_or_partial_database_reply_falls_back_to_numpy(stored):
+    vector, _ = _db_scores("RAG")
+    session = assistant.BrowserSession("What is RAG?", wants_vector=True)
+    session.start()
+    assert "messages" in session.resume_with_vector(json.dumps(vector.tolist()), stored)
+    done = session.finish("RAG means retrieval-augmented generation.")["done"]
+    assert done["retrieval"] == "neural" and done["query_ms"] is None
+
+
+def test_the_note_about_vector_search_says_what_really_runs():
+    assert "pgvector" in dict(knowledge._notes())["Vector search"]

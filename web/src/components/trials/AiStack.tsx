@@ -36,8 +36,8 @@ const layersFrom = (s: AiStats | null): Layer[] => [
     },
     {
         icon: Search,
-        name: "Copilot and vector search",
-        role: "A language model plans experiments, or answers from notes found by neural search.",
+        name: "Copilot and vector database",
+        role: "A language model plans experiments, or answers from notes in a pgvector database running in your browser.",
         metric: s?.retrieval
             ? { value: s.retrieval.hit_at_3 * 100, suffix: "%", caption: `of ${s.retrieval.questions} held-out questions found the right note in the top 3` }
             : s?.copilot ? { value: s.copilot.right_tool, suffix: ` of ${s.copilot.questions}`, caption: "live questions chose the right tool" } : null,

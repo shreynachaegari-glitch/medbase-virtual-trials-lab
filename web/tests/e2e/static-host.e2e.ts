@@ -8,7 +8,16 @@ import { watchConsole } from "./mock-api";
  */
 test.skip(!process.env.MEDLAB_STATIC, "needs a plain file server: set MEDLAB_STATIC=1 and MEDLAB_BASE_URL");
 
-for (const path of ["/", "/index.html", "/trials", "/trials/", "/trials/index.html", "/trials/?tab=proof"]) {
+for (const path of ["/", "/index.html"]) {
+    test(`opening ${path} lands on the home page`, async ({ page }) => {
+        await page.route("https://cdn.jsdelivr.net/**", (route) => route.abort("failed"));
+        await page.goto(path);
+        await expect(page.getByRole("heading", { level: 1 })).toContainText("virtual patients");
+        await expect(page.getByTestId("home-start")).toBeVisible();
+    });
+}
+
+for (const path of ["/trials", "/trials/", "/trials/index.html", "/trials/?tab=proof"]) {
     test(`opening ${path} lands on the lab`, async ({ page }) => {
         const problems = watchConsole(page);
         // The download is covered elsewhere. This is about reaching the page.
@@ -21,12 +30,12 @@ for (const path of ["/", "/index.html", "/trials", "/trials/", "/trials/index.ht
     });
 }
 
-test("the MedBase home page stays reachable from the logo", async ({ page }) => {
+test("the logo leads to the home page", async ({ page }) => {
     await page.route("https://cdn.jsdelivr.net/**", (route) => route.abort("failed"));
     await page.goto("/trials/");
     await page.getByRole("link", { name: /MedBase/ }).first().click();
-    await expect(page).toHaveURL(/\/trials$/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("simulated type 2 diabetes drug trial");
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("virtual patients");
 });
 
 test("other top-level pages open directly", async ({ request }) => {

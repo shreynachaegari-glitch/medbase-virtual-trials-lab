@@ -1,0 +1,12 @@
+{
+ "database": "PostgreSQL 18.6 (PGlite 0.5.15)",
+ "pgvector": "0.8.7",
+ "notes": 71,
+ "questions": 184,
+ "same_notes_as_numpy": 184,
+ "same_order_as_numpy": 184,
+ "largest_score_difference": 0.0,
+ "start_and_load_ms": 1206,
+ "median_query_ms": 4.33,
+ "ran_under": "Node, the same WebAssembly build the browser loads"
+}

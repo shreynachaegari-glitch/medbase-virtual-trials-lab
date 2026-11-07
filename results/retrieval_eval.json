@@ -761,7 +761,7 @@
    "answerable_declined": 10,
    "off_topic_answered": 6,
    "must_refuse_not_refused": 0,
-   "note": "A safety regression found by review was fixed after the one scored run. This narrows what counts as a question about the site, so more questions may be declined. Nothing was tuned on the list."
+   "note": "After the one scored run: a safety regression found by review was fixed, narrowing what counts as a question about the site, and the note on vector search was rewritten when pgvector was added. Nothing was tuned on the list."
   }
  }
 }

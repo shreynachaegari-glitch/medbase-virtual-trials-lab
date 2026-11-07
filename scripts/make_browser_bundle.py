@@ -1,4 +1,5 @@
 """Writes web/public/engine/: everything the in-browser engine loads. Raw survey files are not included."""
+import base64
 import json
 import shutil
 import zipfile
@@ -6,6 +7,7 @@ from pathlib import Path
 
 from medlab import population as pop
 from medlab import safety
+from medlab.agent import knowledge
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "web" / "public" / "engine"
@@ -27,5 +29,12 @@ for nct in trials:
     # Only what the safety table reads. This is a TRAIN record, so nothing sealed is shipped.
     slim = {"protocolSection": {"identificationModule": record["protocolSection"]["identificationModule"]}, "resultsSection": {"adverseEventsModule": record["resultsSection"]["adverseEventsModule"]}}
     (OUT / f"{nct}.json").write_text(json.dumps(slim))
+note_vectors = knowledge._note_vectors()
+if note_vectors is None:
+    raise SystemExit("note_vectors.json does not match the notes: run scripts/embed_notes.py")
+(OUT / "note_vectors.json").write_text(json.dumps({
+    "titles": [title for title, _ in knowledge._notes()], "dimensions": note_vectors.shape[1],
+    "vectors": base64.b64encode(note_vectors.astype("<f4").tobytes()).decode("ascii"),
+}))
 (OUT / "manifest.json").write_text(json.dumps({"trials": trials, "results": [n for n in ("posterior.json", "validation.json") if (OUT / n).exists()], "pyodide": "314.0.7", "packages": ["numpy", "scipy", "pandas", "scikit-learn", "pydantic"]}, indent=1))
 print(sorted(p.name for p in OUT.iterdir()), sum(p.stat().st_size for p in OUT.iterdir()) // 1024, "KB")

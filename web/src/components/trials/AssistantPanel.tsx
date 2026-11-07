@@ -181,11 +181,19 @@ const Trace = ({ steps }: { steps: NonNullable<AssistantReply["trace"]> }) => {
 };
 
 /** The notes vector search found, with their real match scores. */
-const Sources = ({ sources, retrieval }: { sources: NonNullable<AssistantReply["sources"]>; retrieval: AssistantReply["retrieval"] }) => {
+const RETRIEVAL_LABEL: Record<string, string> = {
+    pgvector: "Vector database: pgvector, running in your browser",
+    neural: "Notes found by meaning, with neural embeddings",
+    keyword: "Notes found by wording, with keyword vectors",
+};
+const VECTOR_QUERY = "SELECT title, 1 - (embedding <=> $1) AS score FROM notes ORDER BY embedding <=> $1";
+
+const Sources = ({ sources, retrieval, queryMs }: { sources: NonNullable<AssistantReply["sources"]>; retrieval: AssistantReply["retrieval"]; queryMs: AssistantReply["query_ms"] }) => {
     const reduce = useReducedMotion();
     return (
         <div className="mt-3" data-testid="assistant-sources">
-            <p className="label-caps">{retrieval === "neural" ? "Notes found by meaning, with neural embeddings" : "Notes found by wording, with keyword vectors"}</p>
+            <p className="label-caps">{RETRIEVAL_LABEL[retrieval ?? "keyword"]}{typeof queryMs === "number" && <span className="tnum"> &middot; {queryMs.toFixed(1)} ms</span>}</p>
+            {retrieval === "pgvector" && <code data-testid="vector-query" className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-[10px] text-muted-foreground">{VECTOR_QUERY}</code>}
             <ul className="mt-1.5 space-y-1">
                 {sources.map((source) => (
                     <li key={source.title} className="grid grid-cols-[minmax(0,1fr)_4.5rem_2.25rem] items-center gap-2 text-xs">
@@ -247,7 +255,7 @@ const Reply = ({ turn, reply, provenance, onAsk, busy }: { turn: Turn; reply: As
                 <p data-testid="assistant-interpreted" className="mt-2 text-xs text-muted-foreground">Understood as: <span className="text-foreground">{reply.interpreted_as}</span></p>
             )}
             {reply.trace && reply.trace.length > 0 && <Trace steps={reply.trace} />}
-            {(reply.sources?.length ?? 0) > 0 && <Sources sources={reply.sources ?? []} retrieval={reply.retrieval} />}
+            {(reply.sources?.length ?? 0) > 0 && <Sources sources={reply.sources ?? []} retrieval={reply.retrieval} queryMs={reply.query_ms} />}
             {reply.guard_note && (
                 <p data-testid="assistant-guard" className="mt-2 flex items-start gap-2 rounded-md border border-[hsl(var(--prov-extrapolated))]/50 bg-[hsl(var(--prov-extrapolated))]/10 p-2.5 text-xs leading-relaxed">
                     <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--prov-extrapolated))]" aria-hidden="true" />
@@ -274,7 +282,7 @@ const Reply = ({ turn, reply, provenance, onAsk, busy }: { turn: Turn; reply: As
                     </ul>
                 </div>
             )}
-            {showTools && toolsRun.length === 0 && reply.source !== "refusal" && (
+            {showTools && toolsRun.length === 0 && reply.source !== "refusal" && (reply.sources?.length ?? 0) === 0 && (
                 <p className="mt-3 text-xs text-muted-foreground">No tools ran for this reply, so it contains no simulator results.</p>
             )}
             {(reply.suggestions?.length ?? 0) > 0 && (

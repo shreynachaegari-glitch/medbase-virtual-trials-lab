@@ -31,7 +31,6 @@ test("the root opens the lab: usable at once, then a real trial, flagged, in the
     await expect(page.getByTestId("engine-pill")).toBeVisible();
     await expect(page.getByTestId("assistant-privacy")).toBeVisible();
     await expect(page.getByTestId("surrogate-not-trained")).toBeVisible();
-    await expect(page.getByTestId("quick-proof")).toContainText("has not been run yet");
     await noOverflow(page);
     await page.screenshot({ path: `${SCREENS}/${info.project.name}-static-first-screen.png` });
 

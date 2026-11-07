@@ -108,8 +108,7 @@ test.describe("with the API up", () => {
         // The copilot is on screen here, so nothing in the corner competes with it.
         await expect(page.getByTestId("copilot-launcher")).toHaveCount(0);
         await expect(page.getByRole("heading", { level: 1 })).toContainText("simulated");
-        await expect(page.getByTestId("quick-proof")).toContainText("V3");
-        await expect(page.getByTestId("quick-proof").locator('[data-state="fail"]')).toHaveText("FAIL");
+        await expect(page.getByTestId("quick-proof")).toHaveCount(0);
         await expect(page.getByTestId("surrogate")).toBeVisible();
         expect(page.locator("#designer")).toBeTruthy();
         await shot(page, "first-screen", info.project.name, false);
@@ -817,6 +816,20 @@ test("the older Lab carries the new cautions, and nothing asks anyone to sign in
     const firstLink = page.getByRole("navigation", { name: "Main" }).getByRole("link").first();
     await expect(firstLink).toHaveText("Virtual Trials");
     await expect(firstLink).toHaveAttribute("href", "/trials");
+});
+
+test("the home page says what the site does and leads to the trials", async ({ page }) => {
+    await mockApi(page);
+    await page.route(/^https?:\/\/(?!localhost)/, (route) => route.abort());
+    await page.goto("/home");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("virtual patients");
+    await expect(page.getByTestId("home-action")).toHaveCount(4);
+    await expect(page.getByTestId("home-flow")).toBeVisible();
+    await expect(page.getByTestId("home-limits")).toContainText("did not clearly beat a simple rival");
+    await expect(page.locator("body")).toContainText("Research and education only");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    await page.getByTestId("home-start").click();
+    await expect(page).toHaveURL(/\/trials$/);
 });
 
 test("Learn has moved into Anatomy, and old links still arrive", async ({ page }, info) => {

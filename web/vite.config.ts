@@ -34,6 +34,8 @@ export default defineConfig({
   build: { outDir: process.env.MEDBASE_OUT_DIR ?? 'dist' },
   // A module worker, because the engine worker imports Pyodide from its CDN at run time.
   worker: { format: 'es' },
+  // PGlite finds its WebAssembly beside its own script, which the dependency optimiser would break.
+  optimizeDeps: { exclude: ['@electric-sql/pglite', '@electric-sql/pglite-pgvector'] },
   server: { proxy },
   preview: { proxy },
   resolve: {

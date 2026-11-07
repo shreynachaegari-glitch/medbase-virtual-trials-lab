@@ -36,7 +36,7 @@ const Header = () => {
     return (
         <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
             <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 px-4 sm:px-6">
-                <Link to="/" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
+                <Link to={import.meta.env.VITE_LANDING ?? "/"} className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
                     <span className="text-[15px] font-semibold tracking-tight">MedBase</span>
                     <span className="label-caps hidden sm:inline lg:hidden xl:inline">Virtual Laboratory</span>
                 </Link>

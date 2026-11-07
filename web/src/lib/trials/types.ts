@@ -275,7 +275,9 @@ export interface AssistantReply {
     /** The notes vector search found, best first. */
     sources?: { title: string; score: number }[];
     /** How the notes were found: by meaning with neural embeddings, or by wording with keyword vectors. */
-    retrieval?: "neural" | "keyword" | null;
+    retrieval?: "pgvector" | "neural" | "keyword" | null;
+    /** How long the vector database took, measured in this browser. */
+    query_ms?: number | null;
     /** What really happened to this question, step by step. */
     trace?: { stage: string; detail: string }[];
     /** Next questions the copilot can really do. */

@@ -9,7 +9,7 @@ interface PyProxyModule {
     use_labs_file: (path: string) => void;
     handle: (method: string, path: string, body: string | null) => string;
     session_start: (question: string, previous: string) => string;
-    session_vector: (vector: string) => string;
+    session_vector: (vector: string, stored: string) => string;
     session_tool: (name: string, args: string) => string;
     session_finish: (text: string | null, failed?: boolean) => string;
 }
@@ -133,6 +133,9 @@ const start = async (engineUrl: string, indexUrl: string): Promise<void> => {
         browser.use_labs_file("/app/data/labs.csv");
         engine = browser;
         post({ type: "ready", seconds: (performance.now() - startedAt) / 1000, bytes });
+        engineBase = new URL(engineUrl, self.location.href).href;
+        // Warmed in the background, so the first question doesn't wait. A failure here only means the numpy fallback answers.
+        void import("./vectorDb").then(({ openVectorDb }) => openVectorDb(engineBase as string)).catch(() => undefined);
     } finally {
         restore();
     }
@@ -140,6 +143,7 @@ const start = async (engineUrl: string, indexUrl: string): Promise<void> => {
 
 const MAX_QUESTION = 2000;
 const EMBED_TIMEOUT_MS = 8_000;
+let engineBase: string | null = null;
 /** The proxy gives NVIDIA 50 s, and its host allows 60 s. */
 const PROXY_TIMEOUT_MS = 58_000;
 
@@ -177,6 +181,17 @@ const embedQuestion = async (proxyUrl: string, text: string): Promise<string> =>
     }
 };
 
+/** The database's score for every note as JSON, or "" if it isn't available, in which case the engine does the same sum in numpy. */
+const askVectorDb = async (embedding: string): Promise<string> => {
+    if (!embedding || !engineBase) return "";
+    try {
+        const { scoreNotes } = await import("./vectorDb");
+        return JSON.stringify(await scoreNotes(engineBase, embedding));
+    } catch {
+        return "";
+    }
+};
+
 /**
  * The AI plans and asks; the engine computes and has the last word. No key is ever in the browser: only the
  * proxy holds one. Any network or proxy failure hands the question to the offline planner, which still answers.
@@ -185,7 +200,10 @@ const askModel = async (id: number, api: PyProxyModule, proxyUrl: string, body: 
     const { question, previous } = JSON.parse(body) as { question?: unknown; previous?: unknown };
     if (typeof question !== "string" || question.trim() === "" || question.length > MAX_QUESTION) return api.handle("POST", "/api/assistant", body);
     let start = JSON.parse(api.session_start(question, typeof previous === "string" ? previous.slice(0, MAX_QUESTION) : "")) as SessionStart;
-    if (start.embed !== undefined) start = JSON.parse(api.session_vector(await embedQuestion(proxyUrl, start.embed))) as SessionStart;
+    if (start.embed !== undefined) {
+        const embedding = await embedQuestion(proxyUrl, start.embed);
+        start = JSON.parse(api.session_vector(embedding, await askVectorDb(embedding))) as SessionStart;
+    }
     const reply = (done: unknown) => JSON.stringify({ status: 200, body: done });
     if (start.done !== undefined) return reply(start.done);
 

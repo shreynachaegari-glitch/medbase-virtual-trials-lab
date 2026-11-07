@@ -1,8 +1,13 @@
 [
  {
+  "name": "the site opens on the home page, which says what it does",
+  "ok": true,
+  "detail": "http://127.0.0.1:8765/#/home"
+ },
+ {
   "name": "engine loads in the browser",
   "ok": true,
-  "detail": "23.0s"
+  "detail": "39.8s"
  },
  {
   "name": "Virtual Trials is the first page and the first link",
@@ -17,7 +22,7 @@
  {
   "name": "Applied AI panel shows six layers with real figures",
   "ok": true,
-  "detail": "Applied AISix layers between your question and the answerSafety guardRules run first. Personal and urgent messages stop here.0 of 414personal messages reached a simulation, on lists it was tuned onCopilot and vector searchA language model p"
+  "detail": "Applied AISix layers between your question and the answerSafety guardRules run first. Personal and urgent messages stop here.0 of 414personal messages reached a simulation, on lists it was tuned onCopilot and vector databaseA language model"
  },
  {
   "name": "real trial runs",
@@ -37,7 +42,7 @@
  {
   "name": "designer shows surrogate guidance",
   "ok": true,
-  "detail": "7.9s A trained neural surrogate chose where to startIt screened 400 doses in 3.2 ms and proposed 0.192 mg/week, predicting -1 points. The simulator then checked 3 doses, and every number below comes from the simulat"
+  "detail": "7.9s A trained neural surrogate chose where to startIt screened 400 doses in 5.6 ms and proposed 0.192 mg/week, predicting -1 points. The simulator then checked 3 doses, and every number below comes from the simulat"
  },
  {
   "name": "designer found or explained a design",
@@ -57,7 +62,7 @@
  {
   "name": "simulator race shows real timings",
   "ok": true,
-  "detail": "0.01 ms vs 5.3 s: About 350,000 times faster"
+  "detail": "0.03 ms vs 4.9 s: About 160,000 times faster"
  },
  {
   "name": "prediction chart shows real counts",
@@ -77,12 +82,17 @@
  {
   "name": "basic question answered through retrieval and the real proxy",
   "ok": true,
-  "detail": "4.0s [AI model (NVIDIA NIM), answering only from the notes below] AI model (NVIDIA NIM), answering only from the notes belowSemaglutide is a GLP-1 receptor agonist that increases insulin release when glucose is high,"
+  "detail": "3.3s [AI model (NVIDIA NIM), answering only from the notes below] AI model (NVIDIA NIM), answering only from the notes belowSemaglutide is a GLP-1 receptor agonist that increases insulin release when glucose is high,"
+ },
+ {
+  "name": "the vector database answered, and shows its query",
+  "ok": true,
+  "detail": "Vector database: pgvector, running in your browser · 7.0 msSELECT title, 1 - (embedding <="
  },
  {
   "name": "a paraphrase finds its note by meaning",
   "ok": true,
-  "detail": "1.6s [AI model (NVIDIA NIM), answering only from the notes below] Notes found by meaning, with neural embeddingsSulfonylurea0.51SGLT20.47Biguanide0.45 AI model (NVIDIA NIM), answering only from the notes belowSGLT2 inhibitors block a kidney protein that normally reabsorbs glucose, so more sugar leaves the body"
+  "detail": "2.4s [AI model (NVIDIA NIM), answering only from the notes below] Vector database: pgvector, running in your browser · 7.0 msSELECT title, 1 - (embedding <=> $1) AS score FROM notes ORDER BY embedding <=> $1Sulfonylurea0.51SGLT20.47Biguanide0.45 AI model (NVIDIA NIM), answering only from the notes belowSGLT2 inhibitors, such as empagliflozin, block the SGLT2 protein that the kidneys use to reabsorb gluc"
  },
  {
   "name": "the answer shows its real trace and next questions",
@@ -97,12 +107,12 @@
  {
   "name": "a simulation question runs",
   "ok": true,
-  "detail": "13.1s [AI model (NVIDIA NIM), figures checked against the simulator]"
+  "detail": "55.4s [Offline planner, in place of the AI's reply]"
  },
  {
   "name": "a follow-up carries the last experiment",
   "ok": true,
-  "detail": "27.0s [Offline planner, in place of the AI's reply] Understood as: Simulate sitagliptin 50 mg against placebo for 26 weeks"
+  "detail": "39.5s [AI model (NVIDIA NIM), figures checked against the simulator] Understood as: Simulate sitagliptin 50 mg against placebo for 26 weeks"
  },
  {
   "name": "copilot gives the code-written failure account",
@@ -112,12 +122,12 @@
  {
   "name": "personal question refused",
   "ok": true,
-  "detail": "0.2s [Refusal]"
+  "detail": "0.1s [Refusal]"
  },
  {
   "name": "unframed drug question gets a fixed reply",
   "ok": true,
-  "detail": "0.1s [Not a simulation]"
+  "detail": "0.2s [Not a simulation]"
  },
  {
   "name": "urgent message gets the emergency reply",
@@ -127,12 +137,12 @@
  {
   "name": "live model answers through the real proxy with caveats appended",
   "ok": true,
-  "detail": "14.5s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorSimulated results for 30 weeks, semaglutide 1 mg versus empagliflozin 25 mg:\n\n- HbA1c: Semaglutide reduced HbA1c by 1.664 percentage points "
+  "detail": "17.2s [AI model (NVIDIA NIM), figures checked against the simulator] AI model (NVIDIA NIM), figures checked against the simulatorIn a 30‑week simulation of semaglutide 1 mg versus empagliflozin 25 mg (each against placebo, 200 per arm, background “any”, eGFR 30‑400):\n\n"
  },
  {
   "name": "AI calls spent",
   "ok": true,
-  "detail": "12"
+  "detail": "10"
  },
  {
   "name": "no console errors",

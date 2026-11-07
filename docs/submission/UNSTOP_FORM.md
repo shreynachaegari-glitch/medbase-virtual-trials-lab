@@ -19,7 +19,8 @@ We also attacked our own safety guard with blind tests and published the results
 - Live AI copilot with visible tool calls, a number guard and a personal-advice refusal
 - Instant neural what-if sliders, raced live against the full simulator
 - Animated chart moving each frozen prediction to the real trial result
-- Ordinary questions answered from neural vector search, with the notes and match scores shown and code checking that the wording came from them
+- A real vector database, PostgreSQL with pgvector, running in the visitor's browser with no server or account
+- Ordinary questions answered from it, with the notes, match scores and live query time shown, and code checking that the wording came from them
 - Follow-ups such as "what about 2 mg?" that carry the last experiment forward, and suggested next questions
 - A live trace of each answer: guard, vector search, simulator, model and checks
 - Blind-test track record beside every simulated result, including misses

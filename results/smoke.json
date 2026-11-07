@@ -1,7 +1,7 @@
 {
  "health": {
   "status": 200,
-  "seconds": 0.06,
+  "seconds": 0.05,
   "body": {
    "ok": true,
    "engine": "server",
@@ -12,7 +12,7 @@
  },
  "validation": {
   "status": 200,
-  "seconds": 0.0,
+  "seconds": 0.01,
   "body": {
    "blind": true,
    "openings": 1,
@@ -692,7 +692,7 @@
  },
  "calibration": {
   "status": 200,
-  "seconds": 0.0,
+  "seconds": 0.01,
   "body": {
    "summary": {
     "tau_a1c": {
@@ -1219,7 +1219,7 @@
  },
  "drugs": {
   "status": 200,
-  "seconds": 0.0,
+  "seconds": 0.01,
   "body": {
    "drugs": [
     {
@@ -1686,7 +1686,7 @@
  },
  "safety_empa": {
   "status": 200,
-  "seconds": 0.0,
+  "seconds": 0.01,
   "body": {
    "drug": "empagliflozin",
    "trial": "NCT01177813",
@@ -2776,7 +2776,7 @@
  },
  "trial_candidate": {
   "status": 200,
-  "seconds": 2.33,
+  "seconds": 2.3,
   "body": {
    "control": "Placebo",
    "weeks": 26,
@@ -3081,7 +3081,7 @@
  },
  "trial_kidney": {
   "status": 200,
-  "seconds": 2.04,
+  "seconds": 2.01,
   "body": {
    "control": "Placebo",
    "weeks": 24,
@@ -3400,7 +3400,7 @@
  },
  "power": {
   "status": 200,
-  "seconds": 2.96,
+  "seconds": 2.99,
   "body": {
    "arm": "Sitagliptin 100 mg/day",
    "control": "Placebo",
@@ -3499,7 +3499,7 @@
  },
  "responders": {
   "status": 200,
-  "seconds": 0.16,
+  "seconds": 0.15,
   "body": {
    "arm": "Empagliflozin 25 mg/day",
    "control": "Placebo",
@@ -3628,7 +3628,7 @@
   {
    "question": "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks",
    "status": 200,
-   "seconds": 4.04,
+   "seconds": 3.99,
    "source": "planner",
    "text": "Interpreted as: semaglutide 1 mg, empagliflozin 25 mg; 30 weeks; 200 per arm. Simulated 30-week trial with 200 patients per arm. Semaglutide 1 mg/week: HbA1c -1.644 points against placebo (95% interval -1.824 to -1.464), weight -4.061 kg; Empagliflozin 25 mg/day: HbA1c -0.815 points against placebo (95% interval -1.073 to -0.634), weight -2.408 kg. Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Kidney behaviour was tested only for empagliflozin at eGFR 30 to 90. Blind test record for semaglutide: Semaglutide phase 2 (12 weeks, 6 results) over-predicted the HbA1c benefit by 0.50 on average: missed; SUSTAIN 2 (56 weeks, 2 results) over-predicted the HbA1c benefit by 0.09 on average: held up. Blind test record for empagliflozin: EMPA-REG MET (24 weeks, 2 results) over-predicted the HbA1c benefit by 0.17 on average: held up; EMPA-REG RENAL (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.02 on average: held up. Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin. Research simulation. Not medical advice and not evidence that a treatment works in any person.\n\nIf this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night.",
    "tools": [
@@ -3638,7 +3638,7 @@
   {
    "question": "How many patients do I need for sitagliptin 100 mg?",
    "status": 200,
-   "seconds": 3.02,
+   "seconds": 3.0,
    "source": "planner",
    "text": "Interpreted as: sitagliptin 100 mg; 26 weeks; 200 per arm. Simulated power for Sitagliptin 100 mg/day against placebo. 25 per arm: 100%, 50 per arm: 100%, 100 per arm: 100%, 200 per arm: 100%, 300 per arm: 100%, 400 per arm: 100%, 500 per arm: 100%. 80% power is first reached at 25 per arm. Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Sitagliptin label: dose is reduced to 50 mg at eGFR 30 to 45, and 25 mg below 30. This run uses a higher dose in part of that range. Kidney behaviour was tested only for empagliflozin at eGFR 30 to 90. Blind test record for sitagliptin: Sitagliptin + metformin factorial (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.35 on average: missed; Sitagliptin monotherapy (24 weeks, 2 results) under-predicted the HbA1c benefit by 0.17 on average: held up. Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.\n\nIf this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night.",
    "tools": [

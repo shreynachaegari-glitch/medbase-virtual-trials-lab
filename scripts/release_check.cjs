@@ -32,6 +32,11 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   });
   let t = Date.now();
   await page.goto(BASE);
+  await page.getByTestId("home-start").waitFor({ timeout: 30000 }).catch(() => {});
+  log("the site opens on the home page, which says what it does", /#\/home$/.test(page.url()) && /virtual patients/.test((await page.locator("h1").first().textContent()) || ""), page.url());
+  await page.screenshot({ path: `${OUT}/home.png` });
+  await page.screenshot({ path: `${OUT}/home-full.png`, fullPage: true });
+  await page.getByTestId("home-start").click();
   await page.getByTestId("engine-ready").waitFor({ timeout: 240000 }).catch(() => {});
   log("engine loads in the browser", await page.getByTestId("engine-ready").isVisible().catch(() => false), secs(t));
   log("Virtual Trials is the first page and the first link", /\/trials/.test(page.url()) && (await page.getByRole("navigation", { name: "Main" }).getByRole("link").first().textContent()) === "Virtual Trials");
@@ -128,7 +133,8 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   await page.screenshot({ path: `${OUT}/copilot-basic-question.png` });
   a = await ask("why do some diabetes drugs make people pee out sugar");
   const notesLabel = await page.getByTestId("assistant-sources").first().textContent().catch(() => "");
-  log("a paraphrase finds its note by meaning", /SGLT2/.test(a.text) && /neural embeddings/.test(notesLabel), `${a.secs} [${a.source}] ${notesLabel} ${a.text.slice(0, 160)}`);
+  log("the vector database answered, and shows its query", (await page.getByTestId("vector-query").first().textContent().catch(() => "")).includes("<=>"), notesLabel.slice(0, 90));
+  log("a paraphrase finds its note by meaning", /SGLT2/.test(a.text) && /pgvector, running in your browser/.test(notesLabel), `${a.secs} [${a.source}] ${notesLabel} ${a.text.slice(0, 160)}`);
   log("the answer shows its real trace and next questions", (await page.getByTestId("assistant-trace").first().textContent().catch(() => "")).includes("Vector search") && (await page.getByTestId("assistant-suggestions").first().locator("button").count()) > 0);
   await panel.screenshot({ path: `${OUT}/copilot-neural-answer.png` });
   a = await ask("What is the capital of France?");

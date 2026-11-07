@@ -25,15 +25,22 @@ const PageFallback = () => (
 );
 
 /**
- * Static hosts may open a page by its file name, and the public demo should open on Virtual Trials,
- * which a static build asks for with VITE_LANDING. The MedBase home page stays reachable at /home.
+ * Static hosts may open a page by its file name, and the public demo opens on the home page, which
+ * explains the site. A static build asks for that with VITE_LANDING.
  */
 const LANDING: string | undefined = import.meta.env.VITE_LANDING;
 
 /** Static hosts return 404 for /trials on a refresh. Hash routes (/#/trials) work on any host. */
 const Router = ({ children }: Pick<BrowserRouterProps, "children">) =>
     LANDING ? <HashRouter>{children}</HashRouter> : <BrowserRouter basename={import.meta.env.BASE_URL}>{children}</BrowserRouter>;
-const root = LANDING ? <Navigate to={LANDING} replace /> : <Index />;
+/** A static host serves this same page at /trials/ and the like, so a direct link still opens the page it names. */
+const OPENED_ROUTE = /^\/(trials|home|lab|anatomy|evidence|methods|funding)(?:\/|\/index\.html)?$/;
+const landingTarget = (): string => {
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const opened = window.location.pathname.slice(base.length).match(OPENED_ROUTE);
+    return opened ? `/${opened[1]}${window.location.search}` : (LANDING as string);
+};
+const root = LANDING ? <Navigate to={landingTarget()} replace /> : <Index />;
 
 /** Links saved from before the Learn page was merged into Anatomy still arrive at the record. */
 const OldConditionLink = () => {

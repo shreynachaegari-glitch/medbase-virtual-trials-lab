@@ -50,9 +50,9 @@ def session_start(question: str, previous: str = "") -> str:
     return json.dumps(_session.start(), default=str)
 
 
-def session_vector(raw: str) -> str:
-    """Carries on after the worker asked the proxy for the question's embedding. An empty string means that failed."""
-    return json.dumps(_session.resume_with_vector(raw or ""), default=str)
+def session_vector(raw: str, stored: str = "") -> str:
+    """Carries on after the worker got the question's embedding and asked the vector database. An empty string means that step failed."""
+    return json.dumps(_session.resume_with_vector(raw or "", stored or ""), default=str)
 
 
 def session_tool(name: str, args_json: str) -> str:

@@ -129,7 +129,8 @@ class Reply:
     passages: list[dict] = field(default_factory=list)  # the notes a model was given, best first
     kind: str = ""  # what the guard called the question
     interpreted_as: str | None = None  # the full question, when this one was a follow-up
-    retrieval: str = ""  # "neural" or "keyword", for what found the notes
+    retrieval: str = ""  # "pgvector", "neural" or "keyword", for what found the notes
+    query_ms: float | None = None  # how long the database query took, as measured where it ran
     question: str = ""
 
 
@@ -511,12 +512,12 @@ def _conversational(question: str) -> Reply | None:
 _MAY_BE_BASIC = {"research", "scope", "chat", "safety"}  # never personal, emergency, language or unsupported
 
 
-def _general(question: str, kind: str, vector=None) -> tuple[Reply | None, list[dict]]:
+def _general(question: str, kind: str, vector=None, scores=None) -> tuple[Reply | None, list[dict]]:
     """For an ordinary question: the fixed answer if one exists, and the notes a model may answer from."""
     if kind == "unsupported":  # what insulin is can be explained, even though the lab can't simulate it
         known = reference.lookup(question)
         if known or (vector is not None and reference.is_general(question)):
-            passages = knowledge.search(question, vector=vector)
+            passages = knowledge.search(question, vector=vector, scores=scores)
             return (Reply(known or passages[0]["text"], "reference"), passages) if (known or passages) else (None, [])
         return None, []
     if kind not in _MAY_BE_BASIC:
@@ -530,7 +531,7 @@ def _general(question: str, kind: str, vector=None) -> tuple[Reply | None, list[
     concept = kind == "research" and _is_concept_question(question)
     by_meaning = kind == "scope" and vector is not None and reference.is_general(question)
     plain_chat = kind == "chat" and (reference.is_general(question) or guard.about_the_product(question))
-    passages = knowledge.search(question, vector=vector) if (known or concept or by_meaning or plain_chat) else []
+    passages = knowledge.search(question, vector=vector, scores=scores) if (known or concept or by_meaning or plain_chat) else []
     if concept and not known and (not passages or (vector is None and passages[0]["score"] < knowledge.STRONG_SCORE)):
         return None, []
     if known:
@@ -655,7 +656,7 @@ def trace_of(reply: Reply) -> list[dict]:
     steps = [{"stage": "Guard", "detail": _STAGE_FOR_KIND.get(reply.kind or "", "Checked before anything else ran")}]
     if reply.passages:
         best = reply.passages[0]
-        how = "By meaning, with neural embeddings" if reply.retrieval == "neural" else "By wording, with keyword vectors"
+        how = {"pgvector": "By meaning, in pgvector running in this browser", "neural": "By meaning, with neural embeddings"}.get(reply.retrieval, "By wording, with keyword vectors")
         steps.append({"stage": "Vector search", "detail": f"{how}: {len(reply.passages)} note{'s' if len(reply.passages) != 1 else ''}. Best match: {best['title']}"})
     ran = [c for c in reply.tool_calls if c.get("ok") and c["tool"] not in _TOOLS_THAT_ARE_NOT_EXPERIMENTS]
     if ran:
@@ -721,6 +722,8 @@ class BrowserSession:
         self.passages: list[dict] = []
         self.wants_vector = wants_vector  # only the browser has a route to an embedding service
         self.vector = None
+        self.store_scores: dict[str, float] | None = None
+        self.query_ms: float | None = None
         self.embedded = False
         self.ledger = _Ledger()
         self.turns = 0
@@ -740,7 +743,7 @@ class BrowserSession:
         if self.wants_vector and _worth_embedding(self.question, kind):
             self.wants_vector = False
             return {"embed": self.question[:knowledge.MAX_EMBEDDED]}
-        self.fallback, passages = _general(self.question, kind, self.vector)
+        self.fallback, passages = _general(self.question, kind, self.vector, self.store_scores)
         self.passages = passages
         if passages:
             self.ledger.record_notes(self.question, passages)
@@ -772,16 +775,24 @@ class BrowserSession:
             return tools.to_text({"error": "tool arguments were not valid JSON"})
         return tools.to_text(self.ledger.run(name, grounded_args(args, self.question)))
 
-    def resume_with_vector(self, raw: str) -> dict:
-        """Carries on after the embedding call. A failed call leaves the keyword index to do the search."""
+    def resume_with_vector(self, raw: str, stored: str = "") -> dict:
+        """Carries on after the embedding call and the database query. Without them, numpy or the keyword index does the search."""
         self.vector = knowledge.parse_vector(raw)
+        answer_from_db = json.loads(stored) if stored else {}
+        self.store_scores = knowledge.parse_scores(json.dumps(answer_from_db.get("scores"))) if self.vector is not None and isinstance(answer_from_db, dict) and answer_from_db else None
+        self.query_ms = answer_from_db.get("query_ms") if self.store_scores else None
         self.embedded = True  # the text left this device even if the answer that came back was unusable
         return self.start()
 
     def _dict(self, reply: Reply) -> dict:
-        retrieval = "neural" if self.vector is not None else "keyword"
+        retrieval = self._retrieval()
         return _reply_dict(replace(reply, kind=self.kind, passages=self.passages, interpreted_as=self.interpreted_as, question=self.question,
-                                   retrieval=retrieval, sent_to_provider=reply.sent_to_provider or self.embedded))
+                                   retrieval=retrieval, query_ms=self.query_ms, sent_to_provider=reply.sent_to_provider or self.embedded))
+
+    def _retrieval(self) -> str:
+        if self.store_scores is not None:
+            return "pgvector"
+        return "neural" if self.vector is not None else "keyword"
 
     def _ask_again(self, request: str) -> dict:
         self.repaired = True
@@ -797,7 +808,7 @@ class BrowserSession:
             return {"done": self._dict(Reply(guard.OFF_TOPIC, "scope", sent_to_provider=True))}
         if not failed and self.passages and _went_beyond_notes(raw, clean, self.passages, ledger):
             log.warning("reply blocked: it went beyond the notes")
-            reply = _beyond_notes_reply(self.fallback, self.passages, "neural" if self.vector is not None else "keyword")
+            reply = _beyond_notes_reply(self.fallback, self.passages, self._retrieval())
             if reply.source != "reference":
                 self.passages = []
             return {"done": self._dict(reply)}
@@ -847,6 +858,7 @@ def _reply_dict(reply: Reply) -> dict:
             "guard_note": reply.guard_note, "sent_to_provider": reply.sent_to_provider, "interpreted_as": reply.interpreted_as,
             "sources": [{"title": p["title"], "score": p["score"]} for p in reply.passages] if reply.source in {"nim", "claude", "reference"} else [],
             "retrieval": (reply.retrieval or None) if reply.passages else None,
+            "query_ms": round(reply.query_ms, 2) if reply.passages and isinstance(reply.query_ms, (int, float)) else None,
             "trace": trace_of(reply), "suggestions": suggestions(reply.question, reply.source)}
 
 

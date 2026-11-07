@@ -6,13 +6,13 @@ import Footer from "@/components/Footer";
 import { useRemote } from "@/hooks/useRemote";
 import { useTransport } from "@/hooks/useTransport";
 import { useSimRun, type SimRequest } from "@/hooks/useSimRun";
-import { ApiError, api, guards, loadSnapshot } from "@/lib/trials/api";
+import { api, guards, loadSnapshot } from "@/lib/trials/api";
 import { ChainContext, NO_CHAIN_STATUS, type ChainStatus } from "@/lib/trials/chain";
-import { checksFrom, egfrLabel } from "@/lib/trials/format";
+import { egfrLabel } from "@/lib/trials/format";
 import { buildDesign, drugArm, formFromDesign, initialForm, PRESETS, savedFilesFor, type DesignForm, type FieldErrors, type Preset, type TrialBody } from "@/lib/trials/form";
-import type { SimulatedDesign, TrialResponse, ValidationReport } from "@/lib/trials/types";
+import type { SimulatedDesign, TrialResponse } from "@/lib/trials/types";
 import { cn } from "@/lib/utils";
-import { CheckBadge, ErrorCallout, RunProgress } from "@/components/trials/bits";
+import { ErrorCallout, RunProgress } from "@/components/trials/bits";
 import { AssistantPanel } from "@/components/trials/AssistantPanel";
 import { AiStack } from "@/components/trials/AiStack";
 import { EngineBanner, EnginePill, ModeBadge } from "@/components/trials/EngineStatus";
@@ -38,24 +38,6 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 const isTab = (v: string | null): v is TabId => TABS.some((t) => t.id === v);
-
-/** The first screen's one line of honesty: how the held-out test went, before anyone scrolls. */
-const QuickProof = ({ report, notRun }: { report: ValidationReport | null; notRun: boolean }) => {
-    if (!report) {
-        return notRun ? <p data-testid="quick-proof" className="text-xs text-muted-foreground">Held-out validation has not been run yet, so no accuracy claim is made.</p> : null;
-    }
-    return (
-        <ul data-testid="quick-proof" className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground" aria-label="Pre-registered checks on held-out real trials">
-            <li>Tested on {report.score.n_contrasts} real held-out contrasts:</li>
-            {checksFrom(report.score, report.pass_marks).map((check) => (
-                <li key={check.id} className="flex items-center gap-1.5" title={check.rule}>
-                    <span className="tnum">{check.id}</span>
-                    <CheckBadge passed={check.passed} />
-                </li>
-            ))}
-        </ul>
-    );
-};
 
 const requestsFor = (form: DesignForm): { requests: SimRequest[]; errors: FieldErrors; key: string } => {
     const { bodies, errors, key } = buildDesign(form);
@@ -268,9 +250,6 @@ const TrialsPage = () => {
                         <p className="mt-1.5 max-w-3xl text-sm leading-snug text-muted-foreground sm:mt-2 sm:leading-relaxed">
                             Virtual patients built from real lab results. Ask a question, or move a slider.
                         </p>
-                        <div className="mt-3">
-                            <QuickProof report={report} notRun={validation.state.status === "error" && validation.state.error instanceof ApiError && validation.state.error.kind === "not-found"} />
-                        </div>
                         <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
                             <AssistantPanel health={healthData} />
                             <div className="min-w-0 lg:row-span-2"><SurrogateExplorer onRunFull={onRunFull} full={fullState} /></div>

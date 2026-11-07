@@ -1,9 +1,9 @@
 """A small vector index over the lab's own notes, for retrieval-augmented answers to ordinary questions.
 
-Two kinds of vector. Neural: each note has a saved embedding from an NVIDIA model, and a question's embedding finds
-notes by meaning. Keyword: TF-IDF over words and character trigrams, which needs no network, so it is the fallback.
-Both are matched by cosine similarity, in memory, with numpy only, so no server or account is needed and it runs in
-the browser. Retrieved notes are all a language model may use; if the model fails, the top note is shown.
+Each note has a saved embedding from an NVIDIA model, and a question's embedding finds notes by meaning. In the browser
+those are held in a real vector database, PostgreSQL with pgvector, and its scores are passed in here. If it can't load,
+numpy does the same calculation. With no embedding at all, TF-IDF over words and character trigrams is the fallback.
+Retrieved notes are all a language model may use; if the model fails, the top note is shown.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ VECTORS = Path(__file__).with_name("note_vectors.json")
 NEURAL_MIN = 0.2  # off-topic questions mostly score below this, and the model can still reply NOT_COVERED
 MAX_EMBEDDED = 500  # the proxy refuses anything longer
 NEURAL_TITLE_BONUS = 0.05
-CLOSE_MATCH = {"neural": 0.3, "keyword": 0.6}  # a note this close answers the question by itself
+CLOSE_MATCH = {"pgvector": 0.3, "neural": 0.3, "keyword": 0.6}  # a note this close answers the question by itself
 MIN_SCORE = 0.13
 STRONG_SCORE = 0.3  # enough to trust letter overlap alone, which is what catches a misspelling
 TITLE_BONUS = 0.25
@@ -125,9 +125,24 @@ def parse_vector(raw: str) -> np.ndarray | None:
     return vector
 
 
-def _search_neural(question: str, vector: np.ndarray, saved: np.ndarray, k: int) -> list[dict]:
+def parse_scores(raw: str) -> dict[str, float] | None:
+    """The database's score for every note, or None if the reply is unusable, so numpy does the sum instead."""
+    if not raw:
+        return None
+    try:
+        scores = json.loads(raw)
+    except ValueError:
+        return None
+    if not isinstance(scores, dict) or set(scores) != {title for title, _ in _notes()}:
+        return None
+    if not all(isinstance(v, (int, float)) and not isinstance(v, bool) and np.isfinite(v) for v in scores.values()):
+        return None
+    return scores
+
+
+def _search_neural(question: str, vector: np.ndarray, saved: np.ndarray, k: int, stored: dict[str, float] | None = None) -> list[dict]:
     notes, *_ = _index()
-    scores = saved @ (vector / np.linalg.norm(vector))
+    scores = np.array([stored[title] for title, _ in notes]) if stored else saved @ (vector / np.linalg.norm(vector))
     asked = set(_asked_words(question))
     for row, (title, _) in enumerate(notes):
         if asked & set(_WORD.findall(title.lower())):
@@ -136,11 +151,11 @@ def _search_neural(question: str, vector: np.ndarray, saved: np.ndarray, k: int)
     return [{"title": notes[i][0], "text": notes[i][1], "score": round(float(min(scores[i], 1.0)), 3)} for i in best]
 
 
-def search(question: str, k: int = TOP_K, vector: np.ndarray | None = None) -> list[dict]:
+def search(question: str, k: int = TOP_K, vector: np.ndarray | None = None, scores: dict[str, float] | None = None) -> list[dict]:
     """The closest notes above the score floor, best first. A word from a note's title counts extra, as in a hybrid search."""
     saved = _note_vectors() if vector is not None else None
     if saved is not None and vector.shape == (saved.shape[1],):
-        return _search_neural(question, vector, saved, k)
+        return _search_neural(question, vector, saved, k, scores)
     notes, vocabulary, idf, matrix = _index()
     asked = _asked_words(question)
     vector = np.zeros(len(vocabulary))
