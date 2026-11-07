@@ -120,7 +120,7 @@ const Index = () => {
                                 <Link to="/trials" className="btn-solid gap-2" data-testid="home-start">Run a virtual trial<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
                                 <Link to="/trials?tab=proof" className="btn-outline">See how it was tested</Link>
                             </motion.div>
-                            <motion.p {...enter(0.24)} className="mt-5 text-xs text-muted-foreground">Research and education only. Not medical advice. Free to use, with no account.</motion.p>
+                            <motion.p {...enter(0.24)} className="mt-5 text-xs text-muted-foreground">Simulated results, not medical advice. Free to use, with no account.</motion.p>
                         </div>
                         <motion.div {...enter(0.2)} className="min-w-0"><QuestionFlow /></motion.div>
                     </div>

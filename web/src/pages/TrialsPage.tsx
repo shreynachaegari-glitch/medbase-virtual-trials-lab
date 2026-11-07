@@ -232,7 +232,7 @@ const TrialsPage = () => {
             <Header />
             <EnginePill />
             <p data-testid="research-notice" className="sticky top-14 z-30 border-b border-border bg-background/90 px-4 py-1 text-center text-xs text-muted-foreground backdrop-blur-xl">
-                Research and education only. Not medical advice.
+                Simulated results. Not medical advice.
             </p>
 
             <main className="flex-1">

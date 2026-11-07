@@ -53,7 +53,7 @@ An applied AI lab that simulates randomised drug trials in virtual patients buil
 
 {headline} {verdict}
 
-> Research and education only. This is not medical advice and cannot show that a treatment works for any person. It offers no dosing guidance.
+> Simulated results. This is not medical advice and cannot show that a treatment works for any person. It offers no dosing guidance.
 
 ## What you can do
 
@@ -126,6 +126,10 @@ Parameters and predictions were frozen and committed (commit `9fc4bb6`) before a
 
 Accuracy held up in {HELD_UP}. It missed in the 12-week semaglutide dose-ranging trial, where it over-predicted benefit, and in the metformin arms of the factorial trial, where it under-predicted. Across all results the physiology did not clearly beat carrying effects forward, so read simulated numbers as a way to think about a study, not as forecasts. {"Markov chains met the convergence gate." if V['converged'] else "The calibration chain did not meet the convergence gate, so treat its intervals with extra caution."}
 
+## Security
+
+No accounts and no key in the browser. The AI proxy accepts only the lab's own prompts and tools, a Content Security Policy covers the page, and `scripts/security_check.py` scans for leaked keys and vulnerable packages. Threat model and known limits: [docs/SECURITY.md](docs/SECURITY.md).
+
 ## Limits
 
 - This predicts average HbA1c effects in trial populations. It says nothing about an individual.
@@ -168,7 +172,7 @@ An applied AI lab that runs type 2 diabetes drug trials on virtual patients buil
 
 We tested it the hard way, freezing and publishing predictions before opening the real results. {headline} {verdict} Those failures stay visible: each simulated result shows where that drug held up or missed in the blind test.
 
-We also attacked our own safety guard with blind tests and published the results, including where it failed. It is for research and education only. It is not medical advice, gives no dosing guidance, and refuses personal treatment questions.
+We also attacked our own safety guard with blind tests and published the results, including where it failed. It is a simulator, not medical advice. It is not medical advice, gives no dosing guidance, and refuses personal treatment questions.
 
 **Key features:**
 - AI Trial Designer: a neural surrogate proposes, the simulator checks, and every step is shown
@@ -180,6 +184,7 @@ We also attacked our own safety guard with blind tests and published the results
 - Follow-ups such as "what about 2 mg?" that carry the last experiment forward, and suggested next questions
 - A live trace of each answer: guard, vector search, simulator, model and checks
 - Blind-test track record beside every simulated result, including misses
+- Security measures: an AI proxy locked to the lab's own prompts, a Content Security Policy, and repeatable key and dependency scans
 - Safety guard tested blind by adversaries, with urgent messages given emergency contacts, published in the README
 - Virtual trials for four real drugs and hypothetical molecules, on patients built from real survey labs
 - 3D body view from the Human Reference Atlas, driven by simulated values
@@ -210,7 +215,7 @@ Audience: INFINEX judges, Applied AI track. Show the live screen throughout.
 | 1:50 | Prediction meets reality chart | "Here's the part I care about most. We froze and published every prediction, then opened 20 real results once. Mean error {S['mae']} points. Empagliflozin and the kidney strata held up. The 12-week semaglutide trial missed, and so did the metformin arms. {verdict}" |
 | 2:20 | Trial result with the track record card | "So those misses stay on screen. Every result tells you where that drug held up in the blind test and where it missed. Most AI tools hide that." |
 | 2:40 | See it in the body | "And here's what the simulator says is happening, organ by organ." |
-| 2:50 | Title | "MedBase Virtual Trials Lab: research and education, not medical advice." |
+| 2:50 | Title | "MedBase Virtual Trials Lab: rehearse a trial, and see how far to trust it. Not medical advice." |
 """
 Path("README.md").write_text(README)
 Path("docs/submission/UNSTOP_FORM.md").write_text(FORM)

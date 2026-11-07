@@ -7,6 +7,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -24,6 +25,64 @@ _PUBLIC = os.environ.get("MEDLAB_PUBLIC", "0") == "1"
 app = FastAPI(title="MedBase Virtual Trials Lab", version="0.1.0", docs_url=None if _PUBLIC else "/docs", redoc_url=None, openapi_url=None if _PUBLIC else "/openapi.json")
 _origins = [o for o in os.environ.get("MEDLAB_CORS", "http://localhost:5173").split(",") if o]
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET", "POST"], allow_headers=["Content-Type"])
+
+MAX_BODY_BYTES = 256 * 1024
+_SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer",
+    "Cache-Control": "no-store", "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
+}
+
+
+class _Hardening:
+    """Counts the bytes actually received, so a chunked body can't dodge the limit, and marks API replies, including its own refusal."""
+
+    def __init__(self, inner) -> None:
+        self.inner = inner
+
+    async def __call__(self, scope, receive, send) -> None:
+        if scope["type"] != "http":
+            await self.inner(scope, receive, send)
+            return
+        is_api = scope["path"].startswith("/api")
+        refused = False
+
+        async def marked_send(message) -> None:
+            if refused:
+                return  # the refusal has gone out, so whatever the app does next goes nowhere
+            if message["type"] == "http.response.start" and is_api:
+                present = {k.lower() for k, _ in message["headers"]}
+                message["headers"] = list(message["headers"]) + [(k.lower().encode(), v.encode()) for k, v in _SECURITY_HEADERS.items() if k.lower().encode() not in present]
+            await send(message)
+
+        async def refuse() -> None:
+            nonlocal refused
+            await JSONResponse({"detail": "request too large"}, status_code=413)(scope, receive, marked_send)
+            refused = True
+
+        declared = dict(scope["headers"]).get(b"content-length", b"0").decode("latin-1")
+        if declared.isdigit() and int(declared) > MAX_BODY_BYTES:
+            await refuse()
+            return
+        seen = 0
+
+        async def counted_receive():
+            nonlocal seen
+            message = await receive()
+            if message["type"] == "http.request":
+                seen += len(message.get("body", b""))
+                if seen > MAX_BODY_BYTES and not refused:
+                    await refuse()
+                    return {"type": "http.disconnect"}
+            return message
+
+        try:
+            await self.inner(scope, counted_receive, marked_send)
+        except Exception:
+            if not refused:
+                raise
+
+
+app.add_middleware(_Hardening)
 
 
 def _client_key(request: Request) -> str:

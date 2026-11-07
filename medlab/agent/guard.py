@@ -288,6 +288,57 @@ def _about_the_product(normal: str) -> bool:
     return not any(p.search(_PRODUCT_WORDS.sub(" ", normal)) for p in _PERSONAL)
 
 
+_SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+MIN_TRIMMED_CHARS = 25
+# Text left after cutting one of these could mean the opposite of the draft, so the whole reply is replaced instead.
+_SAFETY_MEANING = re.compile(r"\b(unsafe|safe|risks?|warn\w*|avoid\w*|do not|don'?t|never|caution\w*|danger\w*|serious|severe|adverse|death|fatal|contraindicat\w*|should not|shouldn'?t|not recommended|harm\w*|side effects?)\b", re.I)
+
+
+def without_unsourced(text: str, results: list[dict], years: list) -> str | None:
+    """The reply with only the lines or sentences that hold an unsourced figure removed, or None if no sourced figure would remain."""
+    kept_lines = []
+    for line in text.split("\n"):
+        if not unsourced_or_raw(line, results, years):
+            kept_lines.append(line)
+            continue
+        parts = _SENTENCE_END.split(line)
+        good = [part for part in parts if not unsourced_or_raw(part, results, years)]
+        if any(_SAFETY_MEANING.search(part) for part in parts if part not in good):
+            return None
+        if good:
+            kept_lines.append(" ".join(good))
+    trimmed = "\n".join(kept_lines).strip()
+    if len(trimmed) < MIN_TRIMMED_CHARS or not re.search(r"\d", trimmed) or unsourced_or_raw(trimmed, results, years):
+        return None
+    return trimmed
+
+
+# Accents, and words common in Spanish, French, German, Portuguese and romanised Hindi. The rules are written for English,
+# so a message in another language can't be judged. It gets the helpline reply and never leaves the device.
+_LATIN_ACCENT = re.compile(r"[\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u00a1\u00bf]")
+_FOREIGN_WORD = re.compile(
+    r"\b(puedo|tomarlo|tomarla|tomar|medicamento|medicina|seguro|para mi|mi madre|mi padre|je suis|enceinte|est-ce|est ce|medicament|"
+    r"ich|nehmen|sicher|kann|mich|posso|minha|meu|dawa|dawai|mujhe|kya|mera|meri|nahi|nahin|lena|chahiye|khana|hai kya)\b", re.I)
+
+
+def _in_another_language(raw: str, normal: str) -> bool:
+    return bool(_LATIN_ACCENT.search(raw) or _FOREIGN_WORD.search(normal))
+
+
+_LEET = str.maketrans({"0": "o", "1": "l", "3": "e", "4": "a", "5": "s"})
+_DIGIT_NAMES = re.compile(r"^(hba1c|a1c|t2dm?|t1dm?|glp1|glp|sglt2|dpp4|v[3-6]|nct\d+|nhanes\d*|p\d+|r2|q\d+|phase\d)$", re.I)
+_DISGUISED_WORD = re.compile(r"\b[a-z]+\d[a-z0-9]*\b", re.I)
+_SPACED_MY = re.compile(r"\bm\s+y\b", re.I)
+_HYPHEN_I = re.compile(r"\bi-(am|was|have|take|took)\b", re.I)
+_OWN_GLUCOSE = re.compile(r"\bsugars?\s+(running|around|at|is|are|was|were|near|about)\b|\b(myself|ourselves)\b", re.I)
+
+
+def _undisguised(normal: str) -> str:
+    """"f0r mys3lf", "m y metformin" and "I-am on" read as written, so spelling tricks can't slip past the personal rules. Used only for that check."""
+    plain = _DISGUISED_WORD.sub(lambda m: m.group(0) if _DIGIT_NAMES.match(m.group(0)) else m.group(0).translate(_LEET), normal)
+    return _HYPHEN_I.sub(lambda m: f"i {m.group(1)}", _SPACED_MY.sub("my", plain))
+
+
 def about_the_product(text: str) -> bool:
     return _about_the_product(" ".join(_normalise(text).replace("_", " ").split()))
 
@@ -306,12 +357,14 @@ def classify(text: str) -> str:
         return "personal"
     if _about_the_product(normal):
         return "chat"
-    plain = _without_research_phrases(normal)
-    if any(p.search(plain) for p in _PERSONAL):
+    plain = _without_research_phrases(_undisguised(normal))
+    if any(p.search(plain) for p in _PERSONAL) or _OWN_GLUCOSE.search(_undisguised(normal)):
         return "personal"
     lab = _lab_verdict(normal)
     if lab == "personal":
         return "personal"
+    if _in_another_language(text, normal):
+        return "language"
     if _UNSUPPORTED.search(normal):
         return "unsupported"
     if _SAFETY.search(normal) and not _NOT_A_HARM_QUESTION.search(normal):
@@ -336,7 +389,7 @@ def looks_like_advice(reply: str) -> bool:
 
 
 def looks_like_refusal(reply: str) -> bool:
-    """A model declining. That decision stands: no other path may then answer the same question."""
+    """A model declining. It may reconsider once when told the question was cleared, and after that its decision stands: no other path may answer."""
     return bool(_MODEL_REFUSAL.search(reply))
 
 
@@ -388,6 +441,8 @@ def repair_request(unsourced: list[str]) -> str:
             "Do not add, subtract, average or round them yourself, and do not cite years or figures a tool did not return. Omit anything you cannot source.")
 
 
+RECONSIDER_REQUEST = ("The safety check cleared this as a research question about a simulated study population, so a tool can answer it. "
+                      "Call the tool that answers it, then reply only from its result. If it really is about one person's own care or treatment, repeat your refusal instead.")
 NO_TOOL_REQUEST = "You answered without running a tool, so nothing in your reply is sourced. Call the tool that answers this question, then reply only from its result."
 _NAMED_DRUG = re.compile(r"\b(metformin|semaglutide|empagliflozin|sitagliptin|ozempic|jardiance|januvia|glucophage)\b", re.I)
 _FIELD_LIKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")

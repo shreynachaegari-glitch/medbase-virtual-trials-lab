@@ -12,4 +12,4 @@ Audience: INFINEX judges, Applied AI track. Show the live screen throughout.
 | 1:50 | Prediction meets reality chart | "Here's the part I care about most. We froze and published every prediction, then opened 20 real results once. Mean error 0.29 points. Empagliflozin and the kidney strata held up. The 12-week semaglutide trial missed, and so did the metformin arms. Passed: interval coverage, kidney effect size. Failed, and reported as failures: prediction accuracy, beating a simple rival with no physiology." |
 | 2:20 | Trial result with the track record card | "So those misses stay on screen. Every result tells you where that drug held up in the blind test and where it missed. Most AI tools hide that." |
 | 2:40 | See it in the body | "And here's what the simulator says is happening, organ by organ." |
-| 2:50 | Title | "MedBase Virtual Trials Lab: research and education, not medical advice." |
+| 2:50 | Title | "MedBase Virtual Trials Lab: rehearse a trial, and see how far to trust it. Not medical advice." |

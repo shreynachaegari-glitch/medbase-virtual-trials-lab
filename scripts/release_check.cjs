@@ -39,6 +39,8 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   await page.getByTestId("home-start").click();
   await page.getByTestId("engine-ready").waitFor({ timeout: 240000 }).catch(() => {});
   log("engine loads in the browser", await page.getByTestId("engine-ready").isVisible().catch(() => false), secs(t));
+  log("the page carries a security policy", (await page.locator('meta[http-equiv="Content-Security-Policy"]').count()) === 1);
+  log("the old research wording is gone", !/research and education only/i.test(await page.locator("body").innerText()) && /Not medical advice/.test(await page.getByTestId("research-notice").textContent()));
   log("Virtual Trials is the first page and the first link", /\/trials/.test(page.url()) && (await page.getByRole("navigation", { name: "Main" }).getByRole("link").first().textContent()) === "Virtual Trials");
   log("no sign-in and no Learn link", (await page.getByText(/sign[- ]?in/i).count()) === 0 && (await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Learn" }).count()) === 0);
   const layers = page.getByTestId("ai-layer");
@@ -144,6 +146,10 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   a = await ask("what about 50 mg?");
   const understood = await page.getByTestId("assistant-interpreted").first().textContent().catch(() => "");
   log("a follow-up carries the last experiment", /sitagliptin 50 mg/.test(understood), `${a.secs} [${a.source}] ${understood}`);
+  await ask("What is semaglutide?");
+  a = await ask("what are its side effects?");
+  const carried = await page.getByTestId("assistant-interpreted").first().textContent().catch(() => "");
+  log("a pronoun carries the drug from the last question", /semaglutide side effects/.test(carried) && /label/i.test(a.text), `${a.secs} [${a.source}] ${carried}`);
   a = await ask("Where did this lab fail?");
   log("copilot gives the code-written failure account", /Written by code/.test(a.source || "") && /Semaglutide phase 2/.test(a.text), `${a.secs} [${a.source}] ${a.text}`);
   await page.screenshot({ path: `${OUT}/copilot-where-it-failed.png` });

@@ -6,7 +6,7 @@ An applied AI lab that simulates randomised drug trials in virtual patients buil
 
 On 20 results from 6 real trials it never saw, predicted HbA1c effects were off by 0.29 points on average, and 50% landed within 0.30 points of what the trial reported. Passed: interval coverage, kidney effect size. Failed, and reported as failures: prediction accuracy, beating a simple rival with no physiology.
 
-> Research and education only. This is not medical advice and cannot show that a treatment works for any person. It offers no dosing guidance.
+> Simulated results. This is not medical advice and cannot show that a treatment works for any person. It offers no dosing guidance.
 
 ## What you can do
 
@@ -39,7 +39,7 @@ Registry results ──> Bayesian calibration ───────────�
 | Bayesian calibration | MCMC (emcee, 44 walkers, 6500 steps) learns drug effects from three real trials and carries the uncertainty into every prediction | Split R-hat 1.026, chain length 56 autocorrelation times; blind test below |
 | Neural surrogate | A small neural network trained on 2400 simulator runs, with numpy-only inference in the browser, for instant sliders and for guiding the designer | HbA1c mean error 0.082 points, R2 0.949 on 480 simulator runs it never saw. It learns the simulator, not reality |
 | AI Trial Designer | Takes a goal; the surrogate proposes a dose and the simulator checks and refines it, then sizes the study | Across 36 goals: 3.28 simulator runs on average against 6.03 for plain bisection (46% fewer); same feasibility verdict on 36 of 36; median dose difference 3% |
-| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 7 answered by the model, 3 written by code, right tool on 10 of 10, guard repaired 4 and replaced 0, median 5.2 s. A small sample |
+| Live copilot | nvidia/nemotron-3.5-lightning-30b-a3b on NVIDIA NIM plans tool calls and explains results, in the public site through a key-hiding proxy | On 10 project-written questions: 7 answered by the model, 3 written by code, right tool on 10 of 10, guard repaired 1 and replaced 0, median 4.1 s. A small sample |
 | Vector database and retrieval | PostgreSQL with pgvector, compiled to WebAssembly by PGlite, running in the visitor's browser, with no server or account (PostgreSQL 18.6 (PGlite 0.5.15), pgvector 0.8.7). It holds embeddings of 71 notes written for this project (nvidia/nemotron-3-embed-1b, saved in the repo), and the question is embedded through the proxy only after the guard clears it. numpy is the fallback, then TF-IDF. The model may use only the notes found, and code then checks that its wording came from them | On 60 blind, held-out questions, scored once: right note in the top 3 98.3%, top 1 83.3%. 10 of those were still declined, after a later safety fix. None of 30 must-refuse messages reached a model. Scored with numpy; the database returned the same notes on 184 of 184 questions, median query 4.33 ms under Node. The first blind list scored 58.8% on TF-IDF alone, which is why embeddings were added; that list was then used for tuning |
 | Safety guard | Default-deny on input, and a digit figure no tool produced sends the draft back to the model once, then falls back to computed text | 44 of 44 project-written attack prompts refused before any model call. Blind results are in the section below |
 | Intent model | TF-IDF and logistic regression for greetings and help, runs in the browser, cannot write a number | 95.3% on 43 project-written phrases, a small sample |
@@ -89,6 +89,10 @@ Parameters and predictions were frozen and committed (commit `9fc4bb6`) before a
 
 Accuracy held up in EMPA-REG MET, EMPA-REG RENAL mild, EMPA-REG RENAL moderate, SUSTAIN 2, Sitagliptin monotherapy. It missed in the 12-week semaglutide dose-ranging trial, where it over-predicted benefit, and in the metformin arms of the factorial trial, where it under-predicted. Across all results the physiology did not clearly beat carrying effects forward, so read simulated numbers as a way to think about a study, not as forecasts. Markov chains met the convergence gate.
 
+## Security
+
+No accounts and no key in the browser. The AI proxy accepts only the lab's own prompts and tools, a Content Security Policy covers the page, and `scripts/security_check.py` scans for leaked keys and vulnerable packages. Threat model and known limits: [docs/SECURITY.md](docs/SECURITY.md).
+
 ## Limits
 
 - This predicts average HbA1c effects in trial populations. It says nothing about an individual.
@@ -110,7 +114,7 @@ uvicorn medlab.api:app --port 8000      # API
 cd web && npm ci && npm run dev         # UI, opens on /trials
 ```
 
-Latest test run: 775 passed in 73.37s (0:01:13).
+Latest test run: 832 passed in 79.70s (0:01:19).
 
 ## Credits
 

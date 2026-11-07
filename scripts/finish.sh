@@ -15,6 +15,7 @@ $PY scripts/make_browser_bundle.py >/dev/null 2>&1 && $PY web/scripts/make_stati
 (cd web && npx tsc --noEmit -p tsconfig.app.json 2>&1 | tail -2; npx vitest run 2>&1 | grep -E 'Tests ' ; VITE_LLM_PROXY=https://medbase-lab-ai.vercel.app/api/chat npm run build:static 2>&1 | tail -1)
 grep -rlE 'nvapi-[A-Za-z0-9]|sk-ant-[A-Za-z0-9]|hf_[A-Za-z0-9]{20}' web/dist | head -3
 echo "key scan done"
+$PY scripts/security_check.py | $PY -c "import json,sys; print('security check passed:', json.load(sys.stdin)['passed'])"
 (cd web/dist && python3 -m http.server 8765 --bind 127.0.0.1 >/dev/null 2>&1 & echo $! > /tmp/medbase-http.pid)
 sleep 1
 (cd web && timeout 450 node ../scripts/release_check.cjs 2>&1 | grep -E '^FAIL|^CRASH|passed$' | cut -c1-260)

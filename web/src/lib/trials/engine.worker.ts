@@ -143,6 +143,9 @@ const start = async (engineUrl: string, indexUrl: string): Promise<void> => {
 
 const MAX_QUESTION = 2000;
 const EMBED_TIMEOUT_MS = 8_000;
+const REPLY_CACHE_SIZE = 40;
+const CACHED_SOURCES = new Set(["nim", "reference", "verified"]);
+const replyCache = new Map<string, string>();
 let engineBase: string | null = null;
 /** The proxy gives NVIDIA 50 s, and its host allows 60 s. */
 const PROXY_TIMEOUT_MS = 58_000;
@@ -179,6 +182,19 @@ const embedQuestion = async (proxyUrl: string, text: string): Promise<string> =>
     } catch {
         return "";
     }
+};
+
+/** The same question in the same conversation answers at once and spends no quota. A fallback reply is not kept, so a retry can do better. */
+const askModelOnce = async (id: number, api: PyProxyModule, proxyUrl: string, body: string): Promise<string> => {
+    const cached = replyCache.get(body);
+    if (cached !== undefined) return cached;
+    const text = await askModel(id, api, proxyUrl, body);
+    const { status, body: reply } = JSON.parse(text) as { status?: number; body?: { source?: string } };
+    if (status === 200 && CACHED_SOURCES.has(reply?.source ?? "")) {
+        if (replyCache.size >= REPLY_CACHE_SIZE) replyCache.delete(replyCache.keys().next().value as string);
+        replyCache.set(body, text);
+    }
+    return text;
 };
 
 /** The database's score for every note as JSON, or "" if it isn't available, in which case the engine does the same sum in numpy. */
@@ -267,7 +283,7 @@ const answer = async (message: Extract<WorkerInbound, { type: "request" }>) => {
     try {
         const text =
             proxy && message.path === "/api/assistant" && message.method === "POST" && message.body
-                ? await askModel(message.id, api, proxy, message.body)
+                ? await askModelOnce(message.id, api, proxy, message.body)
                 : api.handle(message.method, message.path, message.body);
         post({ type: "response", id: message.id, text });
     } catch (error) {

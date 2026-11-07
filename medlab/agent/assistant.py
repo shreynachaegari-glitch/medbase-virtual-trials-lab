@@ -50,6 +50,7 @@ GENERAL_SYSTEM = (
 NO_TOOL_NOTE = "The AI answered without running a tool, so its reply was replaced with computed text."
 EMPTY_NOTE = "The AI returned no text, so the offline planner answered."
 NIM_OPTIONS = {"max_tokens": 1200, "chat_template_kwargs": {"enable_thinking": False}}  # hidden reasoning used up the budget and left replies empty
+TRIMMED_NOTE = "Code removed part of the AI's reply because a figure in it came from no tool. Everything left was checked."
 REPAIRED_NOTE = "The guard sent back the AI's first draft because it failed a check. This is its rewritten reply."
 _UNUSABLE = re.compile(r"^\W*error\s*:|\bdraft used (figures|numbers)\b|\bnot supported by tool output\b", re.I)
 
@@ -235,7 +236,9 @@ def _run_nim(question: str, ledger: _Ledger, key: str, transport=None, prepared:
                 if _code_written(ledger) is not None or ledger.repaired:
                     return text
                 if not ledger.has_result and text and guard.looks_like_refusal(text):
-                    return text
+                    ledger.repaired = True  # one chance to reconsider, and a second refusal comes back through the check above
+                    messages += [{"role": "assistant", "content": text}, {"role": "user", "content": guard.RECONSIDER_REQUEST}]
+                    continue
                 unsourced = guard.unsourced_or_raw(text, ledger.simulator, ledger.years)
                 if text and ledger.has_result and not unsourced:
                     return text
@@ -616,10 +619,29 @@ def _fmt_mg(mg: float) -> str:
     return f"{mg:g} mg"
 
 
+_PRONOUN = re.compile(r"\b(its|it|this drug|that drug|the drug|this medicine|that medicine)\b", re.I)
+_NEVER_CARRIED = {"personal", "emergency", "language", "unsupported"}
+
+
+def _carry_the_drug(question: str, previous: str) -> str | None:
+    """"What are its side effects?" after a question naming one drug means that drug. A refused question carries nothing forward."""
+    if not _PRONOUN.search(question) or reference.named_drugs(question):
+        return None
+    if guard.classify(question) in _NEVER_CARRIED or guard.classify(previous) in _NEVER_CARRIED:
+        return None
+    drugs = reference.named_drugs(previous)
+    if len(drugs) != 1:
+        return None
+    merged = _PRONOUN.sub(drugs[0], question)
+    return None if guard.classify(merged) in _NEVER_CARRIED else merged
+
+
 def resolve_followup(question: str, previous: str | None) -> str | None:
     """"What about 2 mg?" after an experiment means that experiment again at 2 mg. The merged text then meets the guard as usual."""
-    if not previous or len(question.split()) > _FOLLOW_MAX_WORDS or not _FOLLOW_CUE.match(question):
+    if not previous or len(question.split()) > _FOLLOW_MAX_WORDS:
         return None
+    if not _FOLLOW_CUE.match(question):
+        return _carry_the_drug(question, previous)
     if guard.classify(question) in {"personal", "emergency", "language", "unsupported", "safety"}:
         return None
     if guard.classify(previous) != "research" or not reference.named_drugs(previous):
@@ -813,8 +835,10 @@ class BrowserSession:
                 self.passages = []
             return {"done": self._dict(reply)}
         if not failed:
-            refused = guard.looks_like_advice(raw) or (not ledger.has_result and bool(clean) and guard.looks_like_refusal(clean))
-            if refused:
+            model_declined = not ledger.has_result and bool(clean) and guard.looks_like_refusal(clean)
+            if model_declined and not self.repaired and not guard.looks_like_advice(raw):
+                return self._ask_again(guard.RECONSIDER_REQUEST)  # a rare slip on a cleared question; a second refusal stands
+            if guard.looks_like_advice(raw) or model_declined:
                 return {"done": self._dict(Reply(guard.REFUSAL, "refusal", sent_to_provider=True))}
             written = _code_written(ledger)
             if written is not None:
@@ -835,6 +859,9 @@ class BrowserSession:
                 log.warning("reply blocked; unsourced numbers %s", unsourced)
                 if not self.repaired:
                     return self._ask_again(guard.repair_request(unsourced))
+                trimmed = guard.without_unsourced(clean, ledger.simulator, ledger.years)
+                if trimmed:
+                    return {"done": self._dict(Reply(_with_caveats(trimmed, ledger), "nim", ledger.calls, guard_note=TRIMMED_NOTE, sent_to_provider=True))}
                 note = "The AI's reply included numbers no tool produced, so it was replaced with computed text."
         if self.fallback is not None:
             return {"done": self._dict(replace(self.fallback, sent_to_provider=True))}
@@ -964,6 +991,9 @@ def _answer(question: str, claude_client=None, nim_transport=None) -> Reply:
             if not unsourced:
                 return Reply(_with_caveats(clean, ledger), provider, ledger.calls, ledger.simulator, REPAIRED_NOTE if ledger.repaired else None, sent_to_provider=True)
             log.warning("reply blocked; unsourced numbers %s", unsourced)
+            trimmed = guard.without_unsourced(clean, ledger.simulator, ledger.years)
+            if trimmed:
+                return Reply(_with_caveats(trimmed, ledger), provider, ledger.calls, ledger.simulator, TRIMMED_NOTE, sent_to_provider=True)
             note = "The model's reply included numbers no tool produced, so it was replaced with computed text."
 
     planner = _Ledger()

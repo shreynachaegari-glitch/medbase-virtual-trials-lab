@@ -27,10 +27,33 @@ const staticPages = (): Plugin => ({
   },
 })
 
+// A static host gives no control of headers, so the policy travels in the page. Workers are not covered by this tag.
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self' 'wasm-unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' data: blob: https:",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ')
+
+const securityPolicy = (): Plugin => ({
+  name: 'security-policy',
+  apply: 'build',
+  transformIndexHtml: () => [
+    { tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: CONTENT_SECURITY_POLICY }, injectTo: 'head-prepend' },
+    { tag: 'meta', attrs: { name: 'referrer', content: 'strict-origin-when-cross-origin' }, injectTo: 'head-prepend' },
+  ],
+})
+
 // https://vite.dev/config/
 export default defineConfig({
   base,
-  plugins: [react(), staticPages()],
+  plugins: [react(), staticPages(), securityPolicy()],
   build: { outDir: process.env.MEDBASE_OUT_DIR ?? 'dist' },
   // A module worker, because the engine worker imports Pyodide from its CDN at run time.
   worker: { format: 'es' },

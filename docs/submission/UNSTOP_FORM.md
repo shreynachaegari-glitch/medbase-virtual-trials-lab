@@ -12,7 +12,7 @@ An applied AI lab that runs type 2 diabetes drug trials on virtual patients buil
 
 We tested it the hard way, freezing and publishing predictions before opening the real results. On 20 results from 6 real trials it never saw, predicted HbA1c effects were off by 0.29 points on average, and 50% landed within 0.30 points of what the trial reported. Passed: interval coverage, kidney effect size. Failed, and reported as failures: prediction accuracy, beating a simple rival with no physiology. Those failures stay visible: each simulated result shows where that drug held up or missed in the blind test.
 
-We also attacked our own safety guard with blind tests and published the results, including where it failed. It is for research and education only. It is not medical advice, gives no dosing guidance, and refuses personal treatment questions.
+We also attacked our own safety guard with blind tests and published the results, including where it failed. It is a simulator, not medical advice. It is not medical advice, gives no dosing guidance, and refuses personal treatment questions.
 
 **Key features:**
 - AI Trial Designer: a neural surrogate proposes, the simulator checks, and every step is shown
@@ -24,6 +24,7 @@ We also attacked our own safety guard with blind tests and published the results
 - Follow-ups such as "what about 2 mg?" that carry the last experiment forward, and suggested next questions
 - A live trace of each answer: guard, vector search, simulator, model and checks
 - Blind-test track record beside every simulated result, including misses
+- Security measures: an AI proxy locked to the lab's own prompts, a Content Security Policy, and repeatable key and dependency scans
 - Safety guard tested blind by adversaries, with urgent messages given emergency contacts, published in the README
 - Virtual trials for four real drugs and hypothetical molecules, on patients built from real survey labs
 - 3D body view from the Human Reference Atlas, driven by simulated values

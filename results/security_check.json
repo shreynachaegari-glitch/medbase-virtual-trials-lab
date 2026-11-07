@@ -1,0 +1,10 @@
+{
+ "tracked_files_with_keys": [],
+ "history_has_keys": false,
+ "built_site_files_with_keys": [],
+ "env_ignored_by_git": true,
+ "env_tracked": false,
+ "proxy_lock_matches_prompts_and_tools": true,
+ "npm_production_vulnerabilities": 0,
+ "passed": true
+}

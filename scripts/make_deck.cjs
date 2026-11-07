@@ -57,7 +57,7 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
   s.addText("INFINEX 2K26  |  APPLIED AI", { x: 0.6, y: 0.75, w: 6, h: 0.35, fontFace: BODY, fontSize: 13, bold: true, color: C.accent, charSpacing: 2, margin: 0 });
   s.addText("MedBase Virtual Trials Lab", { x: 0.6, y: 1.25, w: 5.8, h: 2.0, fontFace: HEAD, fontSize: 46, bold: true, color: C.text, margin: 0, valign: "top" });
   s.addText("Rehearse a type 2 diabetes drug trial in your browser, then see how far to trust it.", { x: 0.6, y: 3.45, w: 5.4, h: 1.2, fontFace: BODY, fontSize: 20, color: C.muted, margin: 0, valign: "top" });
-  s.addText("Research and education only. Not medical advice.", { x: 0.6, y: 6.55, w: 5.6, h: 0.35, fontFace: BODY, fontSize: 12, color: C.muted, margin: 0 });
+  s.addText("Simulated results. Not medical advice.", { x: 0.6, y: 6.55, w: 5.6, h: 0.35, fontFace: BODY, fontSize: 12, color: C.muted, margin: 0 });
   picture(s, "first-screen.png", 6.7, 0.75, 6.05, 4.2);
   picture(s, "body-view.png", 8.95, 4.3, 3.8, 2.64);
 }

@@ -39,7 +39,7 @@ test.describe("with the API up", () => {
         await page.getByRole("link", { name: "Virtual Trials" }).first().click();
         await expect(page).toHaveURL(/\/trials$/);
         await expect(page.getByRole("heading", { level: 1 })).toContainText("simulated type 2 diabetes drug trial");
-        await expect(page.getByTestId("research-notice")).toHaveText("Research and education only. Not medical advice.");
+        await expect(page.getByTestId("research-notice")).toHaveText("Simulated results. Not medical advice.");
     });
 
     test("hero shows the proof strip with a failure as loud as a pass", async ({ page }, info) => {
@@ -826,7 +826,8 @@ test("the home page says what the site does and leads to the trials", async ({ p
     await expect(page.getByTestId("home-action")).toHaveCount(4);
     await expect(page.getByTestId("home-flow")).toBeVisible();
     await expect(page.getByTestId("home-limits")).toContainText("did not clearly beat a simple rival");
-    await expect(page.locator("body")).toContainText("Research and education only");
+    await expect(page.locator("body")).toContainText("not medical advice");
+    await expect(page.locator("body")).not.toContainText("Research and education only");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
     await page.getByTestId("home-start").click();
     await expect(page).toHaveURL(/\/trials$/);

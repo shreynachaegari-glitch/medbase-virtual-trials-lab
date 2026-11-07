@@ -1,7 +1,7 @@
 {
  "health": {
   "status": 200,
-  "seconds": 0.05,
+  "seconds": 0.01,
   "body": {
    "ok": true,
    "engine": "server",
@@ -12,7 +12,7 @@
  },
  "validation": {
   "status": 200,
-  "seconds": 0.01,
+  "seconds": 0.0,
   "body": {
    "blind": true,
    "openings": 1,
@@ -692,7 +692,7 @@
  },
  "calibration": {
   "status": 200,
-  "seconds": 0.01,
+  "seconds": 0.04,
   "body": {
    "summary": {
     "tau_a1c": {
@@ -1219,7 +1219,7 @@
  },
  "drugs": {
   "status": 200,
-  "seconds": 0.01,
+  "seconds": 0.0,
   "body": {
    "drugs": [
     {
@@ -1258,7 +1258,7 @@
  },
  "safety_sema": {
   "status": 200,
-  "seconds": 0.01,
+  "seconds": 0.0,
   "body": {
    "drug": "semaglutide",
    "trial": "NCT02054897",
@@ -1686,7 +1686,7 @@
  },
  "safety_empa": {
   "status": 200,
-  "seconds": 0.01,
+  "seconds": 0.0,
   "body": {
    "drug": "empagliflozin",
    "trial": "NCT01177813",
@@ -2247,7 +2247,7 @@
  },
  "trial": {
   "status": 200,
-  "seconds": 4.43,
+  "seconds": 4.41,
   "body": {
    "control": "Placebo",
    "weeks": 30,
@@ -3400,7 +3400,7 @@
  },
  "power": {
   "status": 200,
-  "seconds": 2.99,
+  "seconds": 2.95,
   "body": {
    "arm": "Sitagliptin 100 mg/day",
    "control": "Placebo",
@@ -3638,7 +3638,7 @@
   {
    "question": "How many patients do I need for sitagliptin 100 mg?",
    "status": 200,
-   "seconds": 3.0,
+   "seconds": 3.03,
    "source": "planner",
    "text": "Interpreted as: sitagliptin 100 mg; 26 weeks; 200 per arm. Simulated power for Sitagliptin 100 mg/day against placebo. 25 per arm: 100%, 50 per arm: 100%, 100 per arm: 100%, 200 per arm: 100%, 300 per arm: 100%, 400 per arm: 100%, 500 per arm: 100%. 80% power is first reached at 25 per arm. Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED, interval coverage passed, kidney check passed, and it did not beat a simple rival with no physiology. Sitagliptin label: dose is reduced to 50 mg at eGFR 30 to 45, and 25 mg below 30. This run uses a higher dose in part of that range. Kidney behaviour was tested only for empagliflozin at eGFR 30 to 90. Blind test record for sitagliptin: Sitagliptin + metformin factorial (24 weeks, 3 results) under-predicted the HbA1c benefit by 0.35 on average: missed; Sitagliptin monotherapy (24 weeks, 2 results) under-predicted the HbA1c benefit by 0.17 on average: held up. Hypoglycaemia is not modelled. Risk rises with sulfonylureas or insulin.\n\nIf this is urgent, call 112 now. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night.",
    "tools": [

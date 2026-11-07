@@ -34,7 +34,7 @@ const PROMPT_HINTS = [
     "Try: Who responds to empagliflozin?",
 ];
 const HINT_MS = 3500;
-const FOLLOW_UP_SOURCES = new Set<AssistantReply["source"]>(["claude", "nim", "planner"]);
+const FOLLOW_UP_SOURCES = new Set<AssistantReply["source"]>(["claude", "nim", "planner", "reference", "verified"]);
 const BROWSER_PLANNER = "Offline planner: runs in your browser, nothing is sent anywhere";
 
 const SOURCE: Record<AssistantReply["source"], { label: string; note: string; className: string }> = {
@@ -315,7 +315,7 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
     const nextId = useRef(0);
     const controller = useRef<AbortController | null>(null);
     const usesModel = mode === "server" || (mode === "browser" && LLM_PROXY !== null);
-    const lastExperiment = useRef<string | null>(null);
+    const lastQuestion = useRef<string | null>(null);
     const [hint, setHint] = useState(0);
     useEffect(() => {
         if (reduce || question) return;
@@ -338,9 +338,9 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
         setTurns((all) => (retryOf === undefined ? [fresh, ...all] : all.map((t) => (t.id === id ? fresh : t))));
         setQuestion("");
         try {
-            const { data: reply, provenance } = await postTagged<AssistantReply>("/api/assistant", { question: trimmed, previous: lastExperiment.current }, guards.assistant, current.signal, (event) => update(id, (t) => applyEvent(t, event)));
+            const { data: reply, provenance } = await postTagged<AssistantReply>("/api/assistant", { question: trimmed, previous: lastQuestion.current }, guards.assistant, current.signal, (event) => update(id, (t) => applyEvent(t, event)));
             finish(id, { reply, provenance });
-            if (FOLLOW_UP_SOURCES.has(reply.source) && reply.tool_calls.some((call) => call.ok && call.tool !== "search_knowledge")) lastExperiment.current = reply.interpreted_as ?? trimmed;
+            if (FOLLOW_UP_SOURCES.has(reply.source)) lastQuestion.current = reply.interpreted_as ?? trimmed;
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             const failure = error instanceof ApiError ? error : new ApiError("server", "The assistant couldn't answer. Please try again.");
@@ -365,7 +365,7 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
             </div>
             <p className="mt-1 hidden text-xs leading-relaxed text-muted-foreground sm:block">
                 {usesModel
-                    ? "It plans and runs experiments, answers questions from its notes, and remembers your last experiment, so \u201cwhat about 2 mg?\u201d works. A check outside the model blocks any number no tool produced."
+                    ? "It plans and runs experiments, answers questions from its notes, and follows the conversation, so \u201cwhat about 2 mg?\u201d and \u201cwhat are its side effects?\u201d work. A check outside the model blocks any number no tool produced."
                     : "It runs the simulator's tools and reports what they return. A check outside any language model blocks a number no tool produced."}
             </p>
             {usesModel && (
