@@ -296,7 +296,7 @@ const Reply = ({ turn, reply, provenance, onAsk, busy }: { turn: Turn; reply: As
                     </ul>
                 </div>
             )}
-            {showTools && toolsRun.length === 0 && reply.source !== "refusal" && (reply.sources?.length ?? 0) === 0 && (
+            {showTools && toolsRun.length === 0 && !["refusal", "assistant", "intent-model"].includes(reply.source) && (reply.sources?.length ?? 0) === 0 && (
                 <p className="mt-3 text-xs text-muted-foreground">No tools ran for this reply, so it contains no simulator results.</p>
             )}
             {(reply.suggestions?.length ?? 0) > 0 && (
@@ -420,7 +420,7 @@ export const AssistantPanel = ({ health, className }: { health: Health | null; c
                                     <div className="space-y-1">
                                         <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
                                             <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                                            Working. If this runs a simulation it can take a while.
+                                            Thinking
                                         </p>
                                         <EngineWaitNote />
                                     </div>

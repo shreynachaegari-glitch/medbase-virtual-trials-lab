@@ -464,7 +464,7 @@ def _plan(question: str, ledger: _Ledger) -> str:
 _EXAMPLES = ("Try: 'Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks', 'Design a study of empagliflozin for a 0.5 point effect', "
              "'Who responds to empagliflozin 25 mg?', 'How accurate is this lab?', or 'Side effects of metformin'.")
 _CONVERSATION = {
-    "greeting": "Hello! I'm the MedBase Lab Assistant. I run simulated type 2 diabetes drug trials for research and learning. " + _EXAMPLES,
+    "greeting": "Hello! I'm the MedBase AI copilot. Ask me anything about diabetes, drug trials or this lab, or ask me to run a simulation. What would you like to know?",
     "thanks": "You're welcome. Ask whenever you'd like to run another simulation.",
     "goodbye": "Goodbye. Remember, these are simulations for research and learning, so please take questions about your own health to a doctor.",
     "identity": ("I'm the MedBase Lab Assistant, a research tool and not a doctor. A small trained model recognises what you're asking, and a simulator built from "

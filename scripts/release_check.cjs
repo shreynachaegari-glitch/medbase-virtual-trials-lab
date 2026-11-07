@@ -41,7 +41,7 @@ require("fs").rmSync("/home/tg/hello-world/medbase-lab/results/release_check.jso
   await page.getByTestId("engine-ready").waitFor({ timeout: 240000 }).catch(() => {});
   log("engine loads in the browser", await page.getByTestId("engine-ready").isVisible().catch(() => false), secs(t));
   log("the page carries a security policy", (await page.locator('meta[http-equiv="Content-Security-Policy"]').count()) === 1);
-  log("the old research wording is gone", !/research and education only/i.test(await page.locator("body").innerText()) && /Not medical advice/.test(await page.getByTestId("research-notice").textContent()));
+  log("the top banner is gone", (await page.getByTestId("research-notice").count()) === 0);
   log("Virtual Trials is the first page and the first link", /\/trials/.test(page.url()) && (await page.getByRole("navigation", { name: "Main" }).getByRole("link").first().textContent()) === "Virtual Trials");
   log("no sign-in and no Learn link", (await page.getByText(/sign[- ]?in/i).count()) === 0 && (await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Learn" }).count()) === 0);
   const layers = page.getByTestId("ai-layer");

@@ -24,7 +24,6 @@ for (const path of ["/trials", "/trials/", "/trials/index.html", "/trials/?tab=p
         await page.route("https://cdn.jsdelivr.net/**", (route) => route.abort("failed"));
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toContainText("simulated type 2 diabetes drug trial");
-        await expect(page.getByTestId("research-notice")).toBeVisible();
         await expect(page).toHaveURL(/\/trials(\/|\/index\.html)?(\?.*)?$/);
         expect(problems).toEqual([]);
     });

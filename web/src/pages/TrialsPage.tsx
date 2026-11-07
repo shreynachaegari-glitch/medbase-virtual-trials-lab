@@ -231,9 +231,6 @@ const TrialsPage = () => {
         <div className="flex min-h-screen flex-col">
             <Header />
             <EnginePill />
-            <p data-testid="research-notice" className="sticky top-14 z-30 border-b border-border bg-background/90 px-4 py-1 text-center text-xs text-muted-foreground backdrop-blur-xl">
-                Simulated results. Not medical advice.
-            </p>
 
             <main className="flex-1">
                 <div className="relative overflow-hidden border-b border-border">

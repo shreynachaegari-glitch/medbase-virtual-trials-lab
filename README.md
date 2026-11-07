@@ -6,7 +6,6 @@ An applied AI lab that simulates randomised drug trials in virtual patients buil
 
 On 20 results from 6 real trials it never saw, predicted HbA1c effects were off by 0.29 points on average, and 50% landed within 0.30 points of what the trial reported. Passed: interval coverage, kidney effect size. Failed, and reported as failures: prediction accuracy, beating a simple rival with no physiology.
 
-> Simulated results. This is not medical advice and cannot show that a treatment works for any person. It offers no dosing guidance.
 
 ## What you can do
 
@@ -115,7 +114,7 @@ uvicorn medlab.api:app --port 8000      # API
 cd web && npm ci && npm run dev         # UI, opens on /trials
 ```
 
-Latest test run: 942 passed in 80.81s (0:01:20).
+Latest test run: 942 passed in 80.96s (0:01:20).
 
 ## Credits
 

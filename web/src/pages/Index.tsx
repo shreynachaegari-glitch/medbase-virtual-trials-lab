@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "motion/react";
-import { ArrowRight, CircleCheck, FlaskConical, MessageSquareText, Sparkles, Target, TriangleAlert } from "lucide-react";
+import { ArrowRight, CircleCheck, FlaskConical, MessageSquareText, Sparkles, Target } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { AiStack } from "@/components/trials/AiStack";
@@ -33,13 +33,6 @@ const FLOW = [
     { stage: "Simulator", detail: "Computes every number, on your device" },
     { stage: "Checks", detail: "Code compares the reply with what really ran" },
     { stage: "Answer", detail: "With the lab's track record beside it" },
-];
-
-const LIMITS = [
-    "It predicts average effects in study populations, and says nothing about any one person.",
-    "In its blind test it failed its accuracy check and did not clearly beat a simple rival.",
-    "It has not been clinically validated, and it can't guide anyone's treatment.",
-    "Its virtual patients come from a US survey, not an Indian cohort.",
 ];
 
 const MORE = [
@@ -120,7 +113,7 @@ const Index = () => {
                                 <Link to="/trials" className="btn-solid gap-2" data-testid="home-start">Run a virtual trial<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
                                 <Link to="/trials?tab=proof" className="btn-outline">See how it was tested</Link>
                             </motion.div>
-                            <motion.p {...enter(0.24)} className="mt-5 text-xs text-muted-foreground">Simulated results, not medical advice. Free to use, with no account.</motion.p>
+                            <motion.p {...enter(0.24)} className="mt-5 text-xs text-muted-foreground">Free to use, with no account.</motion.p>
                         </div>
                         <motion.div {...enter(0.2)} className="min-w-0"><QuestionFlow /></motion.div>
                     </div>
@@ -169,15 +162,9 @@ const Index = () => {
                     </div>
                 </section>
 
-                <section aria-label="The AI in this lab, and its limits" className="border-t border-border bg-card/30">
-                    <div className="mx-auto grid max-w-[1400px] items-start gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:py-16">
+                <section aria-label="The AI in this lab" className="border-t border-border bg-card/30">
+                    <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:py-16">
                         <AiStack />
-                        <div className="rounded-lg border border-[hsl(var(--prov-extrapolated))]/40 bg-background/60 p-5" data-testid="home-limits">
-                            <p className="flex items-center gap-2 text-base font-semibold tracking-tight"><TriangleAlert className="h-4 w-4 text-[hsl(var(--prov-extrapolated))]" aria-hidden="true" />What it can&rsquo;t do</p>
-                            <ul className="mt-3 space-y-2.5">
-                                {LIMITS.map((limit) => <li key={limit} className="text-pretty text-sm leading-relaxed text-muted-foreground">{limit}</li>)}
-                            </ul>
-                        </div>
                     </div>
                 </section>
 

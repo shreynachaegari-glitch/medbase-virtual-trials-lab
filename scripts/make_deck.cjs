@@ -63,7 +63,6 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
     { text: "Try it live", options: { color: C.accent, bold: true, breakLine: true } },
     { text: DEMO, options: { color: C.text, hyperlink: { url: DEMO } } },
   ], { x: 0.6, y: 5.0, w: 5.8, h: 0.8, fontFace: BODY, fontSize: 14, margin: 0, valign: "top" });
-  s.addText("Simulated results. Not medical advice.", { x: 0.6, y: 6.55, w: 5.6, h: 0.35, fontFace: BODY, fontSize: 12, color: C.muted, margin: 0 });
   picture(s, "first-screen.png", 6.7, 0.75, 6.05, 4.2);
   picture(s, "body-view.png", 8.95, 4.3, 3.8, 2.64);
 }
@@ -107,7 +106,7 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
     ["Bayesian calibration", `MCMC learns drug effects from three real trials and carries the uncertainty into every prediction.`, `R-hat ${V.max_split_rhat.toFixed(3)}`, `${POST.walkers} walkers, ${POST.steps} steps, ${Math.round(V.length_over_tau)} autocorrelation times`],
     ["Neural surrogate", `Trained on ${SUR.runs_used} simulator runs. Instant sliders, runs in the browser. It learned the simulator, not reality.`, `R² ${SUR.a1c_r2}`, `HbA1c error ${SUR.a1c_mae} points on ${SUR.test_runs} simulator runs it never saw`],
     ["AI Trial Designer", `The surrogate proposes a dose; the simulator checks it, refines it, then sizes the study.`, `${Math.round(DES.fewer_runs_share * 100)}% fewer`, `simulator runs than plain search, across ${DES.goals} goals`],
-    ["Live copilot", `A language model on NVIDIA NIM plans tool calls, explains results, and answers ordinary questions from a pgvector database running in the browser.`, `${(RET.hit_at_3 * 100).toFixed(0)}%`, `of ${RET.answerable} held-out questions found the right note in the top 3. Right tool on ${COP.right_tool} of ${COP.questions} experiments`],
+    ["Live copilot", `A language model on NVIDIA NIM plans tool calls, explains results, and answers ordinary questions in conversation, using notes from a pgvector database in the browser.`, `${(RET.hit_at_3 * 100).toFixed(0)}%`, `of ${RET.answerable} held-out questions found the right note in the top 3. Right tool on ${COP.right_tool} of ${COP.questions} experiments`],
     ["Number and advice guard", `A digit figure no tool produced sends the reply back, then falls to computed text. Dose guidance and personal questions are refused.`, `${COP.attack_prompts_refused_before_any_model} of ${COP.attack_prompts}`, `project-written attack prompts refused before any model is called`],
   ];
   rows.forEach((r, i) => {
@@ -177,7 +176,7 @@ const stat = (s, x, y, w, big, label, color = C.accent) => {
     [cell("Shipped guard, same lists (tuned, not held out)", C.text, true), cell(of(SHIP.personal_reaching_a_simulation), C.pass), cell(of(SHIP.urgent_not_given_the_emergency_reply), C.pass), cell(of(SHIP.legit_refused), C.accent)],
   ], { x: 0.6, y: 1.55, w: 12.1, colW: [4.0, 3.2, 2.9, 2.0], fontFace: BODY, fontSize: 14, border: { type: "solid", pt: 0.5, color: C.line }, fill: { color: C.card }, margin: 0.08, rowH: 0.56 });
   s.addText([
-    { text: "Default is no: only a question with a research frame reaches a simulation or a model, in any language", options: { bullet: true, breakLine: true } },
+    { text: "Default is no for simulations: only a research question reaches one. Personal, urgent and non-English messages stop before any model", options: { bullet: true, breakLine: true } },
     { text: "Urgent messages are checked first, and every simulation or safety answer ends with 112 and the Tele-MANAS helpline, 14416", options: { bullet: true, breakLine: true } },
     { text: "For a supervised research demo, not an unattended public service. Lists written by one author, hard on purpose", options: { bullet: true } },
   ], { x: 0.6, y: 4.95, w: 12.1, h: 1.75, fontFace: BODY, fontSize: 16, color: C.muted, margin: 0, paraSpaceAfter: 8, valign: "top" });
