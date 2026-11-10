@@ -7,6 +7,7 @@ import { LANGS, useLang, type LangId } from "@/i18n";
 
 const nav = [
     { to: "/trials", label: "Virtual Trials" },
+    { to: "/copilot", label: "AI Copilot" },
     { to: "/anatomy", label: "Anatomy" },
     { to: "/lab", label: "Lab" },
     { to: "/evidence", label: "Evidence" },

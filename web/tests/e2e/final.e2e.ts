@@ -79,7 +79,8 @@ test("a model call that stalls gives up, says so plainly, and the planner answer
     await expect(page.getByTestId("copilot-deciding")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("assistant-guard")).toContainText("The AI service is unavailable", { timeout: 75_000 });
     console.log(`TIMING stalled model call gave up after: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-    await expect(page.getByTestId("assistant-source")).toHaveText("Offline planner, in place of the AI's reply");
+    await expect(page.getByTestId("assistant-source")).toHaveText("Offline planner");
+    await expect(page.getByTestId("assistant-writer")).toContainText("Offline planner, in place of the AI's reply");
     await expect(page.getByTestId("assistant-reply")).not.toContainText("nothing is sent");
 });
 

@@ -379,7 +379,12 @@ test.describe("with the API up", () => {
         await expect(page.getByTestId("assistant-source").first()).toHaveText("English only");
         await box.fill("Compare semaglutide and empagliflozin");
         await panel.getByRole("button", { name: "Send question" }).click();
-        await expect(page.getByTestId("assistant-source").first()).toHaveText("Claude");
+        await expect(page.getByTestId("assistant-source").first()).toHaveText("Simulator-checked");
+        await expect(page.getByTestId("assistant-writer").first()).toContainText("Claude");
+        await expect(page.getByTestId("result-card-trial").first()).toContainText("Semaglutide 1 mg/week");
+        // The working is folded once the answer arrives, and opens on request.
+        await expect(page.getByTestId("assistant-tools").first()).toBeHidden();
+        await page.getByTestId("reasoning-label").first().click();
         await expect(page.getByTestId("assistant-tools").first()).toContainText("Searched ClinicalTrials.gov, failed");
         await expect(page.getByTestId("assistant-tools").first()).toBeVisible();
         await expect(page.getByTestId("assistant-sent").first()).toHaveText("This question was sent to an AI provider.");
@@ -391,6 +396,27 @@ test.describe("with the API up", () => {
         const size = await emergency.locator("p").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
         expect(size).toBeGreaterThanOrEqual(18);
         await shot(page, "assistant", info.project.name);
+    });
+
+    test("the full-screen copilot greets, works, folds its reasoning and draws what the simulator returned", async ({ page }) => {
+        await page.goto("/trials");
+        await page.getByTestId("copilot-fullscreen").click();
+        await expect(page).toHaveURL(/\/copilot$/);
+        await expect(page.getByTestId("copilot-launcher")).toHaveCount(0);
+        await expect(page.getByRole("heading", { level: 1 })).toHaveText("What should we test today?");
+        await page.getByRole("button", { name: /Run a virtual trial/ }).click();
+        await expect(page.getByTestId("copilot-empty")).toHaveCount(0);
+        await expect(page.getByTestId("assistant-source")).toHaveText("Simulator-checked");
+        const reasoning = page.getByTestId("assistant-reasoning");
+        await expect(reasoning).toHaveAttribute("data-open", "false");
+        await expect(page.getByTestId("reasoning-label")).toContainText(/^Thought for \d+\.\d s · 1 experiment/);
+        await expect(page.getByTestId("result-card-trial")).toContainText("26 weeks · 200 virtual patients per arm");
+        await expect(page.getByTestId("result-card-trial").getByRole("img")).toHaveAttribute("aria-label", /Placebo, Semaglutide 1 mg\/week/);
+        await page.getByTestId("reasoning-label").click();
+        await expect(reasoning).toHaveAttribute("data-open", "true");
+        await expect(page.getByTestId("assistant-sent")).toBeVisible();
+        const widths = await page.evaluate(() => ({ doc: document.documentElement.scrollWidth, win: window.innerWidth }));
+        expect(widths.doc).toBeLessThanOrEqual(widths.win);
     });
 
     test("kidney-range flags from the API sit prominently beside the result", async ({ page }) => {
@@ -843,7 +869,8 @@ test("Learn has moved into Anatomy, and old links still arrive", async ({ page }
     await expect(page.getByRole("link", { name: /Anatomy/ }).first()).toBeVisible();
     await expect(page.getByTestId("copilot-launcher")).toBeVisible();
     await page.getByTestId("copilot-launcher").click();
-    await expect(page).toHaveURL(/\/trials$/);
+    await expect(page).toHaveURL(/\/copilot$/);
+    await expect(page.getByTestId("copilot-empty")).toBeVisible();
     if (info.project.name === "mobile") await page.getByRole("button", { name: "Open menu" }).click();
     await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Learn" })).toHaveCount(0);
 });

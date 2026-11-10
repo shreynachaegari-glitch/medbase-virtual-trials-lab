@@ -282,7 +282,48 @@ export interface AssistantReply {
     trace?: { stage: string; detail: string }[];
     /** Next questions the copilot can really do. */
     suggestions?: string[];
+    /** Charts of what the simulator returned in this turn, built by code from the tools' own output. */
+    cards?: ResultCard[];
 }
+
+export interface TrialCardArm {
+    name: string;
+    effect: number;
+    low: number;
+    high: number;
+    weight: number | null;
+    share_below_7: number | null;
+}
+
+export interface TrialCardData {
+    kind: "trial";
+    control: string;
+    weeks: number;
+    n_per_arm: number;
+    arms: TrialCardArm[];
+    curves: Record<string, { mean: number[]; low: number[]; high: number[] }>;
+}
+
+export interface PowerCardData {
+    kind: "power";
+    arm: string;
+    weeks: number;
+    target: number;
+    smallest: number | null;
+    curve: { n: number; power: number }[];
+}
+
+export interface RespondersCardData {
+    kind: "responders";
+    arm: string;
+    weeks: number;
+    mean_effect: number;
+    spread_sd: number;
+    drivers: { feature: string; importance: number }[];
+    subgroups: { rule: string; patients: number; mean_effect: number }[];
+}
+
+export type ResultCard = TrialCardData | PowerCardData | RespondersCardData;
 
 export interface DoseResult {
     mg: number;

@@ -79,7 +79,8 @@ test("with no posterior: real load, instant saved tabs, honest 503, working mode
     const panel = page.getByTestId("assistant-panel");
     await expect(page.getByTestId("assistant-privacy")).toHaveCount(0);
     await panel.getByRole("button", { name: "What side effects were reported for semaglutide?" }).click();
-    await expect(page.getByTestId("assistant-source").first()).toHaveText("Offline planner: runs in your browser, nothing is sent anywhere", { timeout: 60_000 });
+    await expect(page.getByTestId("assistant-source").first()).toHaveText("Offline planner, on this device", { timeout: 60_000 });
+    await expect(page.getByTestId("assistant-writer").first()).toContainText("Offline planner: runs in your browser, nothing is sent anywhere");
     await expect(page.getByTestId("assistant-tools").first()).toContainText("Read reported side effects");
     await panel.getByRole("button", { name: "Should I stop taking my metformin?" }).click();
     await expect(page.getByTestId("assistant-source").first()).toHaveText("Refusal");

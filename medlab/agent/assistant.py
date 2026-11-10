@@ -14,7 +14,7 @@ from dataclasses import dataclass, field, replace
 import httpx
 
 from .. import labels, limits
-from . import guard, intent, knowledge, notes, reference, tools, track_record
+from . import cards, guard, intent, knowledge, notes, reference, tools, track_record
 
 log = logging.getLogger("medlab.assistant")
 CLAUDE_MODEL = os.environ.get("MEDLAB_CLAUDE_MODEL", "claude-opus-5-5")
@@ -174,7 +174,7 @@ class _Ledger:
     def run(self, name: str, args: dict) -> dict:
         result = tools.execute(name, args)
         ok = "error" not in result
-        self.calls.append({"tool": name, "args": args, "ok": ok})
+        self.calls.append({"tool": name, "args": args, "ok": ok, "result": result})
         if result.get("evidence"):
             rows = result.get("papers", []) + result.get("trials", [])
             self.years.extend(r["year"] for r in rows if r.get("year"))
@@ -1038,7 +1038,11 @@ def _reply_dict(reply: Reply) -> dict:
             "sources": [{"title": p["title"], "score": p["score"]} for p in reply.passages] if reply.source in {"nim", "claude", "reference", "assistant"} else [],
             "retrieval": (reply.retrieval or None) if reply.passages else None,
             "query_ms": round(reply.query_ms, 2) if reply.passages and isinstance(reply.query_ms, (int, float)) else None,
-            "trace": trace_of(reply), "suggestions": suggestions(reply.question, reply.source)}
+            "trace": trace_of(reply), "suggestions": suggestions(reply.question, reply.source),
+            "cards": cards.from_calls(reply.tool_calls) if reply.source in _SHOWS_CARDS else []}
+
+
+_SHOWS_CARDS = {"claude", "nim", "assistant", "verified", "planner"}
 
 
 reply_dict = _reply_dict

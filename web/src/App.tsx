@@ -11,6 +11,7 @@ import { LangProvider } from "@/i18n";
 const ConditionPage = lazy(() => import("@/pages/ConditionPage"));
 const LabPage = lazy(() => import("@/pages/LabPage"));
 const TrialsPage = lazy(() => import("@/pages/TrialsPage"));
+const CopilotPage = lazy(() => import("@/pages/CopilotPage"));
 const AnatomyPage = lazy(() => import("@/pages/AnatomyPage"));
 const EvidencePage = lazy(() => import("@/pages/EvidencePage"));
 const MethodsPage = lazy(() => import("@/pages/MethodsPage"));
@@ -34,7 +35,7 @@ const LANDING: string | undefined = import.meta.env.VITE_LANDING;
 const Router = ({ children }: Pick<BrowserRouterProps, "children">) =>
     LANDING ? <HashRouter>{children}</HashRouter> : <BrowserRouter basename={import.meta.env.BASE_URL}>{children}</BrowserRouter>;
 /** A static host serves this same page at /trials/ and the like, so a direct link still opens the page it names. */
-const OPENED_ROUTE = /^\/(trials|home|lab|anatomy|evidence|methods|funding)(?:\/|\/index\.html)?$/;
+const OPENED_ROUTE = /^\/(trials|copilot|home|lab|anatomy|evidence|methods|funding)(?:\/|\/index\.html)?$/;
 const landingTarget = (): string => {
     const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     const opened = window.location.pathname.slice(base.length).match(OPENED_ROUTE);
@@ -69,6 +70,7 @@ function App() {
                         <Route path="/lab" element={<LabPage />} />
                         <Route path="/trials" element={<TrialsPage />} />
                         <Route path="/trials/index.html" element={<TrialsPage />} />
+                        <Route path="/copilot" element={<CopilotPage />} />
                         <Route path="/evidence" element={<EvidencePage />} />
                         <Route path="/methods" element={<MethodsPage />} />
                         <Route path="/funding" element={<FundingPage />} />

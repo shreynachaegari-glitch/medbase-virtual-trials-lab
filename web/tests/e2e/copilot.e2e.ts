@@ -45,25 +45,32 @@ const NIM = "AI model (NVIDIA NIM), figures checked against the simulator";
 test.describe("with the model's replies scripted", () => {
     test.skip(realAI, "the real proxy is covered below");
 
-    test("runs the loop, shows each tool live, and labels the result", async ({ page }) => {
+    test("runs the loop, shows each tool live, labels the result and draws the simulator's output", async ({ page }) => {
         const problems = watchConsole(page);
         const sent: { messages: { role: string; content?: string }[]; tools: unknown[] }[] = [];
+        // Questions about the lab's own record are answered by code with no model, so this one asks for a simulation.
         await scriptModel(page, [
-            { tool_calls: [tool("a", "validation_report"), tool("b", "model_assumptions")] },
-            { content: "The lab has not run its held-out test yet, so no accuracy claim can be made." },
+            { tool_calls: [tool("a", "run_virtual_trial", JSON.stringify({ arms: [{ drug: "semaglutide", mg: 1 }], weeks: 26, n_per_arm: 100 })), tool("b", "model_assumptions")] },
+            { content: "In this simulated trial semaglutide lowered HbA1c more than placebo did." },
         ], sent);
         await page.goto("/trials");
         await expect(page.getByTestId("assistant-privacy")).toBeVisible();
-        await ask(page, "How accurate is this lab?");
+        await ask(page, "Simulate semaglutide 1 mg against placebo for 26 weeks");
 
         await expect(page.getByTestId("copilot-deciding")).toContainText("planning", { timeout: 90_000 });
         await expect(page.getByTestId("copilot-step")).toHaveCount(2, { timeout: 60_000 });
-        await expect(page.getByTestId("copilot-step").first()).toContainText("validation report");
+        await expect(page.getByTestId("copilot-step").first()).toContainText("virtual trial");
         await expect(page.getByTestId("copilot-steps")).toHaveAttribute("aria-label", "What the AI did");
-        await expect(page.getByTestId("assistant-source")).toHaveText(NIM, { timeout: 60_000 });
-        await expect(page.getByTestId("assistant-reply")).toContainText("no accuracy claim");
+        await expect(page.getByTestId("assistant-source")).toHaveText("Simulator-checked", { timeout: 120_000 });
+        await expect(page.getByTestId("assistant-writer")).toContainText(NIM);
+        await expect(page.getByTestId("assistant-reply")).toContainText("lowered HbA1c more than placebo");
         await expect(page.getByTestId("assistant-sent")).toHaveText("This question was sent to an AI provider.");
         await expect(page.locator('[data-testid="copilot-step"][data-status="ok"]')).toHaveCount(2);
+        // The card comes from the real engine's own output, not from anything the model wrote.
+        // The model asked for 100 per arm, but the user never said so: grounded_args runs the default 200, and the card shows what really ran.
+        await expect(page.getByTestId("result-card-trial")).toContainText("26 weeks · 200 virtual patients per arm");
+        await expect(page.getByTestId("result-card-trial")).toContainText("Semaglutide 1 mg/week");
+        await expect(page.getByTestId("assistant-reasoning")).toHaveAttribute("data-open", "false");
 
         // The second call carried the assistant's request and both tool results, as the proxy requires.
         expect(sent).toHaveLength(2);
@@ -73,22 +80,25 @@ test.describe("with the model's replies scripted", () => {
         expect(problems).toEqual([]);
     });
 
-    test("the guard replaces a reply with a number no tool produced", async ({ page }) => {
+    test("the guard removes a number no tool produced", async ({ page }) => {
         const sent: never[] = [];
-        await scriptModel(page, [{ content: "Semaglutide lowers HbA1c by 9.87 points." }], sent);
+        await scriptModel(page, [
+            { tool_calls: [tool("a", "run_virtual_trial", JSON.stringify({ arms: [{ drug: "semaglutide", mg: 1 }] }))] },
+            { content: "Semaglutide lowers HbA1c by 9.87 points." },
+        ], sent);
         await page.goto("/trials");
-        await ask(page, "How accurate is this lab?");
+        await ask(page, "Simulate semaglutide 1 mg against placebo for 26 weeks");
         await expect(page.getByTestId("assistant-reply")).toBeVisible({ timeout: 90_000 });
         await expect(page.getByTestId("assistant-reply")).not.toContainText("9.87");
-        await expect(page.getByTestId("assistant-guard")).toContainText("numbers no tool produced");
-        await expect(page.getByTestId("assistant-source")).not.toHaveText(NIM);
+        await expect(page.getByTestId("assistant-guard")).toContainText("no tool");
+        await expect(page.getByTestId("assistant-writer")).not.toContainText(NIM);
     });
 
     test("a proxy failure falls back to the offline planner, and says so", async ({ page }) => {
         const sent: never[] = [];
         await scriptModel(page, ["fail"], sent);
         await page.goto("/trials");
-        await ask(page, "How accurate is this lab?");
+        await ask(page, "Simulate semaglutide 1 mg against placebo for 26 weeks");
         await expect(page.getByTestId("assistant-guard")).toContainText("The AI service is unavailable", { timeout: 90_000 });
         await expect(page.getByTestId("run-error")).toHaveCount(0);
     });

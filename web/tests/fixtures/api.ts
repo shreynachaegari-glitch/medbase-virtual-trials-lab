@@ -281,6 +281,15 @@ export const assistantFor = (question: string): AssistantReply => {
         source: "claude",
         tool_calls: [{ tool: "run_virtual_trial", ok: true }, { tool: "search_registry", ok: false }],
         sent_to_provider: true,
+        // Invented values for tests only: never use a screenshot of this card anywhere public.
+        cards: [{
+            kind: "trial", control: "Placebo", weeks: 26, n_per_arm: 200,
+            arms: [{ name: "Semaglutide 1 mg/week", effect: -1.5, low: -1.7, high: -1.3, weight: -3.5, share_below_7: 0.8 }],
+            curves: {
+                Placebo: { mean: [7.8, 7.8, 7.8], low: [7.8, 7.6, 7.5], high: [7.8, 8.0, 8.1] },
+                "Semaglutide 1 mg/week": { mean: [7.8, 6.9, 6.3], low: [7.8, 6.7, 6.1], high: [7.8, 7.1, 6.5] },
+            },
+        }],
     };
 };
 
