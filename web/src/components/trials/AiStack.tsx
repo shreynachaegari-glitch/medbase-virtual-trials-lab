@@ -87,7 +87,8 @@ const CountUp = ({ metric }: { metric: Metric }) => {
 /** What the AI in this lab actually is, in the order a question meets it. Every figure comes from a saved evaluation file. */
 export const AiStack = () => {
     const reduce = useReducedMotion();
-    const [stats, setStats] = useState<AiStats | null>(null);
+    // undefined while loading, so the figures' space is held and nothing below jumps when they arrive.
+    const [stats, setStats] = useState<AiStats | null | undefined>(undefined);
     useEffect(() => {
         const controller = new AbortController();
         loadSnapshot<AiStats>("ai-stats.json", (v) => typeof v === "object" && v !== null, controller.signal).then(setStats).catch(() => setStats(null));
@@ -98,7 +99,7 @@ export const AiStack = () => {
             <p className="label-caps">Applied AI</p>
             <h2 id="ai-stack-heading" className="mt-1 text-base font-semibold tracking-tight">Six layers between your question and the answer</h2>
             <ol className="ai-flow mt-4 space-y-3">
-                {layersFrom(stats).map((layer, i) => (
+                {layersFrom(stats ?? null).map((layer, i) => (
                     <motion.li
                         key={layer.name}
                         data-testid="ai-layer"
@@ -115,6 +116,13 @@ export const AiStack = () => {
                             <p className="text-sm font-medium">{layer.name}</p>
                             <p className="text-pretty text-xs leading-relaxed text-muted-foreground">{layer.role}</p>
                         </div>
+                        {stats === undefined && (
+                            <div aria-hidden="true" className="col-start-2 mt-1 space-y-1 sm:col-start-3 sm:mt-0">
+                                <div className="h-7 w-16 rounded bg-secondary/40 sm:ml-auto" />
+                                <div className="h-3 w-28 rounded bg-secondary/30 sm:ml-auto" />
+                                <div className="h-3 w-20 rounded bg-secondary/30 sm:ml-auto" />
+                            </div>
+                        )}
                         {layer.metric && (
                             <div className="col-start-2 mt-1 sm:col-start-3 sm:mt-0 sm:text-right">
                                 <CountUp metric={layer.metric} />

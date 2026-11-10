@@ -232,7 +232,7 @@ export const SurrogateExplorer = ({ onRunFull, full, className }: { onRunFull: (
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">A small neural network trained on simulator runs, so it answers instantly while the full simulator warms up.</p>
             <div className="mt-3">
                 {state.status === "loading" || state.status === "idle" ? (
-                    <div className="h-64 animate-pulse rounded-md bg-secondary/40 motion-reduce:animate-none" role="status"><span className="sr-only">Loading the surrogate…</span></div>
+                    <div className="h-64 animate-pulse rounded-md bg-secondary/40 motion-reduce:animate-none lg:h-[36.5rem]" role="status"><span className="sr-only">Loading the surrogate…</span></div>
                 ) : net ? (
                     <Explorer net={net} onRunFull={onRunFull} full={full} />
                 ) : (

@@ -9,10 +9,12 @@ const base = process.env.MEDBASE_BASE ?? '/'
 // The lab API. Production is same-origin; dev and preview forward /api to it.
 const apiTarget = process.env.MEDLAB_API ?? 'http://localhost:8000'
 const proxy = { '/api': { target: apiTarget, changeOrigin: true } }
+// Link previews need an absolute address for the share image. Set VITE_SITE_URL when hosting elsewhere.
+process.env.VITE_SITE_URL ??= 'https://zade06079-medbase-virtual-trials-lab.static.hf.space'
 
 // A static host may not send unknown paths to the app, so each top-level route gets its own real
 // page. 404.html covers deeper links such as /conditions/tb on hosts that honour it.
-const STATIC_ROUTES = ['trials', 'home', 'lab', 'anatomy', 'evidence', 'methods', 'funding']
+const STATIC_ROUTES = ['trials', 'copilot', 'home', 'lab', 'anatomy', 'evidence', 'methods', 'funding']
 const staticPages = (): Plugin => ({
   name: 'static-pages',
   apply: 'build',

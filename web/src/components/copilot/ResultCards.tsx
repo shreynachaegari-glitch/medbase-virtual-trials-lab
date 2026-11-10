@@ -205,7 +205,7 @@ const RespondersCard = ({ card }: { card: RespondersCardData }) => {
 };
 
 /** What the simulator returned this turn, drawn from the tools' own output and nothing the model wrote. */
-export const ResultCards = ({ cards }: { cards: ResultCard[] }) => {
+export const ResultCards = ({ cards, footnote = true }: { cards: ResultCard[]; footnote?: boolean }) => {
     if (cards.length === 0) return null;
     return (
         <div className="mt-3 space-y-3" data-testid="result-cards">
@@ -214,7 +214,7 @@ export const ResultCards = ({ cards }: { cards: ResultCard[] }) => {
                 if (card.kind === "power") return <PowerCard key={i} card={card} />;
                 return <RespondersCard key={i} card={card} />;
             })}
-            <p className="text-[11px] text-muted-foreground">Simulated in virtual patients. Not medical advice.</p>
+            {footnote && <p className="text-[11px] text-muted-foreground">Simulated in virtual patients. Not medical advice.</p>}
         </div>
     );
 };

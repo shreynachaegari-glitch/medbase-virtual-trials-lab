@@ -16,7 +16,8 @@ export default defineConfig({
     timeout: 60_000,
     expect: { timeout: 10_000 },
     reporter: [["list"]],
-    use: { baseURL: external ?? `http://localhost:${PORT}`, trace: "off" },
+    // The offline cache would hide requests from route mocks, so tests run without it. It has its own unit test.
+    use: { baseURL: external ?? `http://localhost:${PORT}`, trace: "off", serviceWorkers: "block" },
     projects: [
         { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
         { name: "mobile", use: { ...devices["Pixel 5"], viewport: { width: 360, height: 740 } } },

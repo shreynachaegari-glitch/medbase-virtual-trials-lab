@@ -345,6 +345,7 @@ const AnatomyPage = () => {
                     <div className="pointer-events-none absolute left-1/2 top-12 -translate-x-1/2 rounded bg-slate-900/85 px-2.5 py-1 text-xs text-white">{manifest.parts[hovered].name}</div>
                 )}
 
+                <h1 className="sr-only">Anatomy explorer: a 3D model of the human body</h1>
                 {/* Control panel */}
                 <button
                     type="button"

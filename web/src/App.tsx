@@ -3,6 +3,7 @@ import { BrowserRouter, HashRouter, Navigate, Routes, Route, useParams, type Bro
 import Index from "@/pages/Index";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ScrollManager from "@/components/ScrollManager";
+import TitleManager from "@/components/TitleManager";
 import CopilotLauncher from "@/components/CopilotLauncher";
 import { LangProvider } from "@/i18n";
 
@@ -57,6 +58,7 @@ function App() {
             <LangProvider>
             <Router>
                 <ScrollManager />
+                <TitleManager />
                 <CopilotLauncher />
                 <Suspense fallback={<PageFallback />}>
                     <Routes>

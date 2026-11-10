@@ -1,5 +1,6 @@
 """Writes web/public/engine/: everything the in-browser engine loads. Raw survey files are not included."""
 import base64
+import hashlib
 import json
 import shutil
 import zipfile
@@ -36,5 +37,7 @@ if note_vectors is None:
     "titles": [title for title, _ in knowledge._notes()], "dimensions": note_vectors.shape[1],
     "vectors": base64.b64encode(note_vectors.astype("<f4").tobytes()).decode("ascii"),
 }))
-(OUT / "manifest.json").write_text(json.dumps({"trials": trials, "results": [n for n in ("posterior.json", "validation.json") if (OUT / n).exists()], "pyodide": "314.0.7", "packages": ["numpy", "scipy", "pandas", "scikit-learn", "pydantic"]}, indent=1))
+# Changes whenever any engine file does, so a browser's offline cache knows when to fetch them again.
+version = hashlib.sha256(b"".join(p.name.encode() + p.read_bytes() for p in sorted(OUT.iterdir()) if p.name != "manifest.json")).hexdigest()[:16]
+(OUT / "manifest.json").write_text(json.dumps({"version": version, "trials": trials, "results": [n for n in ("posterior.json", "validation.json") if (OUT / n).exists()], "pyodide": "314.0.7", "packages": ["numpy", "scipy", "pandas", "scikit-learn", "pydantic"]}, indent=1))
 print(sorted(p.name for p in OUT.iterdir()), sum(p.stat().st_size for p in OUT.iterdir()) // 1024, "KB")

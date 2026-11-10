@@ -16,16 +16,17 @@ import { RichText } from "./RichText";
 import { EngineWaitNote } from "./EngineStatus";
 
 const STARTERS = [
-    "What is the applied AI in this lab?",
     "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks",
+    "What is the applied AI in this lab?",
+    "How accurate is this lab?",
+    "Should I stop taking my metformin?",
     "Does empagliflozin weaken in kidney disease?",
     "What sample size would a sitagliptin trial need?",
-    "How accurate is this lab?",
     "Who responds to empagliflozin?",
     "What is semaglutide?",
     "What side effects were reported for semaglutide?",
-    "Should I stop taking my metformin?",
 ] as const;
+const FIRST_STARTERS = 4;
 
 const CAPABILITIES: { icon: ReactNode; title: string; prompt: string }[] = [
     { icon: <FlaskConical className="h-4 w-4" aria-hidden="true" />, title: "Run a virtual trial", prompt: "Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks" },
@@ -92,6 +93,9 @@ const sourceFor = (reply: AssistantReply, inBrowser: boolean): SourceInfo => {
 const SAVED_FILE = "assistant-starters.json";
 const isStarterFile = (v: unknown) => Array.isArray(v);
 
+const HELPLINE = "If this is urgent, call 112. If you are thinking of harming yourself, call Tele-MANAS on 14416, free, all day and night.";
+/** Replies where the helpline is the point stay self-contained, so a copied or read-aloud refusal still carries it. */
+const KEEPS_URGENT_LINE = new Set<AssistantReply["source"]>(["refusal", "scope", "unsupported", "language"]);
 const URGENT_LINE = /If this is urgent, call 112 now\. If you are thinking of harming yourself, call Tele-MANAS on 14416, free and open all day and night\.\s*/;
 
 /** The helpline stays on every reply that needs it, set apart so the answer reads as an answer. */
@@ -107,7 +111,28 @@ const AiAvatar = ({ working }: { working: boolean }) => (
     </span>
 );
 
-const ReplyBody = ({ reply, provenance, onAsk, busy }: { reply: AssistantReply; provenance?: Provenance; onAsk: (text: string) => void; busy: boolean }) => {
+/** Sentences of the caveats, split where a full stop ends one and a capital starts the next (decimals stay whole). */
+const limitItems = (limits: string): string[] =>
+    limits.replace(/^These are simulated results\.\s*/, "").split(/(?<=[.!?])\s+(?=[A-Z])/).map((t) => t.trim()).filter(Boolean);
+const LOUD = /\bFAILED\b|: missed|did not beat|very uncertain|outside/;
+
+/** What code adds to every efficacy answer, set apart so the answer reads as an answer. Failures stay as loud as passes. */
+const LimitsBlock = ({ limits }: { limits: string }) => (
+    <section data-testid="assistant-limits" aria-label="Limits and track record" className="mt-3 rounded-lg border border-border bg-background/40 px-3.5 py-2.5">
+        <p className="label-caps">Limits and track record</p>
+        <ul className="mt-1.5 space-y-1 text-[12px] leading-relaxed text-muted-foreground">
+            <li className="text-foreground">These are simulated results, not observed ones.</li>
+            {limitItems(limits).map((item) => (
+                <li key={item} className={cn("relative pl-3", LOUD.test(item) && "text-foreground")}>
+                    <span className={cn("absolute left-0 top-[0.55rem] h-1 w-1 rounded-full", LOUD.test(item) ? "bg-[hsl(var(--fail))]" : "bg-muted-foreground/60")} aria-hidden="true" />
+                    {item}
+                </li>
+            ))}
+        </ul>
+    </section>
+);
+
+const ReplyBody = ({ reply, provenance, onAsk, busy, suggestions }: { reply: AssistantReply; provenance?: Provenance; onAsk: (text: string) => void; busy: boolean; suggestions: string[] }) => {
     const [copied, setCopied] = useState(false);
     if (reply.source === "emergency") {
         return (
@@ -120,11 +145,14 @@ const ReplyBody = ({ reply, provenance, onAsk, busy }: { reply: AssistantReply; 
             </div>
         );
     }
-    const { answer, urgent } = splitUrgentLine(reply.text);
+    const split = splitUrgentLine(reply.text);
+    const urgent = KEEPS_URGENT_LINE.has(reply.source) ? split.urgent : null;
+    const answer = reply.limits ? split.answer.replace(reply.limits, "").trim() : split.answer;
     return (
         <div className="min-w-0" data-testid="assistant-reply">
             <div className="text-[0.938rem] leading-relaxed"><RichText text={answer} reveal /></div>
-            <ResultCards cards={reply.cards ?? []} />
+            <ResultCards cards={reply.cards ?? []} footnote={!reply.limits} />
+            {reply.limits && <LimitsBlock limits={reply.limits} />}
             {reply.guard_note && (
                 <p data-testid="assistant-guard" className="mt-3 flex items-start gap-2 rounded-md border border-[hsl(var(--prov-extrapolated))]/50 bg-[hsl(var(--prov-extrapolated))]/10 p-2.5 text-xs leading-relaxed">
                     <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--prov-extrapolated))]" aria-hidden="true" />
@@ -144,9 +172,9 @@ const ReplyBody = ({ reply, provenance, onAsk, busy }: { reply: AssistantReply; 
                 </button>
                 {provenance === "saved" && <ProvenanceTag provenance={provenance} />}
             </div>
-            {(reply.suggestions?.length ?? 0) > 0 && (
+            {suggestions.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5" data-testid="assistant-suggestions" aria-label="Ask next">
-                    {reply.suggestions?.map((text) => (
+                    {suggestions.map((text) => (
                         <button key={text} type="button" disabled={busy} onClick={() => onAsk(text)} className="rounded-full border border-[hsl(var(--primary))]/40 px-2.5 py-1 text-left text-xs transition-[background-color,border-color] duration-150 ease-out hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10 disabled:opacity-50">
                             {text}
                         </button>
@@ -158,7 +186,7 @@ const ReplyBody = ({ reply, provenance, onAsk, busy }: { reply: AssistantReply; 
 };
 
 /** One assistant message: who it is, what it did (folded), the answer, and the charts of what ran. */
-const AssistantMessage = ({ turn, onAsk, onRetry, busy }: { turn: Turn; onAsk: (text: string) => void; onRetry: () => void; busy: boolean }) => {
+const AssistantMessage = ({ turn, onAsk, onRetry, busy, suggestions }: { turn: Turn; onAsk: (text: string) => void; onRetry: () => void; busy: boolean; suggestions: string[] }) => {
     const reply = turn.reply;
     const working = !reply && !turn.error;
     // Only true when the question really stayed here. A fallback from the AI model has already been sent.
@@ -177,7 +205,7 @@ const AssistantMessage = ({ turn, onAsk, onRetry, busy }: { turn: Turn; onAsk: (
                 </div>
                 <div className="mt-1">
                     {reply?.source !== "emergency" && <Reasoning turn={turn} source={source} inBrowser={inBrowser} />}
-                    {reply && <ReplyBody reply={reply} provenance={turn.provenance} onAsk={onAsk} busy={busy} />}
+                    {reply && <ReplyBody reply={reply} provenance={turn.provenance} onAsk={onAsk} busy={busy} suggestions={suggestions} />}
                     {turn.error && <ErrorCallout error={turn.error} onRetry={onRetry} />}
                     {working && turn.steps.length === 0 && turn.deciding === null && <EngineWaitNote />}
                 </div>
@@ -187,6 +215,7 @@ const AssistantMessage = ({ turn, onAsk, onRetry, busy }: { turn: Turn; onAsk: (
 };
 
 type Variant = "panel" | "page";
+const normalise = (text: string) => text.trim().toLowerCase().replace(/[?.!\s]+$/, "");
 
 const newTurn = (id: number, question: string): Turn => ({ id, question, startedAt: Date.now(), steps: [], deciding: null });
 
@@ -206,28 +235,28 @@ const StarterChips = ({ items, busy, onAsk }: { items: readonly string[]; busy: 
 const EmptyState = ({ busy, onAsk }: { busy: boolean; onAsk: (text: string) => void }) => {
     const reduce = useReducedMotion();
     return (
-        <div className="py-6 sm:py-10" data-testid="copilot-empty">
+        <div className="py-3 sm:py-10" data-testid="copilot-empty">
             <div className="flex flex-col items-center text-center">
-                <span className="ai-avatar ai-avatar-hero grid h-14 w-14 place-items-center rounded-full" aria-hidden="true"><Sparkles className="h-6 w-6 text-white" /></span>
-                <h1 className="text-balance mt-5 text-2xl font-semibold tracking-tight sm:text-3xl">What should we test today?</h1>
-                <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
+                <span className="ai-avatar ai-avatar-hero grid h-10 w-10 place-items-center rounded-full sm:h-14 sm:w-14" aria-hidden="true"><Sparkles className="h-5 w-5 text-white sm:h-6 sm:w-6" /></span>
+                <h1 className="text-balance mt-3 text-xl font-semibold tracking-tight sm:mt-5 sm:text-3xl">What should we test today?</h1>
+                <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
                     I run simulated type 2 diabetes trials in virtual patients, plan studies and explain the science. Every figure I quote comes from the simulator, and checks outside the model stop personal medical advice.
                 </p>
             </div>
-            <ul className="mt-7 grid gap-2.5 sm:grid-cols-2" aria-label="What the copilot can do">
+            <ul className="mt-4 grid grid-cols-2 gap-2 sm:mt-7 sm:gap-2.5" aria-label="What the copilot can do">
                 {CAPABILITIES.map((c, i) => (
                     <motion.li key={c.title} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.05 * i, ease: [0.23, 1, 0.32, 1] }}>
-                        <button type="button" disabled={busy} onClick={() => onAsk(c.prompt)} className="capability-card group flex h-full w-full items-start gap-3 rounded-xl border border-border bg-card/60 p-3.5 text-left transition-[border-color,background-color,transform] duration-150 ease-out hover:border-[hsl(var(--primary))]/60 hover:bg-card active:scale-[0.99] disabled:opacity-50">
+                        <button type="button" disabled={busy} onClick={() => onAsk(c.prompt)} className="capability-card group flex h-full w-full flex-col items-start gap-2 rounded-xl border border-border bg-card/60 p-3 text-left sm:flex-row sm:gap-3 sm:p-3.5 transition-[border-color,background-color,transform] duration-150 ease-out hover:border-[hsl(var(--primary))]/60 hover:bg-card active:scale-[0.99] disabled:opacity-50">
                             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[hsl(var(--primary))]/15 text-[hsl(217_91%_72%)]">{c.icon}</span>
                             <span className="min-w-0">
                                 <span className="block text-sm font-semibold">{c.title}</span>
-                                <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{c.prompt}</span>
+                                <span className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:line-clamp-none">{c.prompt}</span>
                             </span>
                         </button>
                     </motion.li>
                 ))}
             </ul>
-            <div className="mt-4 flex justify-center"><StarterChips items={PAGE_EXTRAS} busy={busy} onAsk={onAsk} /></div>
+            <div className="mt-3 hidden justify-center sm:mt-4 sm:flex"><StarterChips items={PAGE_EXTRAS} busy={busy} onAsk={onAsk} /></div>
         </div>
     );
 };
@@ -261,6 +290,9 @@ export const AssistantPanel = ({ health, className, variant = "panel" }: { healt
         if (!page || !progress) return;
         endRef.current?.scrollIntoView({ block: "end", behavior: reduce ? "auto" : "smooth" });
     }, [page, reduce, progress]);
+
+    const asked = new Set(turns.map((t) => normalise(t.question)));
+    const nextQuestions = (turn: Turn): string[] => (turn.reply?.suggestions ?? []).filter((q) => !asked.has(normalise(q)));
 
     const update = (id: number, change: (turn: Turn) => Turn) => setTurns((all) => all.map((t) => (t.id === id ? change(t) : t)));
     const finish = (id: number, patch: Partial<Turn>) => update(id, (t) => ({ ...t, ...patch, finishedAt: Date.now() }));
@@ -327,7 +359,7 @@ export const AssistantPanel = ({ health, className, variant = "panel" }: { healt
                 <motion.li key={turn.id} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }} className="min-w-0 shrink-0">
                     <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-[hsl(var(--primary))]/15 px-3.5 py-2 text-sm"><span className="sr-only">You asked: </span>{turn.question}</p>
                     <div className="mt-3">
-                        <AssistantMessage turn={turn} busy={busy} onAsk={(text) => void ask(text)} onRetry={() => void ask(turn.question, turn.id)} />
+                        <AssistantMessage turn={turn} busy={busy} suggestions={turn.id === latest?.id ? nextQuestions(turn) : []} onAsk={(text) => void ask(text)} onRetry={() => void ask(turn.question, turn.id)} />
                     </div>
                 </motion.li>
             ))}
@@ -387,6 +419,10 @@ export const AssistantPanel = ({ health, className, variant = "panel" }: { healt
         </Disclosure>
     );
 
+    const helpline = (
+        <p data-testid="assistant-helpline" className="mt-2 text-[11px] leading-relaxed text-muted-foreground">{HELPLINE}</p>
+    );
+
     const privacy = usesModel && (
         <p data-testid="assistant-privacy" className={cn("text-xs text-muted-foreground", page ? "mt-2 text-center" : "mt-2 font-medium text-foreground")}>
             Questions may be sent to an AI provider. Don&rsquo;t enter personal or health details.
@@ -402,7 +438,8 @@ export const AssistantPanel = ({ health, className, variant = "panel" }: { healt
                 </div>
                 <div className="sticky bottom-0 z-10 -mx-4 bg-gradient-to-t from-background via-background to-background/0 px-4 pb-4 pt-6 sm:-mx-6 sm:px-6">
                     {composer}
-                    <div className="mt-2 flex items-start justify-between gap-3">
+                    {helpline}
+                    <div className="mt-1 flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">{privacy}</div>
                         {turns.length > 0 && (
                             <button type="button" onClick={newChat} data-testid="assistant-new-chat" className="inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded text-xs text-muted-foreground transition-colors duration-150 hover:text-foreground">
@@ -433,6 +470,7 @@ export const AssistantPanel = ({ health, className, variant = "panel" }: { healt
             {privacy}
             {log}
             {composer}
+            {helpline}
             {turns.length > 0 && (
                 <div className="mt-2 flex justify-end">
                     <button type="button" onClick={newChat} data-testid="assistant-new-chat" className="inline-flex min-h-8 items-center gap-1.5 rounded text-xs text-muted-foreground transition-colors duration-150 hover:text-foreground">
@@ -441,7 +479,12 @@ export const AssistantPanel = ({ health, className, variant = "panel" }: { healt
                 </div>
             )}
             {turns.length === 0
-                ? <div className="mt-2.5"><StarterChips items={STARTERS} busy={busy} onAsk={(text) => void ask(text)} /></div>
+                ? (
+                    <div className="mt-2.5 space-y-2">
+                        <StarterChips items={STARTERS.slice(0, FIRST_STARTERS)} busy={busy} onAsk={(text) => void ask(text)} />
+                        <Disclosure summary="More questions to try"><StarterChips items={STARTERS.slice(FIRST_STARTERS)} busy={busy} onAsk={(text) => void ask(text)} /></Disclosure>
+                    </div>
+                )
                 : <div className="mt-2"><Disclosure summary="More questions to try"><StarterChips items={STARTERS} busy={busy} onAsk={(text) => void ask(text)} /></Disclosure></div>}
             <div className="mt-3">{footnote}</div>
         </section>

@@ -55,11 +55,14 @@ const Shell = ({ children, testid }: { children: React.ReactNode; testid: string
     </section>
 );
 
-/** Fed only by GET /api/validation, so there is nothing to show until that exists. */
+/**
+ * Fed only by GET /api/validation, so there is nothing to show until that exists. Each state has its own key, so the
+ * loaded strip is new DOM rather than the skeleton reshaped, which browsers would count as a layout shift.
+ */
 export const ProofStrip = ({ state, onRetry }: { state: RemoteState<Loaded<ValidationReport>>; onRetry: () => void }) => {
     if (state.status === "idle" || state.status === "loading") {
         return (
-            <Shell testid="proof-strip-loading">
+            <Shell key="loading" testid="proof-strip-loading">
                 <div role="status" className="h-[11rem] animate-pulse motion-reduce:animate-none">
                     <span className="sr-only">Loading the held-out validation results…</span>
                 </div>
@@ -69,7 +72,7 @@ export const ProofStrip = ({ state, onRetry }: { state: RemoteState<Loaded<Valid
     if (state.status === "error") {
         const notRun = state.error instanceof ApiError && state.error.kind === "not-found";
         return (
-            <Shell testid="proof-strip-empty">
+            <Shell key="empty" testid="proof-strip-empty">
                 <div className="p-4 sm:p-5">
                     <p className="text-sm font-medium">{notRun ? "Held-out validation has not been run yet." : "Held-out validation results aren't available right now."}</p>
                     <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -88,7 +91,7 @@ export const ProofStrip = ({ state, onRetry }: { state: RemoteState<Loaded<Valid
     const { data, provenance } = state.data;
     const { score } = data;
     return (
-        <Shell testid="proof-strip">
+        <Shell key="loaded" testid="proof-strip">
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border px-4 py-2.5">
                 <p className="text-xs text-muted-foreground">
                     Simulated predictions against real trial results held back from calibration{" "}

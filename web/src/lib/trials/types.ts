@@ -282,6 +282,8 @@ export interface AssistantReply {
     trace?: { stage: string; detail: string }[];
     /** Next questions the copilot can really do. */
     suggestions?: string[];
+    /** The caveats code appended to an efficacy answer, so the page can show them as their own block. The text keeps them too. */
+    limits?: string | null;
     /** Charts of what the simulator returned in this turn, built by code from the tools' own output. */
     cards?: ResultCard[];
 }

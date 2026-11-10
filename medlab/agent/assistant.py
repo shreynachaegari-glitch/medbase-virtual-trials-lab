@@ -441,7 +441,7 @@ def _plan(question: str, ledger: _Ledger) -> str:
         size = result["smallest_size_reaching_80pct"]
         points = ", ".join(f"{c['n_per_arm']} per arm: {round(c['power'] * 100)}%" for c in result["curve"])
         lead = _interpreted(args) + f"Simulated power for {result['arm']} against placebo. {points}."
-        return lead + (f" 80% power is first reached at {size} per arm." if size else " 80% power was not reached in this range.") + " " + _validation_line(result["validation"]) + " " + _caveats(result)
+        return lead + (f" 80% power is first reached at {size} per arm." if size else " 80% power was not reached in this range.") + _LIMITS_MARK + _validation_line(result["validation"]) + " " + _caveats(result)
     if re.search(r"respond|benefit most|who (benefits|gains)|subgroup", text):
         args["arms"] = args["arms"][:1]
         result = ledger.run("who_responds", args)
@@ -449,7 +449,7 @@ def _plan(question: str, ledger: _Ledger) -> str:
             return result["error"]
         best, worst = result["subgroups"][0], result["subgroups"][-1]
         return (_interpreted(args) + f"In the model, {result['arm']} changes HbA1c by {result['mean_individual_effect']} points on average. "
-                f"Largest simulated effect ({best['mean_effect']}): {best['rule']}. Smallest ({worst['mean_effect']}): {worst['rule']}. {result['notice']} " + _validation_line(result["validation"]) + " " + _caveats(result))
+                f"Largest simulated effect ({best['mean_effect']}): {best['rule']}. Smallest ({worst['mean_effect']}): {worst['rule']}." + _LIMITS_MARK + f"{result['notice']} " + _validation_line(result["validation"]) + " " + _caveats(result))
     result = ledger.run("run_virtual_trial", args)
     if "error" in result:
         return result["error"]
@@ -457,8 +457,8 @@ def _plan(question: str, ledger: _Ledger) -> str:
     for arm, contrast in result["contrasts"].items():
         a1c = contrast["hba1c"]
         parts.append(f"{arm}: HbA1c {a1c['effect']} points against placebo (95% interval {a1c['interval95'][0]} to {a1c['interval95'][1]}), weight {contrast['weight']['effect']} kg")
-    return (_interpreted(args) + f"Simulated {result['weeks']}-week trial with {result['n_per_arm']} patients per arm. " + "; ".join(parts) + ". "
-            + _validation_line(result["validation"]) + " " + _caveats(result) + " " + result["notice"])
+    return (_interpreted(args) + f"Simulated {result['weeks']}-week trial with {result['n_per_arm']} patients per arm. " + "; ".join(parts) + "."
+            + _LIMITS_MARK + _validation_line(result["validation"]) + " " + _caveats(result) + " " + result["notice"])
 
 
 _EXAMPLES = ("Try: 'Compare semaglutide 1 mg and empagliflozin 25 mg over 30 weeks', 'Design a study of empagliflozin for a 0.5 point effect', "
@@ -798,11 +798,28 @@ def _trial_suggestion(drug: str) -> str:
     return f"Simulate {drug} {_fmt_mg(_DRUG_DEFAULT_MG[drug])} against placebo for 26 weeks"
 
 
-def suggestions(question: str, source: str) -> list[str]:
-    """Up to three next questions, each one the copilot can really do. Emergencies get none, so nothing distracts from getting help."""
+_DRUG_CLASSES = (
+    (re.compile(r"\bsglt[\s-]?2\b|\bgliflozins?\b", re.I), "empagliflozin"),
+    (re.compile(r"\bglp[\s-]?1\b|\bincretins?\b", re.I), "semaglutide"),
+    (re.compile(r"\bdpp[\s-]?4\b|\bgliptins?\b", re.I), "sitagliptin"),
+    (re.compile(r"\bbiguanides?\b", re.I), "metformin"),
+)
+
+
+def _drugs_in(text: str) -> list[str]:
+    """The lab's drugs a text names, by name, brand or class."""
+    named = reference.named_drugs(text)
+    return named or list(dict.fromkeys(drug for pattern, drug in _DRUG_CLASSES if pattern.search(text)))
+
+
+def suggestions(question: str, source: str, context: str = "") -> list[str]:
+    """Up to three next questions, each one the copilot can really do. Emergencies get none, so nothing distracts from getting help.
+
+    A follow-up such as "why does that work?" names no drug, so the previous question supplies it. Safety replies never do.
+    """
     if source in {"emergency", "language"}:
         return []
-    drugs = reference.named_drugs(question)
+    drugs = _drugs_in(question) or (_drugs_in(context) if source not in {"refusal", "scope", "unsupported"} else [])
     if len(drugs) >= 2:
         options = [f"Compare {drugs[0]} {_fmt_mg(_DRUG_DEFAULT_MG[drugs[0]])} and {drugs[1]} {_fmt_mg(_DRUG_DEFAULT_MG[drugs[1]])} over 30 weeks", f"What is {drugs[0]}?", f"What is {drugs[1]}?"]
     elif drugs and source not in {"refusal", "scope"}:
@@ -841,6 +858,7 @@ class BrowserSession:
         self.wants_vector = wants_vector  # only the browser has a route to an embedding service
         self.assistant_mode = assistant_mode  # the public page talks conversationally; other callers keep the notes-only route
         self.history = _clean_history(history)
+        self.previous = last  # names the drug for suggestions when a follow-up does not
         self.in_conversation = False
         self.about_the_lab = False
         self.vector = None
@@ -953,8 +971,9 @@ class BrowserSession:
 
     def _dict(self, reply: Reply) -> dict:
         retrieval = self._retrieval()
+        context = self.history[-1][0] if self.history else (self.previous or "")
         return _reply_dict(replace(reply, kind=self.kind, passages=self.passages, interpreted_as=self.interpreted_as, question=self.question,
-                                   retrieval=retrieval, query_ms=self.query_ms, sent_to_provider=reply.sent_to_provider or self.embedded))
+                                   retrieval=retrieval, query_ms=self.query_ms, sent_to_provider=reply.sent_to_provider or self.embedded), context)
 
     def _retrieval(self) -> str:
         if self.store_scores is not None:
@@ -1031,14 +1050,35 @@ def _with_urgent_line(reply: Reply) -> Reply:
     return replace(reply, text=reply.text + "\n\n" + guard.URGENT_LINE.strip())
 
 
-def _reply_dict(reply: Reply) -> dict:
+_LIMITS_MARK = "\n\nThese are simulated results. "
+_MODEL_SOURCES = {"claude", "nim", "assistant"}
+_DOUBLE_NEGATIVE = re.compile(r"\b((?:reduc|lower|decreas|drop|cut|fell|fall|declin)\w*\b[^.;:()\n]{0,40}?\bby\s+)[-\u2010\u2011\u2012\u2013\u2212](?=\d)", re.I)
+
+
+def tidy_signs(text: str) -> str:
+    """'reduced HbA1c by -0.68' says the change twice. The figure is unchanged; only the extra minus goes."""
+    return _DOUBLE_NEGATIVE.sub(r"\1", text)
+
+
+def split_limits(text: str) -> str | None:
+    """The caveats code appended to an efficacy reply, so the page can set them apart. The text itself keeps them."""
+    at = text.find(_LIMITS_MARK)
+    if at < 0:
+        return None
+    limits = text[at + 2:].replace(guard.URGENT_LINE.strip(), "").strip()
+    return limits or None
+
+
+def _reply_dict(reply: Reply, context: str = "") -> dict:
     reply = _with_urgent_line(reply)
-    return {"text": reply.text, "source": reply.source, "tool_calls": [{"tool": c["tool"], "ok": c["ok"]} for c in reply.tool_calls],
+    if reply.source in _MODEL_SOURCES:
+        reply = replace(reply, text=tidy_signs(reply.text))
+    return {"text": reply.text, "source": reply.source, "limits": split_limits(reply.text), "tool_calls": [{"tool": c["tool"], "ok": c["ok"]} for c in reply.tool_calls],
             "guard_note": reply.guard_note, "sent_to_provider": reply.sent_to_provider, "interpreted_as": reply.interpreted_as,
             "sources": [{"title": p["title"], "score": p["score"]} for p in reply.passages] if reply.source in {"nim", "claude", "reference", "assistant"} else [],
             "retrieval": (reply.retrieval or None) if reply.passages else None,
             "query_ms": round(reply.query_ms, 2) if reply.passages and isinstance(reply.query_ms, (int, float)) else None,
-            "trace": trace_of(reply), "suggestions": suggestions(reply.question, reply.source),
+            "trace": trace_of(reply), "suggestions": suggestions(reply.question, reply.source, context),
             "cards": cards.from_calls(reply.tool_calls) if reply.source in _SHOWS_CARDS else []}
 
 

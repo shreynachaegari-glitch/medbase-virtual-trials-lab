@@ -107,6 +107,7 @@ test("the assistant refuses, escalates, and answers from tools", async ({ page }
     await panel.getByLabel("Your question for the Lab Assistant").fill("I took too many pills and my chest hurts");
     await panel.getByRole("button", { name: "Send question" }).click();
     await expect(page.getByTestId("assistant-emergency")).toContainText("emergency services");
+    await panel.getByText("More questions to try").click(); // four starters show; the rest are folded
     await panel.getByRole("button", { name: "What side effects were reported for semaglutide?" }).click();
     await expect(page.getByTestId("assistant-tools").first()).toContainText("Read reported side effects");
 });

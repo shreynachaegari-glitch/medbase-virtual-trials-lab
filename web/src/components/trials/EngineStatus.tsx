@@ -1,4 +1,5 @@
-import { Cpu, Download, Radio, Archive, WifiOff, RefreshCw } from "lucide-react";
+import type { ReactNode } from "react";
+import { Archive, Check, Cpu, Download, Radio, RefreshCw, WifiOff } from "lucide-react";
 import { useElapsed } from "@/hooks/useSimRun";
 import { useTransport } from "@/hooks/useTransport";
 import { redetect, startEngine, type EngineState, type Mode } from "@/lib/trials/transport";
@@ -32,25 +33,30 @@ export const ModeBadge = () => {
 
 const megabytes = (bytes: number) => `${(bytes / 1_000_000).toFixed(1)} MB`;
 
+/**
+ * Loading and ready share one fixed-height line, so nothing below it moves when the download finishes.
+ * The bar under it sweeps while loading and fills when ready.
+ */
+const StatusLine = ({ testId, icon, text, meta, loading }: { testId: string; icon: ReactNode; text: ReactNode; meta: ReactNode; loading: boolean }) => (
+    <div data-testid={testId} className="relative flex h-9 items-center gap-2 overflow-hidden rounded-md border border-border bg-card/40 px-3 text-xs">
+        <span className="shrink-0 text-muted-foreground">{icon}</span>
+        <p role="status" className="min-w-0 flex-1 truncate">{text}</p>
+        <p className="tnum shrink-0 text-muted-foreground" aria-hidden="true">{meta}</p>
+        {loading ? <div className="sweep absolute inset-x-0 bottom-0" aria-hidden="true" /> : <div className="absolute inset-x-0 bottom-0 h-px bg-[hsl(var(--pass))]/50" aria-hidden="true" />}
+    </div>
+);
+
 const Loading = ({ engine }: { engine: EngineState }) => {
     const seconds = useElapsed(engine.startedAt);
+    const step = engine.totalSteps > 0 ? `step ${engine.step} of ${engine.totalSteps}` : engine.label.toLowerCase();
     return (
-        <div data-testid="engine-progress" className="rounded-md border border-border bg-card/40 px-3 py-2">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-                <p role="status" className="flex items-center gap-2 text-xs">
-                    <Download className="h-3 w-3 shrink-0" aria-hidden="true" />
-                    <span>
-                        Simulator warming up in the background{engine.totalSteps > 0 ? `, step ${engine.step} of ${engine.totalSteps}: ` : ": "}
-                        {engine.label.toLowerCase()}
-                    </span>
-                </p>
-                <p className="tnum text-xs text-muted-foreground" aria-hidden="true">{megabytes(engine.bytes)} · {seconds} s</p>
-            </div>
-            <div className="sweep mt-1.5" aria-hidden="true" />
-            <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
-                No need to wait. Ask a question or start a run now and it goes as soon as this is ready. A first visit downloads about 40 MB.
-            </p>
-        </div>
+        <StatusLine
+            testId="engine-progress"
+            loading
+            icon={<Download className="h-3.5 w-3.5" aria-hidden="true" />}
+            text={<>Simulator loading, {step}<span className="hidden sm:inline">. Ask now: it runs as soon as this is ready</span></>}
+            meta={<>{megabytes(engine.bytes)} · {seconds} s</>}
+        />
     );
 };
 
@@ -81,6 +87,8 @@ export const EngineBanner = () => {
             </div>
         );
     }
+    // While the page works out where the simulator runs, hold the status line's space so nothing jumps when it appears.
+    if (mode === "checking") return <div aria-hidden="true" className="h-9" />;
     if (mode !== "browser") return null;
     if (engine.phase === "loading") return <Loading engine={engine} />;
     if (engine.phase === "idle") {
@@ -92,21 +100,21 @@ export const EngineBanner = () => {
         );
     }
     return (
-        <p data-testid="engine-ready" className="tnum text-xs text-muted-foreground">
-            Simulator ready on this device: {megabytes(engine.bytes)} loaded in {engine.loadSeconds === null ? "?" : engine.loadSeconds.toFixed(0)} s. Your runs stay in this browser.
-        </p>
+        <StatusLine
+            testId="engine-ready"
+            loading={false}
+            icon={<Check className="h-3.5 w-3.5 text-[hsl(var(--pass))]" aria-hidden="true" />}
+            text={<>Simulator ready on this device<span className="hidden sm:inline">. Your runs stay in this browser</span></>}
+            meta={<>{megabytes(engine.bytes)} in {engine.loadSeconds === null ? "?" : engine.loadSeconds.toFixed(0)} s</>}
+        />
     );
 };
 
-/** The hero scrolls away, so the download also stays in view from anywhere on the page. */
+/** The hero scrolls away, so a thin bar under the header keeps the download in view without covering anything. */
 export const EnginePill = () => {
     const { mode, engine } = useTransport();
     if (mode !== "browser" || engine.phase !== "loading") return null;
-    return (
-        <div aria-hidden="true" data-testid="engine-pill" className="tnum pointer-events-none fixed bottom-4 left-4 z-40 max-w-[calc(100vw-6rem)] truncate rounded-full border border-border bg-card/95 px-3 py-1.5 text-xs text-muted-foreground shadow-lg backdrop-blur">
-            Loading simulator{engine.totalSteps > 0 ? `, step ${engine.step} of ${engine.totalSteps}` : ""} · {megabytes(engine.bytes)}
-        </div>
-    );
+    return <div aria-hidden="true" data-testid="engine-pill" className="sweep pointer-events-none fixed inset-x-0 top-14 z-40" />;
 };
 
 /** Beside anything waiting on the worker, so a wait is explained rather than silent. */

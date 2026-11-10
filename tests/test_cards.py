@@ -65,3 +65,41 @@ def test_reply_dict_sends_cards_but_never_raw_args_or_results():
 def test_refusals_and_emergencies_never_show_cards():
     for source in ("refusal", "emergency", "scope", "language", "unsupported"):
         assert assistant.reply_dict(assistant.Reply("No.", source, [call("run_virtual_trial", TRIAL)]))["cards"] == []
+
+
+# --- Reply polish: caveats as their own block, smarter next questions, no double negatives. ---
+
+def test_limits_are_split_out_but_the_text_keeps_them():
+    text = "Semaglutide lowered HbA1c most.\n\nThese are simulated results. Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED."
+    data = assistant.reply_dict(assistant.Reply(text, "nim", [call("run_virtual_trial", TRIAL)], question="simulate semaglutide 1 mg"))
+    assert data["limits"] == "These are simulated results. Validation on 20 held-out real results: mean HbA1c error 0.29 points. Accuracy check FAILED."
+    assert data["text"].startswith(text) and "FAILED" in data["text"]
+    assert "112" not in data["limits"]
+
+
+def test_no_limits_without_the_marker():
+    assert assistant.reply_dict(assistant.Reply("Hello.", "assistant", question="hi"))["limits"] is None
+
+
+def test_drug_class_questions_suggest_that_class_drug():
+    assert assistant.suggestions("What is an SGLT2 inhibitor?", "assistant")[0] == "Simulate empagliflozin 25 mg against placebo for 26 weeks"
+    assert assistant.suggestions("How do GLP-1 agonists work?", "assistant")[0] == "Simulate semaglutide 1 mg against placebo for 26 weeks"
+    assert assistant.suggestions("what does a DPP-4 inhibitor do", "nim")[0] == "Simulate sitagliptin 100 mg against placebo for 26 weeks"
+
+
+def test_follow_ups_take_the_drug_from_the_conversation():
+    assert assistant.suggestions("why does that lower blood sugar?", "assistant", context="What is an SGLT2 inhibitor?")[0].startswith("Simulate empagliflozin")
+    # The question itself wins over the conversation, and safety replies never pick up a drug from it.
+    assert assistant.suggestions("What is semaglutide?", "assistant", context="What is an SGLT2 inhibitor?")[0].startswith("Simulate semaglutide")
+    assert "Simulate" not in " ".join(assistant.suggestions("Should I stop it?", "refusal", context="What is metformin?"))
+
+
+def test_model_double_negatives_are_tidied_without_touching_the_number():
+    fix = assistant.tidy_signs
+    assert fix("Sitagliptin 100 mg reduced HbA1c by ‑0.68 percentage points") == "Sitagliptin 100 mg reduced HbA1c by 0.68 percentage points"
+    assert fix("lowered weight by -2.4 kg and cut glucose by −20 mg/dL") == "lowered weight by 2.4 kg and cut glucose by 20 mg/dL"
+    assert fix("HbA1c changed by -0.68 points (95% interval -0.82 to -0.56)") == "HbA1c changed by -0.68 points (95% interval -0.82 to -0.56)"
+    data = assistant.reply_dict(assistant.Reply("It reduced HbA1c by -0.68 points.", "nim", [call("run_virtual_trial", TRIAL)]))
+    assert "by 0.68" in data["text"]
+    # Code-written text is left exactly as code wrote it.
+    assert "by -0.68" in assistant.reply_dict(assistant.Reply("It reduced HbA1c by -0.68 points.", "verified"))["text"]
